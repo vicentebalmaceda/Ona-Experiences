@@ -1,0 +1,759 @@
+export const lodges = [
+  {
+    "name": "Bio Bio Lodge",
+    "zone": "Longquimay",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -38.438,
+    "lng": -71.235,
+    "image": "assets/lodges/bio-bio-lodge-1.jpg",
+    "gallery": [
+      "assets/lodges/bio-bio-lodge-1.jpg",
+      "assets/lodges/bio-bio-lodge-2.jpg",
+      "assets/lodges/bio-bio-lodge-3.jpg",
+      "assets/lodges/bio-bio-lodge-4.jpg"
+    ],
+    "rating": 4.6,
+    "reviews": 18,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Matapiojo Lodge",
+    "zone": "Futaleufú",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -43.186,
+    "lng": -71.867,
+    "image": "assets/lodges/matapiojo-lodge-1.jpg",
+    "gallery": [
+      "assets/lodges/matapiojo-lodge-1.jpg",
+      "assets/lodges/matapiojo-lodge-2.jpeg",
+      "assets/lodges/matapiojo-lodge-3.jpeg",
+      "assets/lodges/matapiojo-lodge-4.jpg",
+      "assets/lodges/matapiojo-lodge-5.jpg"
+    ],
+    "rating": 4.7,
+    "reviews": 25,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Las Ardillas Lodge",
+    "zone": "Cerro Castillo",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -46.126,
+    "lng": -72.196,
+    "image": "assets/lodges/las-ardillas-lodge-1.jpg",
+    "gallery": [
+      "assets/lodges/las-ardillas-lodge-1.jpg",
+      "assets/lodges/las-ardillas-lodge-2.jpg",
+      "assets/lodges/las-ardillas-lodge-3.jpg",
+      "assets/lodges/las-ardillas-lodge-4.jpg"
+    ],
+    "rating": 4.7,
+    "reviews": 32,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Green Backer Lodge",
+    "zone": "Puerto Bertrand / Cochrane",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -47.016,
+    "lng": -72.82,
+    "image": "assets/lodges/green-backer-lodge-1.jpg",
+    "gallery": [
+      "assets/lodges/green-backer-lodge-1.jpg",
+      "assets/lodges/green-backer-lodge-2.jpg",
+      "assets/lodges/green-backer-lodge-3.jpeg",
+      "assets/lodges/green-backer-lodge-4.jpg",
+      "assets/lodges/green-backer-lodge-5.jpg"
+    ],
+    "rating": 4.8,
+    "reviews": 39,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Mañihuales Eco Lodge",
+    "zone": "Mañihuales",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -45.173,
+    "lng": -72.148,
+    "image": "assets/lodges/manihuales-eco-lodge-1.jpg",
+    "gallery": [
+      "assets/lodges/manihuales-eco-lodge-1.jpg",
+      "assets/lodges/manihuales-eco-lodge-2.jpg",
+      "assets/lodges/manihuales-eco-lodge-3.jpg",
+      "assets/lodges/manihuales-eco-lodge-4.jpg",
+      "assets/lodges/manihuales-eco-lodge-5.jpg"
+    ],
+    "rating": 4.9,
+    "reviews": 46,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Cameron Lodge",
+    "zone": "Tierra del Fuego",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -53.759,
+    "lng": -69.496,
+    "image": "assets/lodges/cameron-lodge-1.jpg",
+    "gallery": [
+      "assets/lodges/cameron-lodge-1.jpg",
+      "assets/lodges/cameron-lodge-2.jpg",
+      "assets/lodges/cameron-lodge-3.jpg",
+      "assets/lodges/cameron-lodge-4.jpg",
+      "assets/lodges/cameron-lodge-5.jpg"
+    ],
+    "rating": 4.6,
+    "reviews": 53,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Puelo Lodge",
+    "zone": "Puelo",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -42.084,
+    "lng": -72.298,
+    "image": "https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.7,
+    "reviews": 60,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "El Remanso Lodge",
+    "zone": "Puelo",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -42.101,
+    "lng": -72.322,
+    "image": "assets/lodges/el-remanso-lodge-1.jpg",
+    "gallery": [
+      "assets/lodges/el-remanso-lodge-1.jpg",
+      "assets/lodges/el-remanso-lodge-2.jpg",
+      "assets/lodges/el-remanso-lodge-3.jpg",
+      "assets/lodges/el-remanso-lodge-4.jpg",
+      "assets/lodges/el-remanso-lodge-5.jpg"
+    ],
+    "rating": 4.7,
+    "reviews": 67,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Lodge Monte Rio Spa",
+    "zone": "Puerto Aysén",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -45.403,
+    "lng": -72.692,
+    "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.8,
+    "reviews": 74,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Magallanes Fly Fishing",
+    "zone": "Magallanes",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -53.163,
+    "lng": -70.917,
+    "image": "assets/lodges/magallanes-fly-fishing-1.jpg",
+    "gallery": [
+      "assets/lodges/magallanes-fly-fishing-1.jpg",
+      "assets/lodges/magallanes-fly-fishing-2.jpeg",
+      "assets/lodges/magallanes-fly-fishing-3.jpeg",
+      "assets/lodges/magallanes-fly-fishing-4.jpeg",
+      "assets/lodges/magallanes-fly-fishing-5.jpg"
+    ],
+    "rating": 4.9,
+    "reviews": 81,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Baker Domo Lodge",
+    "zone": "Cochrane",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -47.254,
+    "lng": -72.57,
+    "image": "assets/lodges/baker-domo-lodge-1.jpg",
+    "gallery": [
+      "assets/lodges/baker-domo-lodge-1.jpg",
+      "assets/lodges/baker-domo-lodge-2.jpg",
+      "assets/lodges/baker-domo-lodge-3.jpeg",
+      "assets/lodges/baker-domo-lodge-4.jpg",
+      "assets/lodges/baker-domo-lodge-5.jpg"
+    ],
+    "rating": 4.6,
+    "reviews": 88,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "El Pangue Lodge",
+    "zone": "Coyhaique / Aysén",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -45.575,
+    "lng": -72.066,
+    "image": "assets/lodges/el-pangue-lodge-1.jpg",
+    "gallery": [
+      "assets/lodges/el-pangue-lodge-1.jpg",
+      "assets/lodges/el-pangue-lodge-2.jpg",
+      "assets/lodges/el-pangue-lodge-3.jpg",
+      "assets/lodges/el-pangue-lodge-4.jpg",
+      "assets/lodges/el-pangue-lodge-5.jpg"
+    ],
+    "rating": 4.7,
+    "reviews": 21,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Mítico Puelo Lodge",
+    "zone": "Lago Tagua Tagua / Cochamó",
+    "phone": "569",
+    "email": "r ail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -41.874,
+    "lng": -72.266,
+    "image": "assets/lodges/mitico-puelo-lodge-1.jpg",
+    "gallery": [
+      "assets/lodges/mitico-puelo-lodge-1.jpg",
+      "assets/lodges/mitico-puelo-lodge-2.jpg",
+      "assets/lodges/mitico-puelo-lodge-3.jpg",
+      "assets/lodges/mitico-puelo-lodge-4.jpg",
+      "assets/lodges/mitico-puelo-lodge-5.jpg"
+    ],
+    "rating": 4.7,
+    "reviews": 28,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Hotel Yelcho en la Patagonia",
+    "zone": "Lago Yelcho",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -43.124,
+    "lng": -72.172,
+    "image": "assets/lodges/hotel-yelcho-en-la-patagonia-1.jpg",
+    "gallery": [
+      "assets/lodges/hotel-yelcho-en-la-patagonia-1.jpg",
+      "assets/lodges/hotel-yelcho-en-la-patagonia-2.jpg",
+      "assets/lodges/hotel-yelcho-en-la-patagonia-3.jpg",
+      "assets/lodges/hotel-yelcho-en-la-patagonia-4.jpg",
+      "assets/lodges/hotel-yelcho-en-la-patagonia-5.jpg"
+    ],
+    "rating": 4.8,
+    "reviews": 35,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Cinco Ríos Lodge Coyhaique",
+    "zone": "Coyhaique",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -45.575,
+    "lng": -72.066,
+    "image": "https://images.unsplash.com/photo-1482192505345-5655af888cc4?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1482192505345-5655af888cc4?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.9,
+    "reviews": 42,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Hotel El Barranco Lodge Futaleufú",
+    "zone": "Futaleufú",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -43.185,
+    "lng": -71.865,
+    "image": "assets/lodges/hotel-el-barranco-lodge-futaleufu-1.jpg",
+    "gallery": [
+      "assets/lodges/hotel-el-barranco-lodge-futaleufu-1.jpg",
+      "assets/lodges/hotel-el-barranco-lodge-futaleufu-2.jpg",
+      "assets/lodges/hotel-el-barranco-lodge-futaleufu-3.avif",
+      "assets/lodges/hotel-el-barranco-lodge-futaleufu-4.avif"
+    ],
+    "rating": 4.6,
+    "reviews": 49,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Hotel Espacio y Tiempo La Junta",
+    "zone": "La Junta",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -43.974,
+    "lng": -72.406,
+    "image": "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.7,
+    "reviews": 56,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Salmo Patagonia Lodge Coyhaique",
+    "zone": "Coyhaique",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -45.578,
+    "lng": -72.065,
+    "image": "assets/lodges/salmo-patagonia-lodge-coyhaique-1.jpg",
+    "gallery": [
+      "assets/lodges/salmo-patagonia-lodge-coyhaique-1.jpg",
+      "assets/lodges/salmo-patagonia-lodge-coyhaique-2.jpg",
+      "assets/lodges/salmo-patagonia-lodge-coyhaique-3.jpg",
+      "assets/lodges/salmo-patagonia-lodge-coyhaique-4.jpg",
+      "assets/lodges/salmo-patagonia-lodge-coyhaique-5.jpg"
+    ],
+    "rating": 4.7,
+    "reviews": 63,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Coyhaique River Lodge Coyhaique",
+    "zone": "Coyhaique",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -45.573,
+    "lng": -72.072,
+    "image": "assets/lodges/coyhaique-river-lodge-coyhaique-1.jpg",
+    "gallery": [
+      "assets/lodges/coyhaique-river-lodge-coyhaique-1.jpg",
+      "assets/lodges/coyhaique-river-lodge-coyhaique-2.jpg",
+      "assets/lodges/coyhaique-river-lodge-coyhaique-3.jpg",
+      "assets/lodges/coyhaique-river-lodge-coyhaique-4.jpg",
+      "assets/lodges/coyhaique-river-lodge-coyhaique-5.jpg"
+    ],
+    "rating": 4.8,
+    "reviews": 70,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Mallin Colorado Ecolode",
+    "zone": "Lago General Carrera",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -46.539,
+    "lng": -72.996,
+    "image": "assets/lodges/mallin-colorado-ecolode-1.jpg",
+    "gallery": [
+      "assets/lodges/mallin-colorado-ecolode-1.jpg",
+      "assets/lodges/mallin-colorado-ecolode-2.jpg",
+      "assets/lodges/mallin-colorado-ecolode-3.jpg",
+      "assets/lodges/mallin-colorado-ecolode-4.jpg"
+    ],
+    "rating": 4.9,
+    "reviews": 77,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Hotel Hacienda Tres Lagos",
+    "zone": "Lago General Carrera",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -46.608,
+    "lng": -72.799,
+    "image": "https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.6,
+    "reviews": 84,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Terra Luna Lodge",
+    "zone": "Lago General Carrera",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -46.592,
+    "lng": -72.716,
+    "image": "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.7,
+    "reviews": 91,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Mincho's Lodge",
+    "zone": "Coyhaique",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -45.579,
+    "lng": -72.063,
+    "image": "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.7,
+    "reviews": 24,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Isla Monita Flyfishing Lodge",
+    "zone": "Lago Yelcho",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -43.128,
+    "lng": -72.16,
+    "image": "assets/lodges/isla-monita-flyfishing-lodge-1.jpg",
+    "gallery": [
+      "assets/lodges/isla-monita-flyfishing-lodge-1.jpg",
+      "assets/lodges/isla-monita-flyfishing-lodge-2.jpg",
+      "assets/lodges/isla-monita-flyfishing-lodge-3.webp"
+    ],
+    "rating": 4.8,
+    "reviews": 31,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Cabañas El Mirador de Playa Guadal",
+    "zone": "Lago General Carrera",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -46.811,
+    "lng": -72.711,
+    "image": "https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.9,
+    "reviews": 38,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "La Cabaña Lodge",
+    "zone": "Lago Yelcho / Ruta CH-235",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -43.11,
+    "lng": -72.12,
+    "image": "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.6,
+    "reviews": 45,
+    "ratingLabel": "Excelente experiencia"
+  },
+  {
+    "name": "Tolten Lodge",
+    "zone": "Toltén",
+    "phone": "569",
+    "email": "mail@gmail.com",
+    "representative": "Sebastián Concha",
+    "lat": -39.216,
+    "lng": -73.216,
+    "image": "assets/lodges/tolten-lodge-1.jpg",
+    "gallery": [
+      "assets/lodges/tolten-lodge-1.jpg",
+      "assets/lodges/tolten-lodge-2.jpg",
+      "assets/lodges/tolten-lodge-3.jpg",
+      "assets/lodges/tolten-lodge-4.jpg"
+    ],
+    "rating": 4.7,
+    "reviews": 52,
+    "ratingLabel": "Excelente experiencia"
+  }
+];
+
+export const guides = [
+  {
+    "name": "Francisco Mozó R",
+    "zone": "Zona Central",
+    "phone": "56 9",
+    "email": "email@gmail.com",
+    "lat": -33.4489,
+    "lng": -70.6693,
+    "image": "assets/guides/francisco-mozo-r-1.jpg",
+    "gallery": [
+      "assets/guides/francisco-mozo-r-1.jpg"
+    ],
+    "rating": 4.7,
+    "reviews": 12,
+    "ratingLabel": "Guía recomendado"
+  },
+  {
+    "name": "Alfredo Garcia",
+    "zone": "Pucón",
+    "phone": "56 9",
+    "email": "email@gmail.com",
+    "lat": -39.2797,
+    "lng": -71.977,
+    "image": "assets/guides/alfredo-garcia-1.jpg",
+    "gallery": [
+      "assets/guides/alfredo-garcia-1.jpg",
+      "assets/guides/alfredo-garcia-2.jpg"
+    ],
+    "rating": 4.8,
+    "reviews": 17,
+    "ratingLabel": "Guía recomendado"
+  },
+  {
+    "name": "Luciano Hinostroza",
+    "zone": "Coyhaique",
+    "phone": "56 9",
+    "email": "email@gmail.com",
+    "lat": -45.575,
+    "lng": -72.066,
+    "image": "assets/guides/luciano-hinostroza-1.jpeg",
+    "gallery": [
+      "assets/guides/luciano-hinostroza-1.jpeg",
+      "assets/guides/luciano-hinostroza-2.png"
+    ],
+    "rating": 4.8,
+    "reviews": 22,
+    "ratingLabel": "Guía recomendado"
+  },
+  {
+    "name": "Feña Cassanello",
+    "zone": "Puerto Natales",
+    "phone": "56 9",
+    "email": "email@gmail.com",
+    "lat": -51.726,
+    "lng": -72.506,
+    "image": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.9,
+    "reviews": 27,
+    "ratingLabel": "Guía recomendado"
+  },
+  {
+    "name": "Roberto Cachete Salas",
+    "zone": "Puerto Natales",
+    "phone": "56 9",
+    "email": "email@gmail.com",
+    "lat": -51.724,
+    "lng": -72.515,
+    "image": "https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.7,
+    "reviews": 32,
+    "ratingLabel": "Guía recomendado"
+  },
+  {
+    "name": "Jose Tomas Achondo",
+    "zone": "Puerto Varas",
+    "phone": "56 9",
+    "email": "email@gmail.com",
+    "lat": -41.318,
+    "lng": -72.985,
+    "image": "https://images.unsplash.com/photo-1507591064344-4c6ce005b128?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1507591064344-4c6ce005b128?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.8,
+    "reviews": 37,
+    "ratingLabel": "Guía recomendado"
+  },
+  {
+    "name": "Gonzalo Bruna",
+    "zone": "Puerto Natales",
+    "phone": "56 9",
+    "email": "email@gmail.com",
+    "lat": -51.731,
+    "lng": -72.5,
+    "image": "https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.8,
+    "reviews": 42,
+    "ratingLabel": "Guía recomendado"
+  },
+  {
+    "name": "Mauricio Guía del Bio Bio, Ex Mañihuales",
+    "zone": "Bio Bio",
+    "phone": "56 9",
+    "email": "email@gmail.com",
+    "lat": -37.47,
+    "lng": -72.35,
+    "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.9,
+    "reviews": 47,
+    "ratingLabel": "Guía recomendado"
+  },
+  {
+    "name": "Camila Benoit Guía de Excursiones y Pájaros Aysen",
+    "zone": "Aysén",
+    "phone": "56 9",
+    "email": "email@gmail.com",
+    "lat": -45.401,
+    "lng": -72.698,
+    "image": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.7,
+    "reviews": 52,
+    "ratingLabel": "Guía recomendado"
+  },
+  {
+    "name": "Felipe Ross",
+    "zone": "Puerto Natales",
+    "phone": "56 9",
+    "email": "email@gmail.com",
+    "lat": -51.729,
+    "lng": -72.509,
+    "image": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.8,
+    "reviews": 57,
+    "ratingLabel": "Guía recomendado"
+  },
+  {
+    "name": "Ronald Moldenhavr",
+    "zone": "Coyhaique",
+    "phone": "56 9",
+    "email": "email@gmail.com",
+    "lat": -45.577,
+    "lng": -72.071,
+    "image": "assets/guides/ronald-moldenhavr-1.jpg",
+    "gallery": [
+      "assets/guides/ronald-moldenhavr-1.jpg"
+    ],
+    "rating": 4.8,
+    "reviews": 14,
+    "ratingLabel": "Guía recomendado"
+  },
+  {
+    "name": "Marcos Quiroz Gray",
+    "zone": "Puerto Varas",
+    "phone": "56 9",
+    "email": "email@gmail.com",
+    "lat": -41.321,
+    "lng": -72.98,
+    "image": "assets/guides/marcos-quiroz-gray-1.jpg",
+    "gallery": [
+      "assets/guides/marcos-quiroz-gray-1.jpg"
+    ],
+    "rating": 4.9,
+    "reviews": 19,
+    "ratingLabel": "Guía recomendado"
+  },
+  {
+    "name": "Nestor Bertrand",
+    "zone": "Futaleufú",
+    "phone": "56 9",
+    "email": "email@gmail.com",
+    "lat": -43.186,
+    "lng": -71.87,
+    "image": "https://images.unsplash.com/photo-1507591064344-4c6ce005b128?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1507591064344-4c6ce005b128?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.7,
+    "reviews": 24,
+    "ratingLabel": "Guía recomendado"
+  },
+  {
+    "name": "Alex Prior",
+    "zone": "Coyhaique",
+    "phone": "56 9",
+    "email": "email@gmail.com",
+    "lat": -45.574,
+    "lng": -72.06,
+    "image": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.8,
+    "reviews": 29,
+    "ratingLabel": "Guía recomendado"
+  },
+  {
+    "name": "Cristian Effa Miranda",
+    "zone": "Coyhaique",
+    "phone": "56 9",
+    "email": "email@gmail.com",
+    "lat": -45.571,
+    "lng": -72.069,
+    "image": "https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.8,
+    "reviews": 34,
+    "ratingLabel": "Guía recomendado"
+  },
+  {
+    "name": "Hector “Chele” Tagle",
+    "zone": "Tierra del Fuego",
+    "phone": "56 9",
+    "email": "email@gmail.com",
+    "lat": -53.745,
+    "lng": -69.509,
+    "image": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.9,
+    "reviews": 39,
+    "ratingLabel": "Guía recomendado"
+  },
+  {
+    "name": "Daniel Silva",
+    "zone": "Coyhaique",
+    "phone": "56 9",
+    "email": "email@gmail.com",
+    "lat": -45.58,
+    "lng": -72.067,
+    "image": "https://images.unsplash.com/photo-1507591064344-4c6ce005b128?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1507591064344-4c6ce005b128?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "rating": 4.7,
+    "reviews": 44,
+    "ratingLabel": "Guía recomendado"
+  }
+];
