@@ -1,5 +1,6 @@
 export const lodges = [
   {
+    "productId": 65561,
     "name": "Bio Bio Lodge",
     "zone": "Longquimay",
     "phone": "569",
@@ -500,6 +501,7 @@ export const lodges = [
 
 export const guides = [
   {
+    "productId": 65562,
     "name": "Francisco Mozó R",
     "zone": "Zona Central",
     "phone": "56 9",

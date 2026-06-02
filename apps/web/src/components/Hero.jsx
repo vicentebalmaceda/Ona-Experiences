@@ -1,6 +1,6 @@
-import { lodges, guides } from '../data.js';
+import { guides } from '../data.js';
 
-function Hero({ zones, filters, setFilters, applyFilters, summary }) {
+function Hero({ zones, filters, setFilters, applyFilters, summary, lodgesCount, guidesCount = guides.length }) {
   return (
     <section id="inicio" className="bg-hero bg-cover bg-center pt-28 text-white">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 pb-16 pt-10 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:pb-24 lg:pt-20">
@@ -14,8 +14,8 @@ function Hero({ zones, filters, setFilters, applyFilters, summary }) {
           </div>
           <div className="mt-10 grid max-w-2xl gap-4 sm:grid-cols-3">
             <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur"><p className="text-3xl font-bold">{zones.length - 1}</p><p className="mt-1 text-sm text-slate-200">zonas activas</p></div>
-            <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur"><p className="text-3xl font-bold">{lodges.length}</p><p className="mt-1 text-sm text-slate-200">lodges</p></div>
-            <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur"><p className="text-3xl font-bold">{guides.length}</p><p className="mt-1 text-sm text-slate-200">guías</p></div>
+            <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur"><p className="text-3xl font-bold">{lodgesCount}</p><p className="mt-1 text-sm text-slate-200">lodges</p></div>
+            <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur"><p className="text-3xl font-bold">{guidesCount}</p><p className="mt-1 text-sm text-slate-200">guías</p></div>
           </div>
         </div>
 

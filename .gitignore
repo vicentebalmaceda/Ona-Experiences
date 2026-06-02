@@ -14,6 +14,8 @@ node_modules
 
 dist
 build
+apps/web/dist
+apps/api/dist
 .vite
 .vite-env
 .vite-env.local
