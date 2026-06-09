@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import GalleryStrip from './GalleryStrip.jsx';
 import RatingPanel from './RatingPanel.jsx';
 import { getRatingStats, renderStars } from '../utils/rating.js';
@@ -7,9 +8,14 @@ function DirectoryCard({ item, ratingVersion, onRate }) {
     ? '$200.000 mensual + 10% comisión desde la segunda reserva'
     : '$50.000 mensual';
   const stats = getRatingStats(item, ratingVersion);
+  const detailPath = item.productId
+    ? item.type === 'Lodge'
+      ? `/lodges/${item.productId}`
+      : `/guides/${item.productId}`
+    : null;
 
-  return (
-    <article className="card-hover overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-card">
+  const cardContent = (
+    <>
       <div className="relative h-60 overflow-hidden bg-slate-200">
         <div className="absolute inset-0 bg-cover bg-center transition duration-500 hover:scale-105" style={{ backgroundImage: `url('${item.image}')` }}></div>
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/75 to-transparent"></div>
@@ -42,7 +48,21 @@ function DirectoryCard({ item, ratingVersion, onRate }) {
           <p className="mt-2 text-base font-bold text-slate-900">{feeText}</p>
         </div>
         <RatingPanel item={item} ratingVersion={ratingVersion} onRate={onRate} />
+        {detailPath ? (
+          <Link
+            to={detailPath}
+            className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+          >
+            Ver detalle
+          </Link>
+        ) : null}
       </div>
+    </>
+  );
+
+  return (
+    <article className="card-hover overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-card">
+      {cardContent}
     </article>
   );
 }

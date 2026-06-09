@@ -4,8 +4,10 @@ import type {
   ListVariantsResult,
   ServiceType
 } from '../../domain/entities/CatalogVariant.js';
+import { DomainError } from '../../domain/errors/DomainError.js';
 import type { CatalogRepository } from '../../domain/ports/CatalogRepository.js';
 import { createLogger } from '../../shared/logger.js';
+import { BsaleApiError } from './BsaleApiError.js';
 import { BsaleHttpClient, type BsaleListResponse } from './BsaleHttpClient.js';
 import type { BsaleProductTypeResolver } from './BsaleProductTypeResolver.js';
 import type { BsaleProduct, BsaleVariant } from './types.js';
@@ -13,6 +15,23 @@ import type { BsaleProduct, BsaleVariant } from './types.js';
 const log = createLogger('catalog');
 
 const SERVICE_CLASSIFICATION = 1;
+
+function resolveProductTypeId(product: BsaleProduct): number | null {
+  const relation = product.product_type ?? product.productType;
+  if (!relation) return null;
+
+  if (relation.id != null) {
+    const parsed = Number(relation.id);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  if (relation.href) {
+    const match = relation.href.match(/\/product_types\/(\d+)\.json/);
+    if (match) return Number(match[1]);
+  }
+
+  return null;
+}
 
 export class BsaleCatalogRepository implements CatalogRepository {
   constructor(
@@ -71,6 +90,55 @@ export class BsaleCatalogRepository implements CatalogRepository {
         count: productsPage.count
       }
     };
+  }
+
+  async getVariantByProductId(productId: number, type: ServiceType): Promise<CatalogVariant> {
+    if (type !== 'lodge' && type !== 'guide') {
+      throw new DomainError('Invalid service type', 400, 'INVALID_SERVICE_TYPE');
+    }
+
+    const typeName = this.productTypeResolver.getProductTypeName(type);
+    const expectedProductTypeId = await this.productTypeResolver.resolveIdByName(typeName);
+    const notFoundCode = type === 'lodge' ? 'LODGE_NOT_FOUND' : 'GUIDE_NOT_FOUND';
+    const notFoundMessage = type === 'lodge' ? 'Lodge not found' : 'Guide not found';
+
+    log.debug('Fetching catalog variant by product id', {
+      productId,
+      type,
+      productTypeName: typeName
+    });
+
+    let product: BsaleProduct;
+    try {
+      product = await this.client.get<BsaleProduct>(`/products/${productId}.json`);
+    } catch (error) {
+      if (error instanceof BsaleApiError && error.statusCode === 404) {
+        throw new DomainError(notFoundMessage, 404, notFoundCode);
+      }
+      throw error;
+    }
+
+    const productTypeId = resolveProductTypeId(product);
+    if (productTypeId !== expectedProductTypeId) {
+      log.debug('Product type mismatch', {
+        productId,
+        productTypeId,
+        expectedProductTypeId
+      });
+      throw new DomainError(notFoundMessage, 404, notFoundCode);
+    }
+
+    if (product.classification !== SERVICE_CLASSIFICATION || product.state !== 0) {
+      throw new DomainError(notFoundMessage, 404, notFoundCode);
+    }
+
+    const variant = await this.loadProductWithVariant(product, type);
+    if (!variant) {
+      throw new DomainError(notFoundMessage, 404, notFoundCode);
+    }
+
+    log.info('Catalog variant fetched by product id', { productId, type, variantId: variant.id });
+    return variant;
   }
 
   private async loadProductWithVariant(

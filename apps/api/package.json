@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/main.ts",
-    "build": "tsc",
+    "build": "tsc && cp src/infrastructure/enrichers/catalog-seed.json dist/infrastructure/enrichers/",
     "start": "node dist/main.js"
   },
   "dependencies": {

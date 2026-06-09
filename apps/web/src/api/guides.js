@@ -1,1 +1,1 @@
-export { fetchGuides } from './catalog.js';
+export { fetchGuides, fetchGuideById } from './catalog.js';

@@ -49,7 +49,9 @@ npm run build:api
 |--------|------|-------------|
 | GET | `/health` | Health check |
 | GET | `/api/v1/lodges` | List lodge services (BSale product type `LODGE`) |
+| GET | `/api/v1/lodges/:productId` | Get a single lodge by BSale product id |
 | GET | `/api/v1/guides` | List guide services (BSale product type `GUIDE`) |
+| GET | `/api/v1/guides/:productId` | Get a single guide by BSale product id |
 
 ### Query parameters (both routes)
 
@@ -64,6 +66,8 @@ npm run build:api
 curl http://localhost:3001/health
 curl "http://localhost:3001/api/v1/lodges?limit=10"
 curl "http://localhost:3001/api/v1/guides?limit=10&offset=0"
+curl "http://localhost:3001/api/v1/lodges/65561"
+curl "http://localhost:3001/api/v1/guides/65562"
 ```
 
 ### BSale sandbox catalog convention
@@ -130,9 +134,23 @@ Each item matches the guide model in [`apps/web/src/data.js`](apps/web/src/data.
 }
 ```
 
+### Detail response shape
+
+`GET /api/v1/lodges/:productId` and `GET /api/v1/guides/:productId` return a single object (same fields as one list item). Returns `404` when the product does not exist, is not a service, or does not belong to the expected BSale product type.
+
 ### Frontend
 
 Set `VITE_API_URL` in `apps/web/.env` (see `apps/web/.env.example`). The web app fetches lodges and guides from the API only (no static fallback lists). Seed rows in `apps/web/src/data.js` fill **null** fields when `productId` matches; API values are never overwritten. Add `productId` to seed rows as you link products in BSale.
+
+**Routes:**
+
+| Path | Page |
+|------|------|
+| `/` | Landing (lodges & guides directory) |
+| `/lodges/:productId` | Lodge detail |
+| `/guides/:productId` | Guide detail |
+
+Cards and map popups link to the detail routes. Detail pages call the single-item API endpoints and merge seed data the same way as the landing list.
 
 ### Logging
 
@@ -164,4 +182,4 @@ See [apps/api/.env.example](apps/api/.env.example). Required:
 
 ## Web app (apps/web)
 
-Lodges and guides load from `GET /api/v1/lodges` and `GET /api/v1/guides`. Map markers skip items without `lat`/`lng`.
+Lodges and guides load from `GET /api/v1/lodges` and `GET /api/v1/guides`. Detail pages load from `GET /api/v1/lodges/:productId` and `GET /api/v1/guides/:productId`. Map markers skip items without `lat`/`lng`.

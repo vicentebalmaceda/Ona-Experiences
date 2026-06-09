@@ -1,3 +1,5 @@
+import type { ServicePresentation } from './ServicePresentation.js';
+
 export type ServiceType = 'lodge' | 'guide' | 'unknown';
 
 export interface CatalogVariant {
@@ -8,6 +10,7 @@ export interface CatalogVariant {
   productId: number;
   productName: string;
   state: number;
+  presentation?: ServicePresentation;
 }
 
 export interface ListVariantsParams {

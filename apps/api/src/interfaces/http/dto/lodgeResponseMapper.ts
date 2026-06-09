@@ -1,22 +1,29 @@
 import type { CatalogVariant } from '../../../domain/entities/CatalogVariant.js';
 import type { Lodge } from '../../../domain/entities/Lodge.js';
+import { mapVariantPresentation } from './presentationResponseMapper.js';
 
 export function mapCatalogVariantToLodge(variant: CatalogVariant): Lodge {
+  const presentation = mapVariantPresentation(variant);
+
   return {
     productId: variant.productId,
     name: variant.productName,
-    zone: null,
-    phone: null,
-    email: null,
-    representative: null,
-    lat: null,
-    lng: null,
-    image: null,
-    gallery: null,
-    rating: null,
-    reviews: null,
-    ratingLabel: null
+    zone: presentation.zone,
+    phone: presentation.phone,
+    email: presentation.email,
+    representative: presentation.representative,
+    lat: presentation.lat,
+    lng: presentation.lng,
+    image: presentation.image,
+    gallery: presentation.gallery,
+    rating: presentation.rating,
+    reviews: presentation.reviews,
+    ratingLabel: presentation.ratingLabel
   };
+}
+
+export function toLodgeResponse(variant: CatalogVariant): Lodge {
+  return mapCatalogVariantToLodge(variant);
 }
 
 export function toLodgeListResponse(result: {

@@ -4,12 +4,19 @@ export interface BsaleProductType {
   state: number;
 }
 
+export interface BsaleProductRelation {
+  href?: string;
+  id?: number | string;
+}
+
 export interface BsaleProduct {
   id: number;
   name: string;
   description: string | null;
   classification: number;
   state: number;
+  product_type?: BsaleProductRelation;
+  productType?: BsaleProductRelation;
 }
 
 export interface BsaleVariant {

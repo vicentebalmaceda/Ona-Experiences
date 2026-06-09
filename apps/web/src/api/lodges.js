@@ -1,1 +1,1 @@
-export { fetchLodges, fetchGuides } from './catalog.js';
+export { fetchLodges, fetchLodgeById } from './catalog.js';

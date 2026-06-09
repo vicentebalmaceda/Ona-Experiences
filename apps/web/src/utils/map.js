@@ -12,6 +12,15 @@ export function createMarkerIcon(type) {
 }
 export function popupTemplate(item, ratingVersion) {
   const stats = getRatingStats(item, ratingVersion);
+  const detailPath = item.productId
+    ? item.type === 'Lodge'
+      ? `/lodges/${item.productId}`
+      : `/guides/${item.productId}`
+    : null;
+  const detailLink = detailPath
+    ? `<a href="${detailPath}" style="display:inline-block;margin-top:10px;font-size:13px;font-weight:700;color:#0f766e;text-decoration:none;">Ver detalle &rarr;</a>`
+    : '';
+
   return `
     <div>
       <div class="popup-image" style="background-image:url('${item.image}')"></div>
@@ -22,6 +31,7 @@ export function popupTemplate(item, ratingVersion) {
       ${item.representative ? `<p style="margin:0 0 8px;color:#475569;font-size:13px;"><strong>Representante:</strong> ${item.representative}</p>` : ''}
       <p style="margin:0 0 5px;color:#475569;font-size:13px;"><strong>Teléfono:</strong> ${item.phone || 'No informado'}</p>
       <p style="margin:0;color:#475569;font-size:13px;word-break:break-word;"><strong>Email:</strong> ${item.email || 'No informado'}</p>
+      ${detailLink}
     </div>
   `;
 }
