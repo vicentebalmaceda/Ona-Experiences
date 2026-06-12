@@ -10,6 +10,7 @@ import { createMarkerIcon } from '../utils/map.js';
 import Header from '../components/Header.jsx';
 import GalleryStrip from '../components/GalleryStrip.jsx';
 import RatingPanel from '../components/RatingPanel.jsx';
+import QuoteRequestForm from '../components/QuoteRequestForm.jsx';
 import Footer from '../components/Footer.jsx';
 
 const typeConfig = {
@@ -209,6 +210,12 @@ function ProductDetailPage({ catalogType }) {
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Tarifa visible</p>
                   <p className="mt-2 text-base font-bold text-slate-900">{config.feeText}</p>
                 </div>
+
+                <QuoteRequestForm
+                  catalogType={catalogType}
+                  productId={productId}
+                  productName={item.name}
+                />
 
                 <RatingPanel item={item} ratingVersion={ratingVersion} onRate={handleRate} />
               </div>

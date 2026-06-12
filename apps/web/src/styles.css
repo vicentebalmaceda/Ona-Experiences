@@ -189,9 +189,30 @@ body {
   background: rgba(255,255,255,.08);
 }
 
-.contact-textarea {
+.quote-input {
+  width: 100%;
+  border-radius: 18px;
+  border: 1px solid rgb(226 232 240);
+  background: rgb(248 250 252);
+  color: rgb(15 23 42);
+  padding: 14px 16px;
+  outline: none;
+  transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+}
+
+.quote-input::placeholder {
+  color: rgb(100 116 139);
+}
+
+.quote-input:focus {
+  border-color: rgb(148 163 184);
+  box-shadow: 0 0 0 4px rgba(15, 23, 42, .06);
+  background: white;
+}
+
+.quote-textarea {
   resize: vertical;
-  min-height: 140px;
+  min-height: 120px;
 }
 
 

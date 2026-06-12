@@ -14,7 +14,10 @@ const envSchema = z.object({
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).optional(),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
   BSALE_LODGE_PRODUCT_TYPE_NAME: z.string().default('LODGE'),
-  BSALE_GUIDE_PRODUCT_TYPE_NAME: z.string().default('GUIDE')
+  BSALE_GUIDE_PRODUCT_TYPE_NAME: z.string().default('GUIDE'),
+  BSALE_OFFICE_ID: z.coerce.number().int().positive(),
+  BSALE_QUOTE_DOCUMENT_TYPE_ID: z.coerce.number().int().positive(),
+  BSALE_PRICE_LIST_ID: z.coerce.number().int().positive()
 });
 
 const envSchemaWithDefaults = envSchema.transform((data) => ({
