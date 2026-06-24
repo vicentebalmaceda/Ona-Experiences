@@ -1,74 +1,71 @@
-# ONA Experiences - React + Tailwind
+# ONA Experiences — React + Tailwind
 
-Proyecto ordenado en React JS + Tailwind CSS, manteniendo el contenido, imágenes, datos y diseño base del proyecto original.
+Directorio profesional de lodges y guías para ONA Experiences.
 
-## Cómo ejecutarlo
+## Qué incluye esta versión
+
+- Header visual conservado con navegación superior: Mapa, Lodges, Guías, Tarifas y Contacto.
+- Home / Hoja 1 con hero principal, imagen de fondo y métricas actuales.
+- Sección Lodges / Hoja 2: foto editorial, listado compacto y mapa integrado en la misma pantalla.
+- Sección Guías / Hoja 3: foto editorial, listado compacto y mapa integrado en la misma pantalla.
+- Ficha detalle / Hoja 4: al hacer click en cualquier lodge o guía se abre una pantalla tipo Booking con galería, reseña, calificaciones, comentarios/recomendaciones, mapa y panel para solicitar agenda.
+- Diseño responsive para desktop, tablet y móvil.
+- Información base mantenida en `src/data.js`.
+
+## Instalación
 
 ```bash
 npm install
 npm run dev
 ```
 
-Luego abrir la URL local que muestra Vite, normalmente:
-
-```bash
-http://localhost:5173
-```
-
-## Cómo compilar versión final
+## Build producción
 
 ```bash
 npm run build
+npm run preview
 ```
 
-La versión compilada queda en la carpeta `dist/`.
-
-## Estructura principal
+## Estructura relevante
 
 ```txt
 src/
-  App.jsx
-  main.jsx
-  data.js
-  styles.css
+  App.jsx                         # Estado principal, navegación y selección de ficha
+  data.js                         # Data actual de lodges y guías
   components/
-    Header.jsx
-    Hero.jsx
-    MapSection.jsx
-    DirectorySection.jsx
-    DirectoryCard.jsx
-    GalleryStrip.jsx
-    RatingPanel.jsx
-    PricingSection.jsx
-    ContactSection.jsx
-    Footer.jsx
+    Header.jsx                    # Header fijo visualmente igual al diseño original
+    Hero.jsx                      # Hoja 1
+    ExperienceSection.jsx         # Hoja 2 y Hoja 3: foto + listado + mapa
+    CompactMap.jsx                # Mapa Leaflet reutilizable
+    DetailPage.jsx                # Hoja 4: ficha detalle tipo Booking
+    PricingSection.jsx            # Tarifas
+    ContactSection.jsx            # Contacto sin backend
   utils/
-    rating.js
-    map.js
-public/
-  assets/
-    logo-ona.png
-    lodges/
-    guides/
+    map.js                        # Marcadores y popup del mapa
+    rating.js                     # Calificaciones locales
 ```
 
-## Qué se mejoró
+## Puntos pensados para backend
 
-- Se separó `App.jsx` en componentes simples y fáciles de entender.
-- Se dejaron las funciones de calificación en `src/utils/rating.js`.
-- Se dejaron las funciones del mapa en `src/utils/map.js`.
-- Se mantuvo la información original en `src/data.js`.
-- Se mantuvieron las imágenes originales en `public/assets/`.
-- Se validó el proyecto con `npm run build`.
+1. Reemplazar `lodges` y `guides` en `src/data.js` por una llamada API.
+2. Conectar disponibilidad real en `DetailPage.jsx`, sección `booking-panel`.
+3. Reemplazar reseñas/calificaciones locales de `utils/rating.js` por endpoint de reviews.
+4. Conectar formulario de contacto de `ContactSection.jsx` a backend, Formspree, EmailJS o CRM.
+5. Mantener la estructura esperada por cada item:
 
-## Componentes principales
-
-- `Header`: navegación superior.
-- `Hero`: portada y filtros principales.
-- `MapSection`: mapa interactivo con Leaflet.
-- `DirectorySection`: sección reutilizable para Lodges y Guías.
-- `DirectoryCard`: tarjeta individual de cada lodge o guía.
-- `RatingPanel`: sistema simple de calificación con `localStorage`.
-- `PricingSection`: sección de tarifas.
-- `ContactSection`: formulario de contacto vía mailto.
-- `Footer`: pie de página.
+```js
+{
+  name: 'Nombre',
+  zone: 'Zona',
+  phone: 'Teléfono',
+  email: 'Correo',
+  representative: 'Representante opcional',
+  lat: -45.575,
+  lng: -72.066,
+  image: 'assets/...',
+  gallery: ['assets/...'],
+  rating: 4.8,
+  reviews: 22,
+  ratingLabel: 'Etiqueta visible'
+}
+```
