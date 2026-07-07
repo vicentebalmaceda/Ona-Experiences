@@ -12,6 +12,7 @@ export interface CreateQuoteSaleParams {
   customer: Customer;
   quantity?: number;
   reservationDate: string;
+  reservationEndDate: string;
   notes: string;
   emissionDate?: string;
   expirationDate?: string;
@@ -57,6 +58,7 @@ export class CreateQuoteSale {
       customer: params.customer,
       quantity: params.quantity ?? 1,
       reservationDate: params.reservationDate,
+      reservationEndDate: params.reservationEndDate,
       notes: params.notes,
       emissionDate: toUnixDateOnly(emissionIso),
       expirationDate: toUnixDateOnly(expirationIso),

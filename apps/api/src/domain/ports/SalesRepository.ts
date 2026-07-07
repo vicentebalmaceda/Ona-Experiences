@@ -10,6 +10,7 @@ export interface CreateQuoteParams {
   customer: Customer;
   quantity: number;
   reservationDate: string;
+  reservationEndDate: string;
   notes: string;
   emissionDate: number;
   expirationDate: number;

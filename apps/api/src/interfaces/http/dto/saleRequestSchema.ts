@@ -15,13 +15,19 @@ export const customerSchema = z.object({
   isForeigner: z.union([z.literal(0), z.literal(1)]).optional()
 });
 
-export const saleRequestSchema = z.object({
-  quantity: z.coerce.number().int().min(1).default(1),
-  customer: customerSchema,
-  reservationDate: isoDateSchema,
-  notes: z.string().min(10, 'Explanation must be at least 10 characters'),
-  emissionDate: isoDateSchema.optional(),
-  expirationDate: isoDateSchema.optional()
-});
+export const saleRequestSchema = z
+  .object({
+    quantity: z.coerce.number().int().min(1).default(1),
+    customer: customerSchema,
+    reservationDate: isoDateSchema,
+    reservationEndDate: isoDateSchema,
+    notes: z.string().min(10, 'Explanation must be at least 10 characters'),
+    emissionDate: isoDateSchema.optional(),
+    expirationDate: isoDateSchema.optional()
+  })
+  .refine((data) => data.reservationEndDate >= data.reservationDate, {
+    message: 'reservationEndDate must be on or after reservationDate',
+    path: ['reservationEndDate']
+  });
 
 export type SaleRequestBody = z.infer<typeof saleRequestSchema>;

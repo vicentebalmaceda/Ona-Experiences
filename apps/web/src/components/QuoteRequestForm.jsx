@@ -11,6 +11,7 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [reservationDate, setReservationDate] = useState('');
+  const [reservationEndDate, setReservationEndDate] = useState('');
   const [explanation, setExplanation] = useState('');
   const [status, setStatus] = useState('idle');
   const [errorMessage, setErrorMessage] = useState('');
@@ -41,6 +42,7 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
           lastName: lastName.trim()
         },
         reservationDate,
+        reservationEndDate,
         notes: explanation.trim(),
         quantity: 1
       });
@@ -140,19 +142,41 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
             />
           </div>
 
-          <div>
-            <label htmlFor="quoteDate" className="mb-2 block text-sm font-medium text-slate-700">
-              Fecha de reserva
-            </label>
-            <input
-              id="quoteDate"
-              type="date"
-              value={reservationDate}
-              min={todayIsoDate()}
-              onChange={(event) => setReservationDate(event.target.value)}
-              className="quote-input"
-              required
-            />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="quoteStartDate" className="mb-2 block text-sm font-medium text-slate-700">
+                Fecha de inicio
+              </label>
+              <input
+                id="quoteStartDate"
+                type="date"
+                value={reservationDate}
+                min={todayIsoDate()}
+                onChange={(event) => {
+                  const startDate = event.target.value;
+                  setReservationDate(startDate);
+                  if (reservationEndDate && reservationEndDate < startDate) {
+                    setReservationEndDate(startDate);
+                  }
+                }}
+                className="quote-input"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="quoteEndDate" className="mb-2 block text-sm font-medium text-slate-700">
+                Fecha de término
+              </label>
+              <input
+                id="quoteEndDate"
+                type="date"
+                value={reservationEndDate}
+                min={reservationDate || todayIsoDate()}
+                onChange={(event) => setReservationEndDate(event.target.value)}
+                className="quote-input"
+                required
+              />
+            </div>
           </div>
 
           <div>
@@ -164,7 +188,7 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
               value={explanation}
               onChange={(event) => setExplanation(event.target.value)}
               className="quote-input quote-textarea"
-              placeholder="Cuéntanos fechas, número de personas, servicios requeridos, etc."
+              placeholder="Cuéntanos número de personas, servicios requeridos, etc."
               minLength={10}
               required
             />

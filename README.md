@@ -191,6 +191,7 @@ Creates a BSale **cotización** (pre-sale quote, `declareSii: 0`) for a lodge or
     "lastName": "Pérez"
   },
   "reservationDate": "2026-07-15",
+  "reservationEndDate": "2026-07-18",
   "notes": "Estadía de 3 noches, grupo de 4 personas.",
   "emissionDate": "2026-06-02",
   "expirationDate": "2026-06-09"
@@ -201,12 +202,13 @@ Creates a BSale **cotización** (pre-sale quote, `declareSii: 0`) for a lodge or
 |-------|----------|-------|
 | `customer.email` | Yes | Primary key; BSale client lookup/upsert via `GET /clients.json?email=` |
 | `customer.firstName`, `lastName` | Yes | |
-| `reservationDate` | Yes | ISO date `YYYY-MM-DD`; included in cotización line comment |
+| `reservationDate` | Yes | ISO date `YYYY-MM-DD` (start); included in cotización line comment |
+| `reservationEndDate` | Yes | ISO date `YYYY-MM-DD` (end); must be on or after `reservationDate` |
 | `notes` | Yes | Explanation of the request (min 10 chars); appended to line comment |
 | `quantity` | No (default `1`) | Integer ≥ 1 |
 | `emissionDate`, `expirationDate` | No | Document dates; defaults to today / +7 days |
 
-Line comment format: `{productName} — Reserva: {reservationDate}. {notes}`
+Line comment format: `{productName} — Reserva: {reservationDate} al {reservationEndDate}. {notes}`
 
 ### Response (201)
 
@@ -243,18 +245,18 @@ Create a lodge cotización:
 ```bash
 curl -X POST http://localhost:3001/api/v1/lodges/65561/sales \
   -H "Content-Type: application/json" \
-  -d '{"customer":{"email":"test@example.com","firstName":"Test","lastName":"User"},"reservationDate":"2026-07-01","notes":"Estadía de 3 noches, grupo de 4 personas."}'
+  -d '{"customer":{"email":"test@example.com","firstName":"Test","lastName":"User"},"reservationDate":"2026-07-01","reservationEndDate":"2026-07-04","notes":"Estadía de 3 noches, grupo de 4 personas."}'
 
 curl -X POST http://localhost:3001/api/v1/guides/<guideProductId>/sales \
   -H "Content-Type: application/json" \
-  -d '{"customer":{"email":"test@example.com","firstName":"Test","lastName":"User"},"reservationDate":"2026-07-01","notes":"Guía full day para grupo de 2 personas."}'
+  -d '{"customer":{"email":"test@example.com","firstName":"Test","lastName":"User"},"reservationDate":"2026-07-01","reservationEndDate":"2026-07-01","notes":"Guía full day para grupo de 2 personas."}'
 ```
 
 ### Frontend quote request
 
 Lodge and guide detail pages (`/lodges/:productId`, `/guides/:productId`) include a **Solicitar cotización** form ([`QuoteRequestForm`](apps/web/src/components/QuoteRequestForm.jsx)) that:
 
-- Collects name, email, reservation date (calendar picker), and reservation details
+- Collects name, email, reservation start/end dates (calendar pickers), and reservation details
 - Persists `{ email, firstName, lastName }` in `localStorage` under `ona-user-profile` (email as primary key)
 - Posts to `POST /api/v1/lodges/:productId/sales` or `POST /api/v1/guides/:productId/sales`
 - Shows success with `salesId`, document number, total, and PDF/public links when BSale returns them

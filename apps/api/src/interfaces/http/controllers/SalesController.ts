@@ -25,6 +25,7 @@ export class SalesController {
         customer: body.customer,
         quantity: body.quantity,
         reservationDate: body.reservationDate,
+        reservationEndDate: body.reservationEndDate,
         notes: body.notes,
         emissionDate: body.emissionDate,
         expirationDate: body.expirationDate
@@ -48,6 +49,7 @@ export class SalesController {
         customer: body.customer,
         quantity: body.quantity,
         reservationDate: body.reservationDate,
+        reservationEndDate: body.reservationEndDate,
         notes: body.notes,
         emissionDate: body.emissionDate,
         expirationDate: body.expirationDate

@@ -8,7 +8,7 @@ import type { BsaleDocument } from './types.js';
 const log = createLogger('bsale-sales');
 
 function buildLineComment(params: CreateQuoteParams): string {
-  return `${params.variant.productName} — Reserva: ${params.reservationDate}. ${params.notes}`;
+  return `\nCotización para ${params.variant.productName}\n Reserva: ${params.reservationDate} al ${params.reservationEndDate}.\n Detalles:${params.notes}`;
 }
 
 export class BsaleSalesRepository implements SalesRepository {
@@ -27,6 +27,7 @@ export class BsaleSalesRepository implements SalesRepository {
       declareSii: 0,
       salesId: params.salesId,
       clientId: params.clientId,
+      sendEmail: 1,
       details: [
         {
           variantId: params.variant.id,
@@ -43,7 +44,8 @@ export class BsaleSalesRepository implements SalesRepository {
       productId: params.variant.productId,
       variantId: params.variant.id,
       clientId: params.clientId,
-      reservationDate: params.reservationDate
+      reservationDate: params.reservationDate,
+      reservationEndDate: params.reservationEndDate
     });
 
     const document = await this.client.post<BsaleDocument>('/documents.json', payload);
