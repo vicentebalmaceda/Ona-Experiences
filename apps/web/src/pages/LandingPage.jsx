@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { lodges as seedLodges, guides as seedGuides } from '../data.js';
 import { fetchLodges } from '../api/lodges.js';
 import { fetchGuides } from '../api/guides.js';
@@ -6,8 +7,7 @@ import { mergeWithSeed } from '../utils/catalogMerge.js';
 import { saveUserRating } from '../utils/rating.js';
 import Header from '../components/Header.jsx';
 import Hero from '../components/Hero.jsx';
-import MapSection from '../components/MapSection.jsx';
-import DirectorySection from '../components/DirectorySection.jsx';
+import ExperienceSection from '../components/ExperienceSection.jsx';
 import PricingSection from '../components/PricingSection.jsx';
 import ContactSection from '../components/ContactSection.jsx';
 import Footer from '../components/Footer.jsx';
@@ -18,6 +18,8 @@ const typeLabels = {
 };
 
 function LandingPage() {
+  const navigate = useNavigate();
+
   const [apiLodges, setApiLodges] = useState([]);
   const [lodgesCount, setLodgesCount] = useState(0);
   const [lodgesLoading, setLodgesLoading] = useState(true);
@@ -111,46 +113,21 @@ function LandingPage() {
     [lodgeItems, guideItems]
   );
 
-  const zones = useMemo(() => ['all', ...new Set(allItems.map(item => item.zone).filter(Boolean))].sort((a, b) => {
-    if (a === 'all') return -1;
-    if (b === 'all') return 1;
-    return a.localeCompare(b, 'es');
-  }), [allItems]);
+  const zonesCount = useMemo(
+    () => new Set(allItems.map(item => item.zone).filter(Boolean)).size,
+    [allItems]
+  );
 
-  const [filters, setFilters] = useState({ zone: 'all', type: 'all', text: '' });
   const [ratingVersion, setRatingVersion] = useState(0);
 
-  const filteredItems = useMemo(() => {
-    const textValue = filters.text.trim().toLowerCase();
-    return allItems.filter(item => {
-      const zoneMatch = filters.zone === 'all' || item.zone === filters.zone;
-      const typeMatch = filters.type === 'all' || item.type === filters.type;
-      const textMatch = !textValue || `${item.name} ${item.zone} ${item.email}`.toLowerCase().includes(textValue);
-      return zoneMatch && typeMatch && textMatch;
-    });
-  }, [allItems, filters]);
-
-  const filteredLodges = filteredItems.filter(item => item.type === 'Lodge');
-  const filteredGuides = filteredItems.filter(item => item.type === 'Guía');
-
-  const loadingNote = [
-    lodgesLoading ? 'Cargando lodges…' : null,
-    guidesLoading ? 'Cargando guías…' : null
-  ].filter(Boolean).join(' ');
-
-  const errorNote = [
-    lodgesError ? 'Error al cargar lodges.' : null,
-    guidesError ? 'Error al cargar guías.' : null
-  ].filter(Boolean).join(' ');
-
-  const summary = `${filteredItems.length} resultado(s) visibles${filters.zone !== 'all' ? ` en ${filters.zone}` : ''}: ${filteredLodges.length} lodge(s) y ${filteredGuides.length} guía(s).${loadingNote ? ` ${loadingNote}` : ''}${errorNote ? ` ${errorNote}` : ''}`;
-
-  function applyFilters(event) {
-    event.preventDefault();
+  function navigateTo(sectionId) {
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  function resetFilters() {
-    setFilters({ zone: 'all', type: 'all', text: '' });
+  function openDetail(item) {
+    if (!item.productId) return;
+    const path = item.type === 'Lodge' ? `/lodges/${item.productId}` : `/guides/${item.productId}`;
+    navigate(path);
   }
 
   function handleRate(item, score) {
@@ -159,13 +136,43 @@ function LandingPage() {
   }
 
   return (
-    <div className="bg-sand font-body text-slate-900 antialiased">
-      <Header />
+    <div className="min-h-screen bg-sand font-body text-slate-900 antialiased">
+      <Header onNavigate={navigateTo} />
       <main>
-        <Hero zones={zones} filters={filters} setFilters={setFilters} applyFilters={applyFilters} summary={summary} lodgesCount={lodgesCount} guidesCount={guidesCount} />
-        <MapSection zones={zones} allItems={allItems} filteredItems={filteredItems} filters={filters} setFilters={setFilters} resetFilters={resetFilters} ratingVersion={ratingVersion} />
-        <DirectorySection id="lodges-section" eyebrow="Lodges" title="Oferta de lodges" description="Listado de lodges desde BSale. Los campos vacíos se completan desde datos locales solo cuando coincide el productId." items={filteredLodges} emptyText={lodgesLoading ? 'Cargando lodges…' : lodgesError ? 'No se pudieron cargar los lodges.' : 'No hay lodges para este filtro.'} ratingVersion={ratingVersion} onRate={handleRate} />
-        <DirectorySection id="guias-section" eyebrow="Guías" title="Red de guías" description="Listado de guías desde BSale. Los campos vacíos se completan desde datos locales solo cuando coincide el productId." items={filteredGuides} emptyText={guidesLoading ? 'Cargando guías…' : guidesError ? 'No se pudieron cargar las guías.' : 'No hay guías para este filtro.'} ratingVersion={ratingVersion} onRate={handleRate} />
+        <Hero
+          zonesCount={zonesCount}
+          lodgesCount={lodgesCount}
+          guidesCount={guidesCount}
+          onNavigate={navigateTo}
+        />
+
+        <ExperienceSection
+          id="lodges-section"
+          mapAnchorId="mapa-section"
+          eyebrow="Lodges"
+          title="Lodges de pesca con mosca"
+          description="Una vista simple para comparar lodges, ver su ubicación en el mapa y entrar al detalle con reseñas, calificaciones y opción de agenda."
+          heroImage="/assets/lodges/manihuales-eco-lodge-5.jpg"
+          heroAlt="Lodge de pesca con mosca en Patagonia"
+          items={lodgeItems}
+          ratingVersion={ratingVersion}
+          onSelect={openDetail}
+          emptyText={lodgesLoading ? 'Cargando lodges…' : lodgesError ? 'No se pudieron cargar los lodges.' : undefined}
+        />
+
+        <ExperienceSection
+          id="guias-section"
+          eyebrow="Guías"
+          title="Guías especializados"
+          description="Perfiles de guías con navegación rápida, mapa integrado y acceso directo para revisar y solicitar disponibilidad."
+          heroImage="/assets/lodges/bio-bio-lodge-2.jpg"
+          heroAlt="Guía ayudando en una jornada de pesca con mosca"
+          items={guideItems}
+          ratingVersion={ratingVersion}
+          onSelect={openDetail}
+          emptyText={guidesLoading ? 'Cargando guías…' : guidesError ? 'No se pudieron cargar las guías.' : undefined}
+        />
+
         <PricingSection />
         <ContactSection />
       </main>

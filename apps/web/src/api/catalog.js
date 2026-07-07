@@ -1,4 +1,5 @@
-const apiBase = () => import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
+// Empty VITE_API_URL uses relative /api paths (Vite dev proxy). Set full URL for production.
+const apiBase = () => import.meta.env.VITE_API_URL ?? '';
 
 async function fetchCatalog(path, { limit = 50, offset = 0 } = {}) {
   const url = `${apiBase()}/api/v1/${path}?limit=${limit}&offset=${offset}`;

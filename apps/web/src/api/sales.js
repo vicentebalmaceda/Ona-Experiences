@@ -1,4 +1,5 @@
-const apiBase = () => import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
+// Empty VITE_API_URL uses relative /api paths (Vite dev proxy). Set full URL for production.
+const apiBase = () => import.meta.env.VITE_API_URL ?? '';
 
 function parseErrorMessage(status, body) {
   if (typeof body === 'object' && body !== null) {
