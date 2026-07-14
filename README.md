@@ -1,13 +1,18 @@
 # ONA Experiences
 
-Monorepo for the ONA Experiences platform: marketing web (React + Tailwind) and catalog API (Express + TypeScript) integrated with [BSale](https://docs.bsale.dev/first-steps).
+Monorepo for the ONA Experiences platform: marketing web (React + Tailwind) with a serverless Backend-for-Frontend (Vercel Serverless Functions) integrated with [BSale](https://docs.bsale.dev/first-steps).
 
 ## Structure
 
 ```txt
 apps/
-  web/          # React + Vite + Tailwind (static demo / marketing)
-  api/          # Express API — BSale catalog proxy
+  web/          # React + Vite + Tailwind SPA + serverless BFF (single Vercel project)
+    api/        #   Vercel Serverless Functions (/api/v1/*, /api/webhooks/bsale, /api/health)
+    services/   #   Business logic (catalog, sales, webhooks)
+    lib/        #   BSale client + repositories, seed enrichment
+    cache/      #   Cache abstraction (memory dev / Vercel KV prod)
+    middleware/ #   Validation, CORS, logging, error handling
+  api/          # DEPRECATED — legacy Express API (kept temporarily for rollback)
 docs/           # Architecture and planning
 ```
 
@@ -20,28 +25,37 @@ docs/           # Architecture and planning
 
 ```bash
 npm install
-cp apps/api/.env.example apps/api/.env
-# Edit apps/api/.env — set BSALE_ACCESS_TOKEN
 cp apps/web/.env.example apps/web/.env
+# Edit apps/web/.env — set BSALE_ACCESS_TOKEN and the other BSALE_* variables
 ```
 
 ## Development
 
 ```bash
-# Frontend (http://localhost:5173)
-npm run dev:web
+# BFF serverless functions (http://localhost:3003)
+npm run dev:bff
 
-# API (http://localhost:3001)
-npm run dev:api
+# Frontend (http://localhost:5173, /api proxied to the BFF)
+npm run dev:web
 ```
+
+With the Vercel CLI installed and the project linked, `npm run dev:bff -w @ona/web` (`vercel dev`) serves the SPA and the functions together, exactly as in production.
 
 ## Build
 
 ```bash
-npm run build        # web + api
-npm run build:web
-npm run build:api
+npm run build        # web (functions are compiled by Vercel at deploy time)
+npm run typecheck    # typecheck the BFF TypeScript
 ```
+
+## Deployment (Vercel)
+
+One Vercel project with **Root Directory = `apps/web`**:
+
+- The Vite SPA is served statically; `vercel.json` provides the SPA fallback rewrite and maps `/health` → `/api/health`.
+- Every file in `apps/web/api/` becomes a serverless function, so `/api/v1/*` is same-origin with the frontend (leave `VITE_API_URL` empty).
+- Attach `api.<domain>` as an additional domain on the same project to expose the identical `/api/v1/*` paths on a dedicated subdomain.
+- Set the `BSALE_*` variables (and optionally `KV_REST_API_URL`/`KV_REST_API_TOKEN` for the distributed cache, `BSALE_WEBHOOK_SECRET` for the webhook) as project environment variables.
 
 ## API — catalog (lodges & guides)
 
@@ -63,11 +77,11 @@ npm run build:api
 ### Example
 
 ```bash
-curl http://localhost:3001/health
-curl "http://localhost:3001/api/v1/lodges?limit=10"
-curl "http://localhost:3001/api/v1/guides?limit=10&offset=0"
-curl "http://localhost:3001/api/v1/lodges/65561"
-curl "http://localhost:3001/api/v1/guides/65562"
+curl http://localhost:3003/health
+curl "http://localhost:3003/api/v1/lodges?limit=10"
+curl "http://localhost:3003/api/v1/guides?limit=10&offset=0"
+curl "http://localhost:3003/api/v1/lodges/65561"
+curl "http://localhost:3003/api/v1/guides/65562"
 ```
 
 ### BSale sandbox catalog convention
@@ -154,16 +168,16 @@ Cards and map popups link to the detail routes. Detail pages call the single-ite
 
 ### Logging
 
-The API logs every incoming request and response (method, path, status, duration). Set `LOG_LEVEL` in `apps/api/.env`:
+The BFF logs every incoming request and response (method, path, status, duration, request id) plus cache hits/misses, BSale failures, and webhook events. Logs are plain text in development and structured JSON in production. Set `LOG_LEVEL` in `apps/web/.env`:
 
 | Level | What you see |
 |-------|----------------|
-| `debug` | HTTP traffic + BSale outbound calls + catalog flow (default in development) |
+| `debug` | HTTP traffic + BSale outbound calls + cache hits/misses (default in development) |
 | `info` | HTTP traffic + catalog summaries |
 | `warn` | Client/BSale errors |
 | `error` | Failures only |
 
-Use `createLogger('your-context')` from `apps/api/src/shared/logger.ts` for custom debug logs in new code.
+Use `createLogger('your-context')` from `apps/web/utils/logger.ts` for custom debug logs in new code.
 
 ### Pagination note
 
@@ -243,11 +257,11 @@ curl -H "access_token: $BSALE_ACCESS_TOKEN" "https://api.bsale.io/v1/price_lists
 Create a lodge cotización:
 
 ```bash
-curl -X POST http://localhost:3001/api/v1/lodges/65561/sales \
+curl -X POST http://localhost:3003/api/v1/lodges/65561/sales \
   -H "Content-Type: application/json" \
   -d '{"customer":{"email":"test@example.com","firstName":"Test","lastName":"User"},"reservationDate":"2026-07-01","reservationEndDate":"2026-07-04","notes":"Estadía de 3 noches, grupo de 4 personas."}'
 
-curl -X POST http://localhost:3001/api/v1/guides/<guideProductId>/sales \
+curl -X POST http://localhost:3003/api/v1/guides/<guideProductId>/sales \
   -H "Content-Type: application/json" \
   -d '{"customer":{"email":"test@example.com","firstName":"Test","lastName":"User"},"reservationDate":"2026-07-01","reservationEndDate":"2026-07-01","notes":"Guía full day para grupo de 2 personas."}'
 ```
@@ -261,14 +275,20 @@ Lodge and guide detail pages (`/lodges/:productId`, `/guides/:productId`) includ
 - Posts to `POST /api/v1/lodges/:productId/sales` or `POST /api/v1/guides/:productId/sales`
 - Shows success with `salesId`, document number, total, and PDF/public links when BSale returns them
 
+## API — webhooks
+
+`POST /api/webhooks/bsale` receives BSale event notifications (payload: `topic`, `action`, `resource`, `resourceId`, `cpnId`). Product, variant, and price events invalidate the catalog/pricing caches; other topics are logged. New topics are added in `apps/web/services/webhookService.ts`. When `BSALE_WEBHOOK_SECRET` is set, requests must include it as a `?secret=` query parameter or `x-webhook-secret` header.
+
 ## Environment variables
 
-See [apps/api/.env.example](apps/api/.env.example). Required:
+See [apps/web/.env.example](apps/web/.env.example). Required:
 
 - `BSALE_ACCESS_TOKEN` — BSale API token (never commit)
 - `BSALE_OFFICE_ID` — Branch id for cotización documents
 - `BSALE_QUOTE_DOCUMENT_TYPE_ID` — Cotización document type id from BSale admin
 - `BSALE_PRICE_LIST_ID` — Price list used for `netUnitValue` on sale lines
+
+Optional: `BSALE_WEBHOOK_SECRET` (webhook auth), `KV_REST_API_URL` / `KV_REST_API_TOKEN` (Vercel KV distributed cache; falls back to per-instance memory cache).
 
 ## Related docs
 
