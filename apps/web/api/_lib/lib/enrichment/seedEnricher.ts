@@ -1,6 +1,6 @@
-import type { CatalogVariant } from '../../types/catalog';
-import catalogSeed from './catalog-seed.json';
-import { mergeSeedPresentation, type CatalogSeedRecord } from './mergeSeedPresentation';
+import type { CatalogVariant } from '../../types/catalog.js';
+import catalogSeed from './catalog-seed.json' with { type: 'json' };
+import { mergeSeedPresentation, type CatalogSeedRecord } from './mergeSeedPresentation.js';
 
 export interface ServiceEnricher {
   enrich(variants: CatalogVariant[]): Promise<CatalogVariant[]>;

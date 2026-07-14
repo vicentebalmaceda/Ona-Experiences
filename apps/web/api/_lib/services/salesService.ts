@@ -1,10 +1,10 @@
 import { randomUUID } from 'node:crypto';
-import type { BsaleClientRepository } from '../lib/bsale/clients';
-import type { BsaleSalesRepository } from '../lib/bsale/documents';
-import type { BsaleCatalogRepository } from '../lib/bsale/products';
-import type { BsaleVariantPricing } from '../lib/bsale/pricing';
-import type { CatalogType } from '../types/catalog';
-import type { Customer, QuoteSale } from '../types/sales';
+import type { BsaleClientRepository } from '../lib/bsale/clients.js';
+import type { BsaleSalesRepository } from '../lib/bsale/documents.js';
+import type { BsaleCatalogRepository } from '../lib/bsale/products.js';
+import type { BsaleVariantPricing } from '../lib/bsale/pricing.js';
+import type { CatalogType } from '../types/catalog.js';
+import type { Customer, QuoteSale } from '../types/sales.js';
 
 export interface CreateQuoteSaleParams {
   productId: number;

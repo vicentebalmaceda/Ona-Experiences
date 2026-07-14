@@ -1,6 +1,6 @@
-import { applyCors } from './cors';
-import { withErrorHandler, type ApiHandler } from './withErrorHandler';
-import { withRequestLogging } from './withRequestLogging';
+import { applyCors } from './cors.js';
+import { withErrorHandler, type ApiHandler } from './withErrorHandler.js';
+import { withRequestLogging } from './withRequestLogging.js';
 
 /**
  * Standard middleware stack for every serverless route:

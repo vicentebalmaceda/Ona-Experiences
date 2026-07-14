@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { getCache, type Cache } from '../cache/cache';
-import { CACHE_PREFIX } from '../cache/keys';
-import { createLogger } from '../utils/logger';
+import { getCache, type Cache } from '../cache/cache.js';
+import { CACHE_PREFIX } from '../cache/keys.js';
+import { createLogger } from '../utils/logger.js';
 
 const log = createLogger('webhook');
 

@@ -1,9 +1,9 @@
-import { createApiHandler } from '../../../../middleware/createApiHandler';
-import { validateParams } from '../../../../middleware/validate';
-import { getServices } from '../../../../services/container';
-import { productIdParamSchema } from '../../../../types/schemas';
-import { methodNotAllowed } from '../../../../utils/http';
-import { mapCatalogVariantToGuide } from '../../../../utils/responseMappers';
+import { createApiHandler } from '../../../_lib/middleware/createApiHandler.js';
+import { validateParams } from '../../../_lib/middleware/validate.js';
+import { getServices } from '../../../_lib/services/container.js';
+import { productIdParamSchema } from '../../../_lib/types/schemas.js';
+import { methodNotAllowed } from '../../../_lib/utils/http.js';
+import { mapCatalogVariantToGuide } from '../../../_lib/utils/responseMappers.js';
 
 export default createApiHandler(async (req, res) => {
   if (req.method !== 'GET') {

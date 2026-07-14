@@ -1,9 +1,9 @@
-import { createApiHandler } from '../../../middleware/createApiHandler';
-import { validateQuery } from '../../../middleware/validate';
-import { getServices } from '../../../services/container';
-import { paginationQuerySchema } from '../../../types/schemas';
-import { methodNotAllowed } from '../../../utils/http';
-import { toGuideListResponse } from '../../../utils/responseMappers';
+import { createApiHandler } from '../../_lib/middleware/createApiHandler.js';
+import { validateQuery } from '../../_lib/middleware/validate.js';
+import { getServices } from '../../_lib/services/container.js';
+import { paginationQuerySchema } from '../../_lib/types/schemas.js';
+import { methodNotAllowed } from '../../_lib/utils/http.js';
+import { toGuideListResponse } from '../../_lib/utils/responseMappers.js';
 
 export default createApiHandler(async (req, res) => {
   if (req.method !== 'GET') {

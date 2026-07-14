@@ -1,8 +1,8 @@
-import { getEnv } from '../../config/env';
-import { createApiHandler } from '../../middleware/createApiHandler';
-import { validateBody } from '../../middleware/validate';
-import { bsaleWebhookEventSchema, WebhookService } from '../../services/webhookService';
-import { methodNotAllowed } from '../../utils/http';
+import { getEnv } from '../_lib/config/env.js';
+import { createApiHandler } from '../_lib/middleware/createApiHandler.js';
+import { validateBody } from '../_lib/middleware/validate.js';
+import { bsaleWebhookEventSchema, WebhookService } from '../_lib/services/webhookService.js';
+import { methodNotAllowed } from '../_lib/utils/http.js';
 
 let webhookService: WebhookService | undefined;
 

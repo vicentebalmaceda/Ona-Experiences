@@ -1,7 +1,7 @@
-import type { BsaleClient as BsaleClientRecord, BsaleListResponse } from '../../types/bsale';
-import type { Customer } from '../../types/sales';
-import { createLogger } from '../../utils/logger';
-import type { BsaleClient } from './client';
+import type { BsaleClient as BsaleClientRecord, BsaleListResponse } from '../../types/bsale.js';
+import type { Customer } from '../../types/sales.js';
+import { createLogger } from '../../utils/logger.js';
+import type { BsaleClient } from './client.js';
 
 const log = createLogger('bsale-client');
 

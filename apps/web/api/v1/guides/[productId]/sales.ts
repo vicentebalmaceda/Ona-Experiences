@@ -1,9 +1,9 @@
-import { createApiHandler } from '../../../../middleware/createApiHandler';
-import { validateBody, validateParams } from '../../../../middleware/validate';
-import { getServices } from '../../../../services/container';
-import { productIdParamSchema, saleRequestSchema } from '../../../../types/schemas';
-import { methodNotAllowed } from '../../../../utils/http';
-import { toSaleResponse } from '../../../../utils/responseMappers';
+import { createApiHandler } from '../../../_lib/middleware/createApiHandler.js';
+import { validateBody, validateParams } from '../../../_lib/middleware/validate.js';
+import { getServices } from '../../../_lib/services/container.js';
+import { productIdParamSchema, saleRequestSchema } from '../../../_lib/types/schemas.js';
+import { methodNotAllowed } from '../../../_lib/utils/http.js';
+import { toSaleResponse } from '../../../_lib/utils/responseMappers.js';
 
 export default createApiHandler(async (req, res) => {
   if (req.method !== 'POST') {

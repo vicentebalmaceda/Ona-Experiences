@@ -1,7 +1,7 @@
 import type { VercelRequest } from '@vercel/node';
 import type { ZodType, ZodTypeDef } from 'zod';
 import { ZodError } from 'zod';
-import { ValidationError, type ValidationIssue } from '../types/errors';
+import { ValidationError, type ValidationIssue } from '../types/errors.js';
 
 type Schema<T> = ZodType<T, ZodTypeDef, unknown>;
 

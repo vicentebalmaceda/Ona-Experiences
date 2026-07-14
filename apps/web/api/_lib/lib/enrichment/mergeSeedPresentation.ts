@@ -1,5 +1,5 @@
-import type { ServicePresentation } from '../../types/catalog';
-import { EMPTY_SERVICE_PRESENTATION } from '../../types/catalog';
+import type { ServicePresentation } from '../../types/catalog.js';
+import { EMPTY_SERVICE_PRESENTATION } from '../../types/catalog.js';
 
 export interface CatalogSeedRecord {
   productId?: number;

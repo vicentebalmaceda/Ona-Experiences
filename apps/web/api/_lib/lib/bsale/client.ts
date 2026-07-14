@@ -1,6 +1,6 @@
-import type { Env } from '../../config/env';
-import { BsaleApiError } from '../../types/errors';
-import { createLogger } from '../../utils/logger';
+import type { Env } from '../../config/env.js';
+import { BsaleApiError } from '../../types/errors.js';
+import { createLogger } from '../../utils/logger.js';
 
 const log = createLogger('bsale');
 

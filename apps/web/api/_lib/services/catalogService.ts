@@ -1,8 +1,8 @@
-import { getCache, withCache, type Cache } from '../cache/cache';
-import { cacheKeys, CACHE_TTL_SECONDS } from '../cache/keys';
-import type { BsaleCatalogRepository } from '../lib/bsale/products';
-import type { ServiceEnricher } from '../lib/enrichment/seedEnricher';
-import type { CatalogType, CatalogVariant, ListVariantsResult } from '../types/catalog';
+import { getCache, withCache, type Cache } from '../cache/cache.js';
+import { cacheKeys, CACHE_TTL_SECONDS } from '../cache/keys.js';
+import type { BsaleCatalogRepository } from '../lib/bsale/products.js';
+import type { ServiceEnricher } from '../lib/enrichment/seedEnricher.js';
+import type { CatalogType, CatalogVariant, ListVariantsResult } from '../types/catalog.js';
 
 export interface ListParams {
   limit: number;

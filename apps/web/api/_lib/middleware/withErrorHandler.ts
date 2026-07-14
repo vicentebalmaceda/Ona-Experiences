@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { BsaleApiError, DomainError, ValidationError } from '../types/errors';
-import { createLogger } from '../utils/logger';
+import { BsaleApiError, DomainError, ValidationError } from '../types/errors.js';
+import { createLogger } from '../utils/logger.js';
 
 const log = createLogger('http');
 
