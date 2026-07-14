@@ -1,6 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
+  "installCommand": "cd ../.. && npm install",
+  "functions": {
+    "api/**/*.ts": {
+      "includeFiles": "api/_lib/lib/enrichment/catalog-seed.json"
+    }
+  },
   "rewrites": [
     { "source": "/health", "destination": "/api/health" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }

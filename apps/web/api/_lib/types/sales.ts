@@ -1,4 +1,4 @@
-import type { CatalogType, CatalogVariant } from './catalog';
+import type { CatalogType, CatalogVariant } from './catalog.js';
 
 export interface Customer {
   email: string;

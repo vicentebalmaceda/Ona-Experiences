@@ -1,5 +1,5 @@
-import { createApiHandler } from '../middleware/createApiHandler';
-import { methodNotAllowed } from '../utils/http';
+import { createApiHandler } from './_lib/middleware/createApiHandler.js';
+import { methodNotAllowed } from './_lib/utils/http.js';
 
 export default createApiHandler(async (req, res) => {
   if (req.method !== 'GET') {

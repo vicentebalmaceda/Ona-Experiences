@@ -1,23 +1,23 @@
-import { getCache, withCache } from '../../cache/cache';
-import { cacheKeys, CACHE_TTL_SECONDS } from '../../cache/keys';
-import type { Env } from '../../config/env';
+import { getCache, withCache } from '../../cache/cache.js';
+import { cacheKeys, CACHE_TTL_SECONDS } from '../../cache/keys.js';
+import type { Env } from '../../config/env.js';
 import type {
   CatalogType,
   CatalogVariant,
   ListVariantsParams,
   ListVariantsResult,
   ServiceType
-} from '../../types/catalog';
+} from '../../types/catalog.js';
 import type {
   BsaleListResponse,
   BsaleProduct,
   BsaleProductType,
   BsaleVariant
-} from '../../types/bsale';
-import { DomainError } from '../../types/errors';
-import { createLogger } from '../../utils/logger';
-import { BsaleApiError } from '../../types/errors';
-import type { BsaleClient } from './client';
+} from '../../types/bsale.js';
+import { DomainError } from '../../types/errors.js';
+import { createLogger } from '../../utils/logger.js';
+import { BsaleApiError } from '../../types/errors.js';
+import type { BsaleClient } from './client.js';
 
 const log = createLogger('bsale-catalog');
 

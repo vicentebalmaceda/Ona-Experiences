@@ -1,12 +1,12 @@
-import { getEnv } from '../config/env';
-import { BsaleClient } from '../lib/bsale/client';
-import { BsaleClientRepository } from '../lib/bsale/clients';
-import { BsaleSalesRepository } from '../lib/bsale/documents';
-import { BsaleCatalogRepository, BsaleProductTypeResolver } from '../lib/bsale/products';
-import { BsaleVariantPricing } from '../lib/bsale/pricing';
-import { SeedServiceEnricher } from '../lib/enrichment/seedEnricher';
-import { CatalogService } from './catalogService';
-import { SalesService } from './salesService';
+import { getEnv } from '../config/env.js';
+import { BsaleClient } from '../lib/bsale/client.js';
+import { BsaleClientRepository } from '../lib/bsale/clients.js';
+import { BsaleSalesRepository } from '../lib/bsale/documents.js';
+import { BsaleCatalogRepository, BsaleProductTypeResolver } from '../lib/bsale/products.js';
+import { BsaleVariantPricing } from '../lib/bsale/pricing.js';
+import { SeedServiceEnricher } from '../lib/enrichment/seedEnricher.js';
+import { CatalogService } from './catalogService.js';
+import { SalesService } from './salesService.js';
 
 export interface Services {
   catalogService: CatalogService;

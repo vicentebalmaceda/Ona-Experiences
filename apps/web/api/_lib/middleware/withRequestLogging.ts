@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getRequestId } from '../utils/http';
-import { createLogger } from '../utils/logger';
-import type { ApiHandler } from './withErrorHandler';
+import { getRequestId } from '../utils/http.js';
+import { createLogger } from '../utils/logger.js';
+import type { ApiHandler } from './withErrorHandler.js';
 
 const log = createLogger('http');
 

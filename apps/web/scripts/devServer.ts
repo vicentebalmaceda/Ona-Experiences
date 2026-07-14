@@ -32,7 +32,9 @@ function loadDotEnv(path: string): void {
 
 loadDotEnv(resolve(__dirname, '../.env'));
 
-type Handler = (req: unknown, res: unknown) => Promise<void> | void;
+// `any` so the enhanced Node req/res satisfy the VercelRequest/VercelResponse
+// signatures of the imported handlers without a full type-level emulation.
+type Handler = (req: any, res: any) => Promise<void> | void;
 
 interface Route {
   pattern: RegExp;
@@ -44,42 +46,42 @@ const routes: Route[] = [
   {
     pattern: /^\/(?:api\/)?health$/,
     paramNames: [],
-    load: () => import('../api/health')
+    load: () => import('../api/health.js')
   },
   {
     pattern: /^\/api\/v1\/lodges$/,
     paramNames: [],
-    load: () => import('../api/v1/lodges/index')
+    load: () => import('../api/v1/lodges/index.js')
   },
   {
     pattern: /^\/api\/v1\/lodges\/([^/]+)$/,
     paramNames: ['productId'],
-    load: () => import('../api/v1/lodges/[productId]/index')
+    load: () => import('../api/v1/lodges/[productId]/index.js')
   },
   {
     pattern: /^\/api\/v1\/lodges\/([^/]+)\/sales$/,
     paramNames: ['productId'],
-    load: () => import('../api/v1/lodges/[productId]/sales')
+    load: () => import('../api/v1/lodges/[productId]/sales.js')
   },
   {
     pattern: /^\/api\/v1\/guides$/,
     paramNames: [],
-    load: () => import('../api/v1/guides/index')
+    load: () => import('../api/v1/guides/index.js')
   },
   {
     pattern: /^\/api\/v1\/guides\/([^/]+)$/,
     paramNames: ['productId'],
-    load: () => import('../api/v1/guides/[productId]/index')
+    load: () => import('../api/v1/guides/[productId]/index.js')
   },
   {
     pattern: /^\/api\/v1\/guides\/([^/]+)\/sales$/,
     paramNames: ['productId'],
-    load: () => import('../api/v1/guides/[productId]/sales')
+    load: () => import('../api/v1/guides/[productId]/sales.js')
   },
   {
     pattern: /^\/api\/webhooks\/bsale$/,
     paramNames: [],
-    load: () => import('../api/webhooks/bsale')
+    load: () => import('../api/webhooks/bsale.js')
   }
 ];
 

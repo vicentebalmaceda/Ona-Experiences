@@ -1,6 +1,6 @@
-import type { CatalogVariant, Guide, ListVariantsResult, Lodge } from '../types/catalog';
-import { EMPTY_SERVICE_PRESENTATION } from '../types/catalog';
-import type { QuoteSale } from '../types/sales';
+import type { CatalogVariant, Guide, ListVariantsResult, Lodge } from '../types/catalog.js';
+import { EMPTY_SERVICE_PRESENTATION } from '../types/catalog.js';
+import type { QuoteSale } from '../types/sales.js';
 
 function mapVariantPresentation(variant: CatalogVariant) {
   return variant.presentation ?? EMPTY_SERVICE_PRESENTATION;

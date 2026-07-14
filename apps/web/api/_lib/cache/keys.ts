@@ -1,4 +1,4 @@
-import type { CatalogType } from '../types/catalog';
+import type { CatalogType } from '../types/catalog.js';
 
 export const CACHE_PREFIX = {
   productType: 'bsale:productType:',
