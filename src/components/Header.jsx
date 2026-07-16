@@ -1,10 +1,8 @@
 import { useState } from 'react';
 
 const links = [
-  { label: 'Mapa', section: 'mapa-section' },
   { label: 'Lodges', section: 'lodges-section' },
-  { label: 'Guías', section: 'guias-section' },
-  { label: 'Tarifas', section: 'tarifas' }
+  { label: 'Guías', section: 'guias-section' }
 ];
 
 function Header({ onNavigate }) {
