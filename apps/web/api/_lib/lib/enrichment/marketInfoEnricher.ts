@@ -1,6 +1,7 @@
 import {
   BsaleMarketInfoRepository,
-  extractPictureHrefs
+  extractPictureHrefs,
+  extractPresentationFromDescriptions
 } from '../bsale/marketInfo.js';
 import type { CatalogVariant, ServicePresentation } from '../../types/catalog.js';
 import { EMPTY_SERVICE_PRESENTATION } from '../../types/catalog.js';
@@ -58,6 +59,13 @@ export class MarketInfoEnricher implements ServiceEnricher {
       if (nonEmpty(info.description)) {
         presentation.description = info.description;
       }
+
+      const fromDescriptions = extractPresentationFromDescriptions(info);
+      if (fromDescriptions.zone !== undefined) presentation.zone = fromDescriptions.zone;
+      if (fromDescriptions.phone !== undefined) presentation.phone = fromDescriptions.phone;
+      if (fromDescriptions.email !== undefined) presentation.email = fromDescriptions.email;
+      if (fromDescriptions.lat !== undefined) presentation.lat = fromDescriptions.lat;
+      if (fromDescriptions.lng !== undefined) presentation.lng = fromDescriptions.lng;
 
       const productName = nonEmpty(info.name) ? info.name.trim() : variant.productName;
 

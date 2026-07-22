@@ -22,5 +22,5 @@ export const cacheKeys = {
   catalogDetail: (type: CatalogType, productId: number) =>
     `${CACHE_PREFIX.catalog}detail:${type}:${productId}`,
   pricing: (variantId: number) => `${CACHE_PREFIX.pricing}${variantId}`,
-  marketInfoByCode: (code: string) => `${CACHE_PREFIX.marketInfo}code:${code}`
+  marketInfoByCode: (code: string) => `${CACHE_PREFIX.marketInfo}code:v2:${code}`
 };

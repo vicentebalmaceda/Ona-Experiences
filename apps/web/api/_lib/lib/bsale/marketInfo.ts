@@ -1,6 +1,7 @@
 import { getCache, withCache } from '../../cache/cache.js';
 import { cacheKeys, CACHE_TTL_SECONDS } from '../../cache/keys.js';
 import type {
+  BsaleMarketDescription,
   BsaleMarketInfo,
   BsaleMarketListResponse,
   BsaleMarketPicture
@@ -9,6 +10,14 @@ import { createLogger } from '../../utils/logger.js';
 import type { BsaleClient } from './client.js';
 
 const log = createLogger('bsale-market-info');
+
+export type DescriptionsPresentation = {
+  zone?: string;
+  phone?: string;
+  email?: string;
+  lat?: number;
+  lng?: number;
+};
 
 function isPictureArray(
   pictures: BsaleMarketInfo['pictures']
@@ -22,6 +31,89 @@ export function extractPictureHrefs(info: BsaleMarketInfo): string[] {
   return info.pictures
     .map((picture) => picture.href?.trim())
     .filter((href): href is string => Boolean(href));
+}
+
+function decodeBasicEntities(value: string): string {
+  return value
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0*39;/g, "'")
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) =>
+      String.fromCodePoint(Number.parseInt(hex, 16))
+    )
+    .replace(/&#(\d+);/g, (_, dec: string) => String.fromCodePoint(Number.parseInt(dec, 10)));
+}
+
+function stripHtml(html: string): string {
+  return decodeBasicEntities(html.replace(/<[^>]+>/g, ' '))
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function extractMailto(html: string): string | null {
+  const match = html.match(/mailto:([^"'>\s]+)/i);
+  if (!match?.[1]) return null;
+  return decodeBasicEntities(match[1].trim());
+}
+
+function parseCoordinate(raw: string): number | undefined {
+  const value = Number(raw);
+  return Number.isFinite(value) ? value : undefined;
+}
+
+/**
+ * Maps expand=[descriptions] blocks (Lat, Lng, Zone, Phone, Email) into presentation fields.
+ * Missing or empty entries are omitted so callers can leave those fields null.
+ */
+export function extractPresentationFromDescriptions(
+  info: BsaleMarketInfo
+): DescriptionsPresentation {
+  const descriptions = Array.isArray(info.descriptions) ? info.descriptions : [];
+  if (descriptions.length === 0) return {};
+
+  const byName = new Map<string, BsaleMarketDescription>();
+  for (const entry of descriptions) {
+    const name = entry.descriptionName?.trim().toLowerCase();
+    if (!name) continue;
+    byName.set(name, entry);
+  }
+
+  const result: DescriptionsPresentation = {};
+
+  const latHtml = byName.get('lat')?.html;
+  if (typeof latHtml === 'string') {
+    const lat = parseCoordinate(stripHtml(latHtml));
+    if (lat !== undefined) result.lat = lat;
+  }
+
+  const lngHtml = byName.get('lng')?.html;
+  if (typeof lngHtml === 'string') {
+    const lng = parseCoordinate(stripHtml(lngHtml));
+    if (lng !== undefined) result.lng = lng;
+  }
+
+  const zoneHtml = byName.get('zone')?.html;
+  if (typeof zoneHtml === 'string') {
+    const zone = stripHtml(zoneHtml);
+    if (zone) result.zone = zone;
+  }
+
+  const phoneHtml = byName.get('phone')?.html;
+  if (typeof phoneHtml === 'string') {
+    const phone = stripHtml(phoneHtml);
+    if (phone) result.phone = phone;
+  }
+
+  const emailHtml = byName.get('email')?.html;
+  if (typeof emailHtml === 'string') {
+    const email = extractMailto(emailHtml) ?? stripHtml(emailHtml);
+    if (email) result.email = email;
+  }
+
+  return result;
 }
 
 /**
@@ -86,7 +178,7 @@ export class BsaleMarketInfoRepository {
       '/v2/products/list/market_info.json',
       {
         code,
-        expand: '[images]',
+        expand: '[images,descriptions]',
         limit: 1,
         offset: 0
       }

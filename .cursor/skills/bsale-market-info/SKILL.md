@@ -60,7 +60,7 @@ Useful expanders: `descriptions`, `images`, `baseInfo`, `variantsInfo`, `collect
 ONA enrichment example:
 
 ```http
-GET https://api.bsale.io/v2/products/list/market_info.json?code=1558978818371&expand=[images]&limit=1
+GET https://api.bsale.io/v2/products/list/market_info.json?code=1558978818371&expand=[images,descriptions]&limit=1
 access_token: <PRODUCTION_TOKEN>
 ```
 
@@ -70,19 +70,24 @@ access_token: <PRODUCTION_TOKEN>
 |-------------|------------|-------|
 | lookup key | variant `code` (SKU) | From ERP `/products/{id}/variants.json` |
 | `name` | display name override | Prefer when non-empty |
-| `description` | `description` | HTML string or null |
+| `description` | `description` | HTML string or null (main reseña) |
 | `urlImg` | `presentation.image` | Default variant image |
 | `pictures[].href` | `presentation.gallery` | Only when non-empty array |
+| `descriptions[]` (`Lat`) | `presentation.lat` | From `expand=[images,descriptions]`; strip HTML → number |
+| `descriptions[]` (`Lng`) | `presentation.lng` | Same |
+| `descriptions[]` (`Zone`) | `presentation.zone` | Strip HTML → string |
+| `descriptions[]` (`Phone`) | `presentation.phone` | Strip HTML → string |
+| `descriptions[]` (`Email`) | `presentation.email` | Prefer `mailto:` href, else stripped text |
 | `id` | web product id | For pictures/detail follow-ups only |
 
-**Not provided by market_info:** `zone`, `phone`, `email`, `representative`, `lat`, `lng`, `rating`, `reviews`, `ratingLabel` — keep seed enrichment.
+**Not provided by market_info descriptions:** `representative`, `rating`, `reviews`, `ratingLabel` — keep seed enrichment for those. Missing description blocks leave the matching presentation field null until seed fills gaps.
 
 ## ONA implementation pattern
 
 1. Keep `BsaleCatalogRepository` on ERP product types + variants (first active variant → `code`).
-2. `getByCodes`: for each SKU, `GET market_info.json?code={sku}&expand=[images]`; soft-fail per SKU; cache per code.
+2. `getByCodes`: for each SKU, `GET market_info.json?code={sku}&expand=[images,descriptions]`; soft-fail per SKU; cache per code.
 3. `MarketInfoEnricher` then `SeedServiceEnricher` (BSale wins; seed fills gaps).
-4. Merge rule: fill from market_info when present; gallery only if pictures is a non-empty array.
+4. Merge rule: fill from market_info when present; gallery only if pictures is a non-empty array; map `descriptions` by case-insensitive `descriptionName`.
 
 ## Gotchas
 

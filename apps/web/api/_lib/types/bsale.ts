@@ -23,6 +23,15 @@ export interface BsaleMarketPicture {
   legendImage?: string;
 }
 
+/** Custom web description blocks from expand=[descriptions]. */
+export interface BsaleMarketDescription {
+  id?: number;
+  descriptionName?: string;
+  html?: string | null;
+  order?: number;
+  default?: number;
+}
+
 export interface BsaleMarketInfo {
   id: number;
   productId: number;
@@ -34,6 +43,7 @@ export interface BsaleMarketInfo {
   state?: number;
   urlImg?: string | null;
   pictures?: BsaleMarketPicture[] | { href?: string } | null;
+  descriptions?: BsaleMarketDescription[] | null;
   link?: string;
 }
 
