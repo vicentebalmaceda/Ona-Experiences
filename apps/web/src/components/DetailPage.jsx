@@ -1,12 +1,35 @@
+import { useMemo, useState } from 'react';
+import DOMPurify from 'dompurify';
 import CompactMap from './CompactMap.jsx';
 import GalleryStrip from './GalleryStrip.jsx';
+import PhotoLightbox from './PhotoLightbox.jsx';
 import RatingPanel from './RatingPanel.jsx';
 import QuoteRequestForm from './QuoteRequestForm.jsx';
 import { getRatingStats, renderStars } from '../utils/rating.js';
 
+const DESCRIPTION_ALLOWED_TAGS = [
+  'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'p', 'span', 'br', 'a',
+  'strong', 'em', 'b', 'i', 'u',
+  'ul', 'ol', 'li',
+];
+const DESCRIPTION_ALLOWED_ATTR = ['href', 'target', 'rel'];
+
 function imageUrl(src) {
   if (!src) return '';
   return src.startsWith('http') ? src : `/${src.replace(/^\/?/, '')}`;
+}
+
+function uniqueImageUrls(sources) {
+  const seen = new Set();
+  const urls = [];
+  for (const src of sources) {
+    const url = imageUrl(src);
+    if (!url || seen.has(url)) continue;
+    seen.add(url);
+    urls.push(url);
+  }
+  return urls;
 }
 
 function feeTextFor(item) {
@@ -19,33 +42,36 @@ function normalizedPhone(phone) {
   return String(phone || '').replace(/[^0-9]/g, '');
 }
 
-/** Strip HTML tags for safe plain-text display of BSale market_info copy. */
-function plainDescription(html) {
+/** Sanitize BSale market_info HTML so tags and Spanish entities render safely. */
+function sanitizeMarketDescription(html) {
   if (!html || typeof html !== 'string') return '';
-  return html
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/p>/gi, '\n\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&eacute;/g, 'é')
-    .replace(/&aacute;/g, 'á')
-    .replace(/&iacute;/g, 'í')
-    .replace(/&oacute;/g, 'ó')
-    .replace(/&uacute;/g, 'ú')
-    .replace(/&ntilde;/g, 'ñ')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: DESCRIPTION_ALLOWED_TAGS,
+    ALLOWED_ATTR: DESCRIPTION_ALLOWED_ATTR,
+    ALLOW_DATA_ATTR: false,
+  }).trim();
 }
 
 function DetailPage({ item, catalogType, productId, ratingVersion, onRate, onBack, onNavigate }) {
   const stats = getRatingStats(item, ratingVersion);
   const gallery = item.gallery?.length ? item.gallery : [item.image];
-  const displayGallery = [...gallery, item.image, item.image].filter(Boolean).slice(0, 5);
+  const uniqueGallery = useMemo(
+    () => uniqueImageUrls([...(gallery || []), item.image]),
+    [item.gallery, item.image]
+  );
   const phone = normalizedPhone(item.phone);
-  const descriptionText = plainDescription(item.description);
+  const descriptionHtml = useMemo(
+    () => sanitizeMarketDescription(item.description),
+    [item.description]
+  );
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  function openLightbox(src) {
+    const index = uniqueGallery.indexOf(imageUrl(src));
+    setLightboxIndex(index >= 0 ? index : 0);
+    setLightboxOpen(true);
+  }
 
   return (
     <section className="detail-page min-h-screen pt-28">
@@ -81,12 +107,27 @@ function DetailPage({ item, catalogType, productId, ratingVersion, onRate, onBac
           </div>
         </div>
 
-        <div className="detail-gallery mt-7">
-          <div className="detail-gallery-main" style={{ backgroundImage: `url('${imageUrl(displayGallery[0])}')` }}></div>
-          {displayGallery.slice(1, 5).map((src, index) => (
-            <div key={`${src}-${index}`} className="detail-gallery-thumb" style={{ backgroundImage: `url('${imageUrl(src)}')` }}></div>
-          ))}
-        </div>
+        {uniqueGallery.length ? (
+          <div className="detail-gallery mt-7" data-count={Math.min(uniqueGallery.length, 5)}>
+            <button
+              type="button"
+              className="detail-gallery-main"
+              style={{ backgroundImage: `url('${uniqueGallery[0]}')` }}
+              onClick={() => openLightbox(uniqueGallery[0])}
+              aria-label={`Ver foto 1 de ${item.name}`}
+            />
+            {uniqueGallery.slice(1, 5).map((src, index) => (
+              <button
+                type="button"
+                key={src}
+                className="detail-gallery-thumb"
+                style={{ backgroundImage: `url('${src}')` }}
+                onClick={() => openLightbox(src)}
+                aria-label={`Ver foto ${index + 2} de ${item.name}`}
+              />
+            ))}
+          </div>
+        ) : null}
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_370px]">
           <div className="space-y-6">
@@ -103,8 +144,11 @@ function DetailPage({ item, catalogType, productId, ratingVersion, onRate, onBac
                 <div className="detail-fact"><span>Zona</span><strong>{item.zone}</strong></div>
                 <div className="detail-fact"><span>Tarifa visible</span><strong>{feeTextFor(item)}</strong></div>
               </div>
-              {descriptionText ? (
-                <p className="mt-6 whitespace-pre-line text-base leading-8 text-slate-600">{descriptionText}</p>
+              {descriptionHtml ? (
+                <div
+                  className="detail-description mt-6 text-base leading-8 text-slate-600"
+                  dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+                />
               ) : (
                 <p className="mt-6 text-base leading-8 text-slate-600">{item.name} aparece registrado en la zona de {item.zone}. La ficha mantiene la información disponible actualmente y deja el espacio listo para que el backend agregue disponibilidad, más reseñas, servicios incluidos y reservas reales.</p>
               )}
@@ -192,6 +236,15 @@ function DetailPage({ item, catalogType, productId, ratingVersion, onRate, onBac
           </aside>
         </div>
       </div>
+
+      <PhotoLightbox
+        images={uniqueGallery}
+        index={lightboxIndex}
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        onIndexChange={setLightboxIndex}
+        alt={item.name}
+      />
     </section>
   );
 }
