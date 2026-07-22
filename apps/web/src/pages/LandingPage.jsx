@@ -8,7 +8,6 @@ import { saveUserRating } from '../utils/rating.js';
 import Header from '../components/Header.jsx';
 import Hero from '../components/Hero.jsx';
 import ExperienceSection from '../components/ExperienceSection.jsx';
-import PricingSection from '../components/PricingSection.jsx';
 import ContactSection from '../components/ContactSection.jsx';
 import Footer from '../components/Footer.jsx';
 
@@ -21,12 +20,10 @@ function LandingPage() {
   const navigate = useNavigate();
 
   const [apiLodges, setApiLodges] = useState([]);
-  const [lodgesCount, setLodgesCount] = useState(0);
   const [lodgesLoading, setLodgesLoading] = useState(true);
   const [lodgesError, setLodgesError] = useState(null);
 
   const [apiGuides, setApiGuides] = useState([]);
-  const [guidesCount, setGuidesCount] = useState(0);
   const [guidesLoading, setGuidesLoading] = useState(true);
   const [guidesError, setGuidesError] = useState(null);
 
@@ -41,13 +38,11 @@ function LandingPage() {
         const data = await fetchLodges({ limit: 50, offset: 0 });
         if (cancelled) return;
         setApiLodges(data.items ?? []);
-        setLodgesCount(data.pagination?.count ?? data.items?.length ?? 0);
       } catch (error) {
         if (cancelled) return;
         console.error('Failed to load lodges from API:', error);
         setLodgesError(error instanceof Error ? error.message : 'Failed to load lodges');
         setApiLodges([]);
-        setLodgesCount(0);
       } finally {
         if (!cancelled) setLodgesLoading(false);
       }
@@ -70,13 +65,11 @@ function LandingPage() {
         const data = await fetchGuides({ limit: 50, offset: 0 });
         if (cancelled) return;
         setApiGuides(data.items ?? []);
-        setGuidesCount(data.pagination?.count ?? data.items?.length ?? 0);
       } catch (error) {
         if (cancelled) return;
         console.error('Failed to load guides from API:', error);
         setGuidesError(error instanceof Error ? error.message : 'Failed to load guides');
         setApiGuides([]);
-        setGuidesCount(0);
       } finally {
         if (!cancelled) setGuidesLoading(false);
       }
@@ -108,16 +101,6 @@ function LandingPage() {
     [displayGuides]
   );
 
-  const allItems = useMemo(
-    () => [...lodgeItems, ...guideItems],
-    [lodgeItems, guideItems]
-  );
-
-  const zonesCount = useMemo(
-    () => new Set(allItems.map(item => item.zone).filter(Boolean)).size,
-    [allItems]
-  );
-
   const [ratingVersion, setRatingVersion] = useState(0);
 
   function navigateTo(sectionId) {
@@ -139,12 +122,7 @@ function LandingPage() {
     <div className="min-h-screen bg-sand font-body text-slate-900 antialiased">
       <Header onNavigate={navigateTo} />
       <main>
-        <Hero
-          zonesCount={zonesCount}
-          lodgesCount={lodgesCount}
-          guidesCount={guidesCount}
-          onNavigate={navigateTo}
-        />
+        <Hero />
 
         <ExperienceSection
           id="lodges-section"
@@ -173,7 +151,6 @@ function LandingPage() {
           emptyText={guidesLoading ? 'Cargando guías…' : guidesError ? 'No se pudieron cargar las guías.' : undefined}
         />
 
-        <PricingSection />
         <ContactSection />
       </main>
       <Footer />

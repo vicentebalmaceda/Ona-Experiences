@@ -64,9 +64,6 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
   }, [items, query, zone]);
 
   const heroItem = filteredItems[0] || items[0];
-  const topRated = useMemo(() => {
-    return [...items].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))[0];
-  }, [items]);
 
   const listEmptyMessage = !items.length && emptyText
     ? emptyText
@@ -88,24 +85,18 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
             <img src={imageUrl(heroImage || heroItem?.image)} alt={heroAlt || title} className="absolute inset-0 h-full w-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-transparent"></div>
             <div className="relative z-10 flex h-full flex-col justify-end p-6 text-white">
-              <span className="mb-4 w-fit rounded-full border border-white/20 bg-white/12 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] backdrop-blur">Vista premium</span>
-              <h3 className="font-display text-3xl leading-tight">Diseñado para elegir rápido y con confianza.</h3>
+              <span className="mb-4 w-fit rounded-full border border-white/20 bg-white/12 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] backdrop-blur">Fly Fishing</span>
+              <h3 className="font-display text-3xl leading-tight">Compara, elige y planifica con confianza.</h3>
               <div className="mt-6 grid grid-cols-2 gap-3">
                 <div className="rounded-2xl border border-white/10 bg-white/12 p-4 backdrop-blur">
                   <p className="text-3xl font-extrabold">{items.length}</p>
-                  <p className="mt-1 text-xs uppercase tracking-[0.16em] text-white/75">perfiles</p>
+                  <p className="mt-1 text-xs uppercase tracking-[0.16em] text-white/75">Opciones</p>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-white/12 p-4 backdrop-blur">
                   <p className="text-3xl font-extrabold">{zones.length - 1}</p>
                   <p className="mt-1 text-xs uppercase tracking-[0.16em] text-white/75">zonas</p>
                 </div>
               </div>
-              {topRated ? (
-                <p className="mt-5 text-sm leading-6 text-white/85">
-                  Mejor evaluación base: <span className="font-bold text-white">{topRated.name}</span>
-                  {topRated.rating != null ? ` · ${topRated.rating.toFixed(1)}` : ''}
-                </p>
-              ) : null}
             </div>
           </aside>
 

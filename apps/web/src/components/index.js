@@ -5,6 +5,5 @@ export { default as DirectorySection } from './DirectorySection.jsx';
 export { default as ExperienceSection } from './ExperienceSection.jsx';
 export { default as CompactMap } from './CompactMap.jsx';
 export { default as DetailPage } from './DetailPage.jsx';
-export { default as PricingSection } from './PricingSection.jsx';
 export { default as ContactSection } from './ContactSection.jsx';
 export { default as Footer } from './Footer.jsx';
