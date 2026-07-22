@@ -10,7 +10,7 @@ description: >-
 
 Official docs: [Introducción](https://docs.bsale.dev/first-steps) · [Primeros pasos](https://docs.bsale.dev/get-started) · [Clientes](https://docs.bsale.dev/clientes) · [Documentos](https://docs.bsale.dev/documentos) · [Webhooks](https://docs.bsale.dev/webhooks) · [OAuth](https://docs.bsale.dev/oauth)
 
-For endpoint tables and JSON examples, read [reference.md](reference.md). For ONA Experiences field mapping, read [ona-mapping.md](ona-mapping.md).
+For endpoint tables and JSON examples, read [reference.md](reference.md). For ONA Experiences field mapping, read [ona-mapping.md](ona-mapping.md). For ecommerce descripción web / market_info (production only), read [bsale-market-info](../bsale-market-info/SKILL.md).
 
 ## Quick reference
 

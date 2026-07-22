@@ -51,7 +51,7 @@ export class BsaleClient {
   }
 
   async get<T>(path: string, query?: QueryParams): Promise<T> {
-    const url = new URL(`${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`);
+    const url = new URL(this.resolveUrl(path));
     if (query) {
       for (const [key, value] of Object.entries(query)) {
         if (value !== undefined) {
@@ -83,15 +83,30 @@ export class BsaleClient {
   }
 
   async post<T>(path: string, body: unknown): Promise<T> {
-    return this.request<T>('POST', this.buildUrl(path), body);
+    return this.request<T>('POST', this.resolveUrl(path), body);
   }
 
   async put<T>(path: string, body: unknown): Promise<T> {
-    return this.request<T>('PUT', this.buildUrl(path), body);
+    return this.request<T>('PUT', this.resolveUrl(path), body);
   }
 
-  private buildUrl(path: string): string {
-    return `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
+  /**
+   * Resolves request URLs against `BSALE_API_BASE_URL` (typically `.../v1`).
+   * Paths that already include a version prefix (`/v2/...`) swap the base
+   * version so market_info and other non-v1 resources work without a second env.
+   */
+  private resolveUrl(path: string): string {
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+
+    const normalized = path.startsWith('/') ? path : `/${path}`;
+    if (/^\/v\d+\//.test(normalized)) {
+      const origin = this.baseUrl.replace(/\/v\d+$/, '');
+      return `${origin}${normalized}`;
+    }
+
+    return `${this.baseUrl}${normalized}`;
   }
 
   private async request<T>(method: 'GET' | 'POST' | 'PUT', url: string, body?: unknown): Promise<T> {

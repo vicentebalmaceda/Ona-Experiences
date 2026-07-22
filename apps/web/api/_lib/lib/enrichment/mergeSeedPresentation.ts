@@ -14,6 +14,7 @@ export interface CatalogSeedRecord {
   rating?: number | null;
   reviews?: number | null;
   ratingLabel?: string | null;
+  description?: string | null;
 }
 
 function isMissing(value: unknown): boolean {
@@ -38,7 +39,8 @@ export function mergeSeedPresentation(
     'gallery',
     'rating',
     'reviews',
-    'ratingLabel'
+    'ratingLabel',
+    'description'
   ];
 
   if (includeRepresentative) {

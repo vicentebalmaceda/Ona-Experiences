@@ -14,6 +14,8 @@ export interface ServicePresentation {
   rating: number | null;
   reviews: number | null;
   ratingLabel: string | null;
+  /** HTML (or plain) copy from BSale market_info descripción web. */
+  description: string | null;
 }
 
 export const EMPTY_SERVICE_PRESENTATION: ServicePresentation = {
@@ -27,7 +29,8 @@ export const EMPTY_SERVICE_PRESENTATION: ServicePresentation = {
   gallery: null,
   rating: null,
   reviews: null,
-  ratingLabel: null
+  ratingLabel: null,
+  description: null
 };
 
 export interface CatalogVariant {
@@ -59,6 +62,7 @@ export interface ListVariantsResult {
 export interface Lodge {
   productId: number;
   name: string | null;
+  description: string | null;
   zone: string | null;
   phone: string | null;
   email: string | null;
@@ -75,6 +79,7 @@ export interface Lodge {
 export interface Guide {
   productId: number;
   name: string | null;
+  description: string | null;
   zone: string | null;
   phone: string | null;
   email: string | null;

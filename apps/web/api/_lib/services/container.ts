@@ -2,8 +2,10 @@ import { getEnv } from '../config/env.js';
 import { BsaleClient } from '../lib/bsale/client.js';
 import { BsaleClientRepository } from '../lib/bsale/clients.js';
 import { BsaleSalesRepository } from '../lib/bsale/documents.js';
+import { BsaleMarketInfoRepository } from '../lib/bsale/marketInfo.js';
 import { BsaleCatalogRepository, BsaleProductTypeResolver } from '../lib/bsale/products.js';
 import { BsaleVariantPricing } from '../lib/bsale/pricing.js';
+import { MarketInfoEnricher } from '../lib/enrichment/marketInfoEnricher.js';
 import { SeedServiceEnricher } from '../lib/enrichment/seedEnricher.js';
 import { CatalogService } from './catalogService.js';
 import { SalesService } from './salesService.js';
@@ -27,7 +29,12 @@ export function getServices(): Services {
   const client = new BsaleClient(env);
   const productTypeResolver = new BsaleProductTypeResolver(client, env);
   const catalogRepository = new BsaleCatalogRepository(client, productTypeResolver);
-  const enrichers = [new SeedServiceEnricher()];
+  const marketInfoRepository = new BsaleMarketInfoRepository(client);
+  // BSale market_info first (wins); seed fills remaining presentation gaps.
+  const enrichers = [
+    new MarketInfoEnricher(marketInfoRepository),
+    new SeedServiceEnricher()
+  ];
 
   services = {
     catalogService: new CatalogService(catalogRepository, enrichers),

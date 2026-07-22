@@ -5,6 +5,38 @@ export interface BsaleListResponse<T> {
   offset: number;
 }
 
+/** market_info / descripción web list envelope (v2/v3). */
+export interface BsaleMarketListResponse<T> {
+  code?: string | number;
+  href?: string;
+  count: number;
+  limit: number;
+  offset: number;
+  data: T[];
+  next?: string;
+}
+
+export interface BsaleMarketPicture {
+  id?: number;
+  href: string;
+  state?: number | boolean;
+  legendImage?: string;
+}
+
+export interface BsaleMarketInfo {
+  id: number;
+  productId: number;
+  idVariantDefault?: number;
+  urlSlug?: string;
+  name?: string;
+  description?: string | null;
+  displayNotice?: string | null;
+  state?: number;
+  urlImg?: string | null;
+  pictures?: BsaleMarketPicture[] | { href?: string } | null;
+  link?: string;
+}
+
 export interface BsaleProductType {
   id: number;
   name: string;

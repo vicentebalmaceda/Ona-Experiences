@@ -12,6 +12,7 @@ export function mapCatalogVariantToLodge(variant: CatalogVariant): Lodge {
   return {
     productId: variant.productId,
     name: variant.productName,
+    description: presentation.description,
     zone: presentation.zone,
     phone: presentation.phone,
     email: presentation.email,
@@ -32,6 +33,7 @@ export function mapCatalogVariantToGuide(variant: CatalogVariant): Guide {
   return {
     productId: variant.productId,
     name: variant.productName,
+    description: presentation.description,
     zone: presentation.zone,
     phone: presentation.phone,
     email: presentation.email,

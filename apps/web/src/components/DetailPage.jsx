@@ -19,11 +19,33 @@ function normalizedPhone(phone) {
   return String(phone || '').replace(/[^0-9]/g, '');
 }
 
+/** Strip HTML tags for safe plain-text display of BSale market_info copy. */
+function plainDescription(html) {
+  if (!html || typeof html !== 'string') return '';
+  return html
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&eacute;/g, 'é')
+    .replace(/&aacute;/g, 'á')
+    .replace(/&iacute;/g, 'í')
+    .replace(/&oacute;/g, 'ó')
+    .replace(/&uacute;/g, 'ú')
+    .replace(/&ntilde;/g, 'ñ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 function DetailPage({ item, catalogType, productId, ratingVersion, onRate, onBack, onNavigate }) {
   const stats = getRatingStats(item, ratingVersion);
   const gallery = item.gallery?.length ? item.gallery : [item.image];
   const displayGallery = [...gallery, item.image, item.image].filter(Boolean).slice(0, 5);
   const phone = normalizedPhone(item.phone);
+  const descriptionText = plainDescription(item.description);
 
   return (
     <section className="detail-page min-h-screen pt-28">
@@ -81,7 +103,11 @@ function DetailPage({ item, catalogType, productId, ratingVersion, onRate, onBac
                 <div className="detail-fact"><span>Zona</span><strong>{item.zone}</strong></div>
                 <div className="detail-fact"><span>Tarifa visible</span><strong>{feeTextFor(item)}</strong></div>
               </div>
-              <p className="mt-6 text-base leading-8 text-slate-600">{item.name} aparece registrado en la zona de {item.zone}. La ficha mantiene la información disponible actualmente y deja el espacio listo para que el backend agregue disponibilidad, más reseñas, servicios incluidos y reservas reales.</p>
+              {descriptionText ? (
+                <p className="mt-6 whitespace-pre-line text-base leading-8 text-slate-600">{descriptionText}</p>
+              ) : (
+                <p className="mt-6 text-base leading-8 text-slate-600">{item.name} aparece registrado en la zona de {item.zone}. La ficha mantiene la información disponible actualmente y deja el espacio listo para que el backend agregue disponibilidad, más reseñas, servicios incluidos y reservas reales.</p>
+              )}
               {item.representative ? <p className="mt-4 text-base leading-8 text-slate-600">Representante informado: <span className="font-bold text-slate-900">{item.representative}</span>.</p> : null}
             </section>
 
