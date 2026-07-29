@@ -91,6 +91,21 @@ export interface BsaleClient {
   state?: number;
 }
 
+export interface BsaleDocumentDetail {
+  id?: number;
+  quantity?: number;
+  netUnitValue?: number;
+  totalUnitValue?: number;
+  netAmount?: number;
+  taxAmount?: number;
+  totalAmount?: number;
+  /** Some document types use `comment`; cotización lines use `note`. */
+  comment?: string | null;
+  note?: string | null;
+  variant?: { id?: number; description?: string; code?: string };
+  variantId?: number;
+}
+
 export interface BsaleDocument {
   id: number;
   number: number;
@@ -100,6 +115,15 @@ export interface BsaleDocument {
   urlPdf?: string;
   urlPublicView?: string;
   salesId?: string;
+  emissionDate?: number;
+  expirationDate?: number;
+  /** Present on some responses; otherwise use document_type.id */
+  documentTypeId?: number | string;
+  document_type?: { id?: number | string; name?: string; href?: string };
+  client?: BsaleClient | { href?: string; id?: number | string };
+  details?:
+    | BsaleDocumentDetail[]
+    | { href?: string; count?: number; limit?: number; offset?: number; items?: BsaleDocumentDetail[] };
 }
 
 export interface BsalePriceListDetail {

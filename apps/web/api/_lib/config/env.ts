@@ -11,9 +11,11 @@ const envSchema = z.object({
   BSALE_OFFICE_ID: z.coerce.number().int().positive(),
   BSALE_QUOTE_DOCUMENT_TYPE_ID: z.coerce.number().int().positive(),
   BSALE_PRICE_LIST_ID: z.coerce.number().int().positive(),
-  BSALE_WEBHOOK_SECRET: z.string().optional(),
   KV_REST_API_URL: z.string().url().optional(),
-  KV_REST_API_TOKEN: z.string().optional()
+  KV_REST_API_TOKEN: z.string().optional(),
+  RESEND_API_KEY: z.string().min(1, 'RESEND_API_KEY is required'),
+  MAIL_FROM: z.string().min(1, 'MAIL_FROM is required'),
+  ADMIN_EMAIL: z.string().email('ADMIN_EMAIL must be a valid email')
 });
 
 const envSchemaWithDefaults = envSchema.transform((data) => ({
@@ -43,4 +45,9 @@ export function getEnv(): Env {
 
   cached = result.data;
   return cached;
+}
+
+/** Test helper to clear the lazy env singleton between cases. */
+export function resetEnvForTests(): void {
+  cached = undefined;
 }

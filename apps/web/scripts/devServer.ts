@@ -79,6 +79,11 @@ const routes: Route[] = [
     load: () => import('../api/v1/guides/[productId]/sales.js')
   },
   {
+    pattern: /^\/api\/v1\/contact$/,
+    paramNames: [],
+    load: () => import('../api/v1/contact.js')
+  },
+  {
     pattern: /^\/api\/webhooks\/bsale$/,
     paramNames: [],
     load: () => import('../api/webhooks/bsale.js')

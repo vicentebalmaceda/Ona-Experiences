@@ -4,7 +4,8 @@ export const CACHE_PREFIX = {
   productType: 'bsale:productType:',
   catalog: 'catalog:',
   pricing: 'pricing:',
-  marketInfo: 'bsale:marketInfo:'
+  marketInfo: 'bsale:marketInfo:',
+  quoteNotification: 'quote-notification:'
 } as const;
 
 export const CACHE_TTL_SECONDS = {
@@ -12,7 +13,9 @@ export const CACHE_TTL_SECONDS = {
   catalogList: 3 * 60,
   catalogDetail: 3 * 60,
   pricing: 5 * 60,
-  marketInfo: 3 * 60
+  marketInfo: 3 * 60,
+  /** Keep duplicate webhook suppression for ~30 days. */
+  quoteNotification: 30 * 24 * 60 * 60
 } as const;
 
 export const cacheKeys = {
@@ -22,5 +25,7 @@ export const cacheKeys = {
   catalogDetail: (type: CatalogType, productId: number) =>
     `${CACHE_PREFIX.catalog}detail:${type}:${productId}`,
   pricing: (variantId: number) => `${CACHE_PREFIX.pricing}${variantId}`,
-  marketInfoByCode: (code: string) => `${CACHE_PREFIX.marketInfo}code:v2:${code}`
+  marketInfoByCode: (code: string) => `${CACHE_PREFIX.marketInfo}code:v2:${code}`,
+  quoteNotification: (documentId: number | string) =>
+    `${CACHE_PREFIX.quoteNotification}${documentId}`
 };

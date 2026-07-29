@@ -24,6 +24,10 @@ function toBsaleClientPayload(customer: Customer): Record<string, unknown> {
 export class BsaleClientRepository {
   constructor(private readonly client: BsaleClient) {}
 
+  async getById(clientId: number | string): Promise<BsaleClientRecord> {
+    return this.client.get<BsaleClientRecord>(`/clients/${clientId}.json`);
+  }
+
   async upsertByEmail(customer: Customer): Promise<number> {
     log.debug('Upserting BSale client by email', { email: customer.email });
 

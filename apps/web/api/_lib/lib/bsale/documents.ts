@@ -16,6 +16,21 @@ export class BsaleSalesRepository {
     private readonly env: Env
   ) {}
 
+  async getDocument(documentId: number | string): Promise<BsaleDocument> {
+    return this.getDocumentByResource(`/documents/${documentId}.json`);
+  }
+
+  /**
+   * Fetches a document using the webhook `resource` path
+   * (e.g. `/documents/14417.json`) and expands client + line details.
+   */
+  async getDocumentByResource(resource: string): Promise<BsaleDocument> {
+    const path = resource.startsWith('/') ? resource : `/${resource}`;
+    return this.client.get<BsaleDocument>(path, {
+      expand: '[client,details]'
+    });
+  }
+
   async createQuote(params: CreateQuoteParams): Promise<QuoteSale> {
     const payload = {
       documentTypeId: this.env.BSALE_QUOTE_DOCUMENT_TYPE_ID,

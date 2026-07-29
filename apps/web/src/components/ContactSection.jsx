@@ -1,21 +1,45 @@
 import { useState } from 'react';
+import { sendContactMessage } from '../api/contact.js';
+
+const DEFAULT_HINT = '¡Gracias por contactarnos. Te responderemos antes de 24 horas!';
 
 function ContactSection() {
-  const [hint, setHint] = useState('¡Gracias por contactarnos. Te responderemos antes de 24 horas!');
+  const [hint, setHint] = useState(DEFAULT_HINT);
+  const [hintTone, setHintTone] = useState('muted');
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleContactSubmit(event) {
+  async function handleContactSubmit(event) {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     const name = String(formData.get('name') || '').trim();
     const email = String(formData.get('email') || '').trim();
     const subject = String(formData.get('subject') || '').trim();
     const message = String(formData.get('message') || '').trim();
-    const mailSubject = `Consulta ONA Experiences | ${subject}`;
-    const mailBody = `Hola, mi nombre es ${name}.%0D%0A%0D%0AMi correo es: ${email}%0D%0A%0D%0AConsulta:%0D%0A${encodeURIComponent(message).replace(/%20/g, ' ')}%0D%0A%0D%0AGracias.`;
-    const mailtoUrl = `mailto:vbalmacedae@gmail.com?subject=${encodeURIComponent(mailSubject)}&body=${mailBody}`;
-    setHint('Se abrirá tu correo con el mensaje listo para enviar.');
-    window.location.href = mailtoUrl;
+
+    setSubmitting(true);
+    setHint('Enviando tu consulta…');
+    setHintTone('muted');
+
+    try {
+      await sendContactMessage({ name, email, subject, message });
+      form.reset();
+      setHint('¡Mensaje enviado! Te responderemos antes de 24 horas.');
+      setHintTone('success');
+    } catch (error) {
+      setHint(error instanceof Error ? error.message : 'No pudimos enviar tu mensaje.');
+      setHintTone('error');
+    } finally {
+      setSubmitting(false);
+    }
   }
+
+  const hintClass =
+    hintTone === 'error'
+      ? 'text-sm text-red-300'
+      : hintTone === 'success'
+        ? 'text-sm text-emerald-300'
+        : 'text-sm text-slate-400';
 
   return (
     <section id="contacto" className="bg-slate-950 py-20 text-white">
@@ -48,26 +72,27 @@ function ContactSection() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor="contactName" className="mb-2 block text-sm font-medium text-slate-200">Nombre</label>
-                <input id="contactName" name="name" type="text" placeholder="Tu nombre" className="contact-input" required />
+                <input id="contactName" name="name" type="text" placeholder="Tu nombre" className="contact-input" required disabled={submitting} maxLength={200} />
               </div>
               <div>
                 <label htmlFor="contactEmail" className="mb-2 block text-sm font-medium text-slate-200">Correo</label>
-                <input id="contactEmail" name="email" type="email" placeholder="tuemail@correo.com" className="contact-input" required />
+                <input id="contactEmail" name="email" type="email" placeholder="tuemail@correo.com" className="contact-input" required disabled={submitting} maxLength={320} />
               </div>
             </div>
             <div>
               <label htmlFor="contactSubject" className="mb-2 block text-sm font-medium text-slate-200">Asunto</label>
-              <input id="contactSubject" name="subject" type="text" placeholder="Consulta sobre lodges, guías o alianzas" className="contact-input" required />
+              <input id="contactSubject" name="subject" type="text" placeholder="Consulta sobre lodges, guías o alianzas" className="contact-input" required disabled={submitting} maxLength={200} />
             </div>
             <div>
               <label htmlFor="contactMessage" className="mb-2 block text-sm font-medium text-slate-200">Mensaje</label>
-              <textarea id="contactMessage" name="message" rows="5" placeholder="Cuéntanos qué necesitas..." className="contact-input contact-textarea" required></textarea>
+              <textarea id="contactMessage" name="message" rows="5" placeholder="Cuéntanos qué necesitas..." className="contact-input contact-textarea" required disabled={submitting} maxLength={5000}></textarea>
             </div>
             <div className="flex flex-wrap gap-4 pt-2">
-              <button type="submit" className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 font-semibold text-slate-900 transition hover:bg-slate-200">Enviar consulta</button>
-              <a href="mailto:vbalmacedae@gmail.com" className="inline-flex items-center justify-center rounded-full border border-white/20 px-6 py-3 font-semibold text-white transition hover:bg-white/10">Escribir directo</a>
+              <button type="submit" disabled={submitting} className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 font-semibold text-slate-900 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60">
+                {submitting ? 'Enviando…' : 'Enviar consulta'}
+              </button>
             </div>
-            <p className="text-sm text-slate-400">{hint}</p>
+            <p className={hintClass}>{hint}</p>
           </form>
         </div>
       </div>

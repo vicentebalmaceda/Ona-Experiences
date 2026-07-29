@@ -46,6 +46,7 @@ With the Vercel CLI installed and the project linked, `npm run dev:bff -w @ona/w
 ```bash
 npm run build        # web (functions are compiled by Vercel at deploy time)
 npm run typecheck    # typecheck the BFF TypeScript
+npm run test -w @ona/web   # BFF unit tests (Vitest; Resend mocked)
 ```
 
 ## Deployment (Vercel)
@@ -55,7 +56,7 @@ One Vercel project with **Root Directory = `apps/web`**:
 - The Vite SPA is served statically; `vercel.json` provides the SPA fallback rewrite and maps `/health` → `/api/health`.
 - Every file in `apps/web/api/` becomes a serverless function, so `/api/v1/*` is same-origin with the frontend (leave `VITE_API_URL` empty).
 - Attach `api.<domain>` as an additional domain on the same project to expose the identical `/api/v1/*` paths on a dedicated subdomain.
-- Set the `BSALE_*` variables (and optionally `KV_REST_API_URL`/`KV_REST_API_TOKEN` for the distributed cache, `BSALE_WEBHOOK_SECRET` for the webhook) as project environment variables.
+- Set the `BSALE_*` and Resend (`RESEND_API_KEY`, `MAIL_FROM`, `ADMIN_EMAIL`) variables (and optionally `KV_REST_API_URL`/`KV_REST_API_TOKEN` for the distributed cache) as project environment variables.
 
 ## API — catalog (lodges & guides)
 
@@ -183,6 +184,27 @@ Use `createLogger('your-context')` from `apps/web/utils/logger.ts` for custom de
 
 `limit` and `offset` paginate products under the resolved BSale product type (`GET /product_types/{id}/products.json`). Each product on the page loads one variant. `pagination.count` is BSale’s total product count for that type. You may receive fewer than `limit` items if some products are not services or lack a variant.
 
+## API — contact
+
+`POST /api/v1/contact` accepts the landing-page contact form and emails the configured admin inbox via Resend.
+
+| Field | Required | Notes |
+|-------|----------|-------|
+| `name` | Yes | Max 200 chars |
+| `email` | Yes | Used as `Reply-To` (never as `From`) |
+| `subject` | Yes | Max 200 chars |
+| `message` | Yes | Max 5000 chars |
+
+Example:
+
+```bash
+curl -X POST http://localhost:3003/api/v1/contact \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Ana","email":"ana@example.com","subject":"Consulta","message":"Quiero información sobre lodges."}'
+```
+
+The sender is always `MAIL_FROM` (verified Resend domain/address). Failures return `500` so the UI can show an error.
+
 ## API — sales (cotización)
 
 Creates a BSale **cotización** (pre-sale quote, `declareSii: 0`) for a lodge or guide service. The API upserts the customer in BSale **by email**, validates the product belongs to the expected product type, resolves pricing from the configured price list, and posts `POST /v1/documents.json`.
@@ -277,7 +299,43 @@ Lodge and guide detail pages (`/lodges/:productId`, `/guides/:productId`) includ
 
 ## API — webhooks
 
-`POST /api/webhooks/bsale` receives BSale event notifications (payload: `topic`, `action`, `resource`, `resourceId`, `cpnId`). Product, variant, and price events invalidate the catalog/pricing caches; other topics are logged. New topics are added in `apps/web/services/webhookService.ts`. When `BSALE_WEBHOOK_SECRET` is set, requests must include it as a `?secret=` query parameter or `x-webhook-secret` header.
+`POST /api/webhooks/bsale` receives BSale event notifications. The endpoint is **open** for now (BSale does not sign webhooks; no shared secret).
+
+Example document payload:
+
+```json
+{
+  "cpnId": 2,
+  "resource": "/documents/14417.json",
+  "resourceId": "14417",
+  "topic": "document",
+  "action": "post",
+  "officeId": "2"
+}
+```
+
+`cpnId` identifies the shop instance and is ignored. For documents, the handler GETs `resource` from the BSale API (`expand=[client,details]`) to learn the document type and quote fields.
+
+| Topic | Behavior |
+|-------|----------|
+| `product`, `product_type` | Invalidate catalog cache |
+| `variant`, `price`, `price_list` | Invalidate catalog + pricing caches |
+| `document` + `post` | Fetch `resource`; if type matches `BSALE_QUOTE_DOCUMENT_TYPE_ID`, email admin via Resend |
+| `client`, `stock` | Logged only |
+
+Topic/action matching is case-insensitive. Quote notifications use Resend idempotency key `quote-notification:<documentId>` and a cache mark to limit duplicate emails on webhook retries. Mailer failures return `5xx` so BSale can retry.
+
+Activate BSale webhooks by emailing [ayuda@bsale.app](mailto:ayuda@bsale.app) with your HTTPS URL (e.g. `https://your-domain/api/webhooks/bsale`) and company RUT/`cpnId`. Request at least the **Documento** topic for quote notifications.
+
+Local smoke test:
+
+```bash
+curl -X POST http://localhost:3003/api/webhooks/bsale \
+  -H 'Content-Type: application/json' \
+  -d '{"cpnId":2,"resource":"/documents/14417.json","resourceId":"14417","topic":"document","action":"post","officeId":"2"}'
+```
+
+Quote admin email is **not** sent from the frontend sales endpoints; it is triggered asynchronously by this webhook after BSale creates the cotización.
 
 ## Environment variables
 
@@ -287,8 +345,17 @@ See [apps/web/.env.example](apps/web/.env.example). Required:
 - `BSALE_OFFICE_ID` — Branch id for cotización documents
 - `BSALE_QUOTE_DOCUMENT_TYPE_ID` — Cotización document type id from BSale admin
 - `BSALE_PRICE_LIST_ID` — Price list used for `netUnitValue` on sale lines
+- `RESEND_API_KEY` — Resend API key (server-side only)
+- `MAIL_FROM` — Verified sender, e.g. `ONA Experiences <noreply@your-domain.com>`
+- `ADMIN_EMAIL` — Inbox for contact form and quote notifications
 
-Optional: `BSALE_WEBHOOK_SECRET` (webhook auth), `KV_REST_API_URL` / `KV_REST_API_TOKEN` (Vercel KV distributed cache; falls back to per-instance memory cache).
+Optional: `KV_REST_API_URL` / `KV_REST_API_TOKEN` (Vercel KV distributed cache; falls back to per-instance memory cache).
+
+### Resend setup
+
+1. Create a Resend account and verify your sending domain (or use their onboarding sender for tests).
+2. Set `RESEND_API_KEY`, `MAIL_FROM`, and `ADMIN_EMAIL` in `apps/web/.env` locally and as Vercel project env vars in production.
+3. Confirm `MAIL_FROM` uses the verified domain — customer-submitted addresses are never used as `From`.
 
 ## Related docs
 

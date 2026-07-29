@@ -1,0 +1,10 @@
+process.env.NODE_ENV = 'test';
+process.env.BSALE_ACCESS_TOKEN = 'test-token';
+process.env.BSALE_API_BASE_URL = 'https://api.bsale.io/v1';
+process.env.BSALE_OFFICE_ID = '1';
+process.env.BSALE_QUOTE_DOCUMENT_TYPE_ID = '7';
+process.env.BSALE_PRICE_LIST_ID = '1';
+process.env.CORS_ORIGIN = 'http://localhost:5173';
+process.env.RESEND_API_KEY = 're_test_key';
+process.env.MAIL_FROM = 'Website <noreply@ona.example>';
+process.env.ADMIN_EMAIL = 'admin@ona.example';

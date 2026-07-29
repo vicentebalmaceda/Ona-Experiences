@@ -7,12 +7,17 @@ import { BsaleCatalogRepository, BsaleProductTypeResolver } from '../lib/bsale/p
 import { BsaleVariantPricing } from '../lib/bsale/pricing.js';
 import { MarketInfoEnricher } from '../lib/enrichment/marketInfoEnricher.js';
 import { SeedServiceEnricher } from '../lib/enrichment/seedEnricher.js';
+import { ResendMailer } from '../mailer/resendMailer.js';
+import type { Mailer } from '../mailer/types.js';
 import { CatalogService } from './catalogService.js';
 import { SalesService } from './salesService.js';
 
 export interface Services {
   catalogService: CatalogService;
   salesService: SalesService;
+  mailer: Mailer;
+  salesRepository: BsaleSalesRepository;
+  clientRepository: BsaleClientRepository;
 }
 
 let services: Services | undefined;
@@ -30,6 +35,8 @@ export function getServices(): Services {
   const productTypeResolver = new BsaleProductTypeResolver(client, env);
   const catalogRepository = new BsaleCatalogRepository(client, productTypeResolver);
   const marketInfoRepository = new BsaleMarketInfoRepository(client);
+  const salesRepository = new BsaleSalesRepository(client, env);
+  const clientRepository = new BsaleClientRepository(client);
   // BSale market_info first (wins); seed fills remaining presentation gaps.
   const enrichers = [
     new MarketInfoEnricher(marketInfoRepository),
@@ -40,11 +47,19 @@ export function getServices(): Services {
     catalogService: new CatalogService(catalogRepository, enrichers),
     salesService: new SalesService(
       catalogRepository,
-      new BsaleClientRepository(client),
+      clientRepository,
       new BsaleVariantPricing(client, env),
-      new BsaleSalesRepository(client, env)
-    )
+      salesRepository
+    ),
+    mailer: new ResendMailer(env),
+    salesRepository,
+    clientRepository
   };
 
   return services;
+}
+
+/** Test helper to clear the lazy singleton between cases. */
+export function resetServicesForTests(): void {
+  services = undefined;
 }

@@ -44,3 +44,12 @@ export const saleRequestSchema = z
   });
 
 export type SaleRequestBody = z.infer<typeof saleRequestSchema>;
+
+export const contactRequestSchema = z.object({
+  name: z.string().trim().min(1).max(200),
+  email: z.string().trim().email().max(320),
+  subject: z.string().trim().min(1).max(200),
+  message: z.string().trim().min(1).max(5000)
+});
+
+export type ContactRequestBody = z.infer<typeof contactRequestSchema>;

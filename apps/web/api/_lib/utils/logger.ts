@@ -13,7 +13,11 @@ const SENSITIVE_KEYS = new Set([
   'authorization',
   'password',
   'token',
-  'bsale_access_token'
+  'bsale_access_token',
+  'resend_api_key',
+  'bsale_webhook_secret',
+  'webhook_secret',
+  'secret'
 ]);
 
 // Read straight from process.env (not config/env.ts) so logging works even
