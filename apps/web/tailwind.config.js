@@ -12,8 +12,8 @@ export default {
         slatepro: '#0f172a'
       },
       fontFamily: {
-        display: ['Playfair Display', 'serif'],
-        body: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif']
+        display: ['Nunito Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        body: ['Nunito Sans', 'ui-sans-serif', 'system-ui', 'sans-serif']
       },
       boxShadow: {
         soft: '0 18px 45px rgba(15,23,42,.10)',
