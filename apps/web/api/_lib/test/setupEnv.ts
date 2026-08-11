@@ -8,3 +8,5 @@ process.env.CORS_ORIGIN = 'http://localhost:5173';
 process.env.RESEND_API_KEY = 're_test_key';
 process.env.MAIL_FROM = 'Website <noreply@ona.example>';
 process.env.ADMIN_EMAIL = 'admin@ona.example';
+process.env.RESEND_CONTACT_TEMPLATE_ID = 'contact-form';
+process.env.RESEND_QUOTE_TEMPLATE_ID = 'quote-notification';

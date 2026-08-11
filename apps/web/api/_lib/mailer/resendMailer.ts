@@ -3,15 +3,11 @@ import type { Env } from '../config/env.js';
 import { DomainError } from '../types/errors.js';
 import { createLogger } from '../utils/logger.js';
 import {
-  contactEmailHtml,
   contactEmailSubject,
-  contactEmailText
-} from './templates/contactEmail.js';
-import {
-  quoteEmailHtml,
+  contactTemplateVariables,
   quoteEmailSubject,
-  quoteEmailText
-} from './templates/quoteEmail.js';
+  quoteTemplateVariables
+} from './templateVariables.js';
 import type {
   ContactMessage,
   EmailAttachment,
@@ -39,8 +35,7 @@ export class ResendMailer implements Mailer {
 
   async sendContactMessage(data: ContactMessage): Promise<void> {
     const subject = contactEmailSubject(data);
-    const html = contactEmailHtml(data);
-    const text = contactEmailText(data);
+    const variables = contactTemplateVariables(data);
 
     log.info('Sending contact message email', { subject });
 
@@ -49,8 +44,10 @@ export class ResendMailer implements Mailer {
       to: [this.env.ADMIN_EMAIL],
       replyTo: data.email,
       subject,
-      html,
-      text
+      template: {
+        id: this.env.RESEND_CONTACT_TEMPLATE_ID,
+        variables
+      }
     });
 
     if (error) {
@@ -61,11 +58,11 @@ export class ResendMailer implements Mailer {
 
   async sendQuoteNotification(data: QuoteNotification): Promise<void> {
     const subject = quoteEmailSubject(data);
-    const html = quoteEmailHtml(data);
-    const text = quoteEmailText(data);
+    const variables = quoteTemplateVariables(data);
+    const replyTo = data.customer?.email?.trim() || undefined;
     // Version the key when the email payload shape changes so Resend allows a
     // new send (same key + different body returns 409 for 24h).
-    const idempotencyKey = `quote-notification:${data.documentId}`;
+    const idempotencyKey = `quote-notification:v6:${data.documentId}`;
 
     log.info('Sending quote notification email', {
       documentId: data.documentId,
@@ -76,9 +73,12 @@ export class ResendMailer implements Mailer {
       {
         from: this.env.MAIL_FROM,
         to: [this.env.ADMIN_EMAIL],
+        ...(replyTo ? { replyTo } : {}),
         subject,
-        html,
-        text,
+        template: {
+          id: this.env.RESEND_QUOTE_TEMPLATE_ID,
+          variables
+        },
         attachments: toResendAttachments(data.attachments)
       },
       { idempotencyKey }
@@ -93,13 +93,3 @@ export class ResendMailer implements Mailer {
     }
   }
 }
-
-/** Exported for unit tests that assert payload construction without calling Resend. */
-export {
-  contactEmailHtml,
-  contactEmailSubject,
-  contactEmailText,
-  quoteEmailHtml,
-  quoteEmailSubject,
-  quoteEmailText
-};

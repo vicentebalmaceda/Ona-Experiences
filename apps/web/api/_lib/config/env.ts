@@ -15,7 +15,9 @@ const envSchema = z.object({
   KV_REST_API_TOKEN: z.string().optional(),
   RESEND_API_KEY: z.string().min(1, 'RESEND_API_KEY is required'),
   MAIL_FROM: z.string().min(1, 'MAIL_FROM is required'),
-  ADMIN_EMAIL: z.string().email('ADMIN_EMAIL must be a valid email')
+  ADMIN_EMAIL: z.string().email('ADMIN_EMAIL must be a valid email'),
+  RESEND_CONTACT_TEMPLATE_ID: z.string().min(1, 'RESEND_CONTACT_TEMPLATE_ID is required'),
+  RESEND_QUOTE_TEMPLATE_ID: z.string().min(1, 'RESEND_QUOTE_TEMPLATE_ID is required')
 });
 
 const envSchemaWithDefaults = envSchema.transform((data) => ({
