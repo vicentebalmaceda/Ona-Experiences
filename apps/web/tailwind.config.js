@@ -20,7 +20,7 @@ export default {
         card: '0 16px 30px rgba(15,23,42,.08)'
       },
       backgroundImage: {
-        hero: "linear-gradient(90deg, rgba(9,18,28,.78) 0%, rgba(12,24,22,.55) 50%, rgba(12,24,22,.25) 100%), url('/assets/OnaExperiences.jpg')"
+        hero: "url('/assets/OnaExperiences.jpg')"
       }
     }
   },
