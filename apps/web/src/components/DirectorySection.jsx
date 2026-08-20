@@ -1,6 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import DirectoryCard from './DirectoryCard.jsx';
 
 function DirectorySection({ id, eyebrow, title, description, items, emptyText, ratingVersion, onRate }) {
+  const { t } = useTranslation();
+
   return (
     <section id={id} className="pb-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -10,7 +13,7 @@ function DirectorySection({ id, eyebrow, title, description, items, emptyText, r
         </div>
         <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {items.length ? items.map(item => <DirectoryCard key={`${item.type}-${item.name}`} item={item} ratingVersion={ratingVersion} onRate={onRate} />) : (
-            <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-slate-500 md:col-span-2 xl:col-span-3">{emptyText}</div>
+            <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-slate-500 md:col-span-2 xl:col-span-3">{emptyText || t('experience.no_filter_results')}</div>
           )}
         </div>
       </div>

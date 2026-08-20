@@ -1,10 +1,13 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const SWIPE_THRESHOLD_PX = 40;
 
-function PhotoLightbox({ images, index, open, onClose, onIndexChange, alt = 'Foto' }) {
+function PhotoLightbox({ images, index, open, onClose, onIndexChange, alt }) {
+  const { t } = useTranslation();
   const closeRef = useRef(null);
   const touchStartX = useRef(null);
+  const photoAlt = alt || t('lightbox.photo_alt');
 
   const count = images?.length ?? 0;
   const safeIndex = count > 0 ? ((index % count) + count) % count : 0;
@@ -70,7 +73,7 @@ function PhotoLightbox({ images, index, open, onClose, onIndexChange, alt = 'Fot
       className="photo-lightbox"
       role="dialog"
       aria-modal="true"
-      aria-label="Galería de fotos"
+      aria-label={t('lightbox.gallery')}
       onClick={onClose}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
@@ -84,7 +87,7 @@ function PhotoLightbox({ images, index, open, onClose, onIndexChange, alt = 'Fot
           type="button"
           className="photo-lightbox__close"
           onClick={onClose}
-          aria-label="Cerrar galería"
+          aria-label={t('lightbox.close')}
         >
           ×
         </button>
@@ -99,7 +102,7 @@ function PhotoLightbox({ images, index, open, onClose, onIndexChange, alt = 'Fot
               event.stopPropagation();
               goPrev();
             }}
-            aria-label="Foto anterior"
+            aria-label={t('lightbox.prev')}
           >
             ‹
           </button>
@@ -110,7 +113,7 @@ function PhotoLightbox({ images, index, open, onClose, onIndexChange, alt = 'Fot
               event.stopPropagation();
               goNext();
             }}
-            aria-label="Foto siguiente"
+            aria-label={t('lightbox.next')}
           >
             ›
           </button>
@@ -118,7 +121,7 @@ function PhotoLightbox({ images, index, open, onClose, onIndexChange, alt = 'Fot
       ) : null}
 
       <div className="photo-lightbox__stage" onClick={(event) => event.stopPropagation()}>
-        <img src={currentSrc} alt={`${alt} ${safeIndex + 1}`} className="photo-lightbox__image" />
+        <img src={currentSrc} alt={`${photoAlt} ${safeIndex + 1}`} className="photo-lightbox__image" />
       </div>
     </div>
   );

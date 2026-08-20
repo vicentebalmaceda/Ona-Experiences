@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import CompactMap from './CompactMap.jsx';
 import { getRatingStats, renderStars } from '../utils/rating.js';
 import { getReferencePrice } from '../utils/referencePrice.js';
@@ -13,6 +14,7 @@ function normalizeText(value) {
 }
 
 function ExperienceListItem({ item, ratingVersion, onSelect }) {
+  const { t } = useTranslation();
   const stats = getRatingStats(item, ratingVersion);
   const referencePrice = getReferencePrice(item);
 
@@ -31,7 +33,7 @@ function ExperienceListItem({ item, ratingVersion, onSelect }) {
         </div>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
           <span className="rating-stars leading-none">{renderStars(stats.average)}</span>
-          <span>{stats.reviews} reseñas</span>
+          <span>{t('experience.reviews_count', { count: stats.reviews })}</span>
           {referencePrice ? (
             <>
               <span className="hidden h-1 w-1 rounded-full bg-slate-300 sm:inline-block"></span>
@@ -45,14 +47,15 @@ function ExperienceListItem({ item, ratingVersion, onSelect }) {
 }
 
 function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroImage, heroAlt, items, ratingVersion, onSelect, emptyText }) {
+  const { t, i18n } = useTranslation();
   const [query, setQuery] = useState('');
   const [zone, setZone] = useState('all');
 
   const zones = useMemo(() => ['all', ...new Set(items.map(item => item.zone).filter(Boolean))].sort((a, b) => {
     if (a === 'all') return -1;
     if (b === 'all') return 1;
-    return a.localeCompare(b, 'es');
-  }), [items]);
+    return a.localeCompare(b, i18n.language);
+  }), [items, i18n.language]);
 
   const filteredItems = useMemo(() => {
     const normalizedQuery = normalizeText(query.trim());
@@ -67,11 +70,11 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
 
   const listEmptyMessage = !items.length && emptyText
     ? emptyText
-    : 'No hay resultados para este filtro.';
+    : t('experience.no_filter_results');
 
   return (
-    <section id={mapAnchorId || id} className="experience-screen scroll-mt-24 py-14 sm:py-16">
-      <div id={id} className="mx-auto max-w-7xl scroll-mt-24 px-4 sm:px-6 lg:px-8">
+    <section id={mapAnchorId || id} className="experience-screen scroll-mt-28 py-14 sm:py-16">
+      <div id={id} className="mx-auto max-w-7xl scroll-mt-28 px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-deep">{eyebrow}</p>
@@ -85,16 +88,16 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
             <img src={imageUrl(heroImage || heroItem?.image)} alt={heroAlt || title} className="absolute inset-0 h-full w-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-transparent"></div>
             <div className="relative z-10 flex h-full flex-col justify-end p-6 text-white">
-              <span className="mb-4 w-fit rounded-full border border-white/20 bg-white/12 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] backdrop-blur">Fly Fishing</span>
-              <h3 className="font-display text-3xl leading-tight">Compara, elige y planifica con confianza.</h3>
+              <span className="mb-4 w-fit rounded-full border border-white/20 bg-white/12 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] backdrop-blur">{t('experience.fly_fishing')}</span>
+              <h3 className="font-display text-3xl leading-tight">{t('experience.photo_title')}</h3>
               <div className="mt-6 grid grid-cols-2 gap-3">
                 <div className="rounded-2xl border border-white/10 bg-white/12 p-4 backdrop-blur">
                   <p className="text-3xl font-extrabold">{items.length}</p>
-                  <p className="mt-1 text-xs uppercase tracking-[0.16em] text-white/75">Opciones</p>
+                  <p className="mt-1 text-xs uppercase tracking-[0.16em] text-white/75">{t('experience.options')}</p>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-white/12 p-4 backdrop-blur">
                   <p className="text-3xl font-extrabold">{zones.length - 1}</p>
-                  <p className="mt-1 text-xs uppercase tracking-[0.16em] text-white/75">zonas</p>
+                  <p className="mt-1 text-xs uppercase tracking-[0.16em] text-white/75">{t('experience.zones')}</p>
                 </div>
               </div>
             </div>
@@ -104,18 +107,18 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
             <div className="border-b border-slate-200 p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.2em] text-deep">Directorio</p>
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-deep">{t('experience.directory')}</p>
                   <h3 className="mt-1 text-2xl font-extrabold text-slate-950">{eyebrow}</h3>
                 </div>
-                <span className="rounded-full bg-mist px-3 py-1.5 text-xs font-black text-deep">{filteredItems.length} visibles</span>
+                <span className="rounded-full bg-mist px-3 py-1.5 text-xs font-black text-deep">{t('experience.visible', { count: filteredItems.length })}</span>
               </div>
 
               <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_0.8fr]">
-                <label className="sr-only" htmlFor={`${id}-search`}>Buscar</label>
-                <input id={`${id}-search`} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar por nombre o zona" className="directory-input" />
-                <label className="sr-only" htmlFor={`${id}-zone`}>Zona</label>
+                <label className="sr-only" htmlFor={`${id}-search`}>{t('experience.search')}</label>
+                <input id={`${id}-search`} value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t('experience.search_placeholder')} className="directory-input" />
+                <label className="sr-only" htmlFor={`${id}-zone`}>{t('experience.zone')}</label>
                 <select id={`${id}-zone`} value={zone} onChange={(event) => setZone(event.target.value)} className="directory-input">
-                  {zones.map(itemZone => <option key={itemZone} value={itemZone}>{itemZone === 'all' ? 'Todas las zonas' : itemZone}</option>)}
+                  {zones.map(itemZone => <option key={itemZone} value={itemZone}>{itemZone === 'all' ? t('experience.all_zones') : itemZone}</option>)}
                 </select>
               </div>
             </div>
@@ -139,16 +142,16 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
           <aside className="experience-map-card">
             <div className="map-panel-header">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-300">Mapa ONA</p>
-                <h3 className="text-lg font-bold text-white">Ubicación de {eyebrow.toLowerCase()}</h3>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-300">{t('experience.map_label')}</p>
+                <h3 className="text-lg font-bold text-white">{t('experience.map_title', { eyebrow: eyebrow.toLowerCase() })}</h3>
               </div>
-              <div className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-white">{filteredItems.length} puntos</div>
+              <div className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-white">{t('experience.map_points', { count: filteredItems.length })}</div>
             </div>
-            <CompactMap items={filteredItems} ratingVersion={ratingVersion} onSelect={onSelect} ariaLabel={`Mapa de ${eyebrow}`} />
+            <CompactMap items={filteredItems} ratingVersion={ratingVersion} onSelect={onSelect} ariaLabel={t('experience.map_aria', { eyebrow })} />
             <div className="map-panel-footer">
-              <span className="inline-flex items-center gap-2"><span className="marker-dot marker-dot-lodge"></span>Lodges</span>
-              <span className="inline-flex items-center gap-2"><span className="marker-dot marker-dot-guide"></span>Guías</span>
-              <span className="ml-auto hidden text-slate-500 md:inline">Click en un punto para ver detalle</span>
+              <span className="inline-flex items-center gap-2"><span className="marker-dot marker-dot-lodge"></span>{t('experience.lodges_legend')}</span>
+              <span className="inline-flex items-center gap-2"><span className="marker-dot marker-dot-guide"></span>{t('experience.guides_legend')}</span>
+              <span className="ml-auto hidden text-slate-500 md:inline">{t('experience.map_click_hint')}</span>
             </div>
           </aside>
         </div>

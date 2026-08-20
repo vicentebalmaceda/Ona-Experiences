@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createQuoteSale } from '../api/sales.js';
 import { loadUserProfile, saveUserProfile } from '../utils/userProfile.js';
 
@@ -7,6 +8,7 @@ function todayIsoDate() {
 }
 
 function QuoteRequestForm({ catalogType, productId, productName }) {
+  const { t, i18n } = useTranslation();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -50,28 +52,28 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
       setQuoteResult(result);
       setStatus('success');
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'No se pudo enviar la cotización.');
+      setErrorMessage(error instanceof Error ? error.message : t('quote.error_fallback'));
       setStatus('error');
     }
   }
 
   return (
     <section className="mt-8 border-t border-slate-200 pt-6">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Solicitar cotización</p>
-      <h2 className="mt-2 text-2xl font-bold text-slate-900">Reserva para {productName}</h2>
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{t('quote.eyebrow')}</p>
+      <h2 className="mt-2 text-2xl font-bold text-slate-900">{t('quote.title', { name: productName })}</h2>
       <p className="mt-2 text-sm text-slate-600">
-        Completa tus datos y te enviaremos una cotización vinculada a tu correo.
+        {t('quote.subtitle')}
       </p>
 
       {status === 'success' && quoteResult ? (
         <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm text-emerald-900">
-          <p className="font-semibold">Cotización enviada correctamente</p>
-          <p className="mt-2">Referencia: {quoteResult.salesId}</p>
+          <p className="font-semibold">{t('quote.success')}</p>
+          <p className="mt-2">{t('quote.reference', { id: quoteResult.salesId })}</p>
           {quoteResult.documentNumber ? (
-            <p className="mt-1">Número de documento: {quoteResult.documentNumber}</p>
+            <p className="mt-1">{t('quote.document_number', { number: quoteResult.documentNumber })}</p>
           ) : null}
           {quoteResult.totalAmount != null ? (
-            <p className="mt-1">Total: ${quoteResult.totalAmount.toLocaleString('es-CL')}</p>
+            <p className="mt-1">{t('quote.total', { amount: quoteResult.totalAmount.toLocaleString(i18n.language === 'en' ? 'en-US' : 'es-CL') })}</p>
           ) : null}
           <div className="mt-4 flex flex-wrap gap-3">
             {quoteResult.urlPdf ? (
@@ -81,7 +83,7 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
                 rel="noreferrer"
                 className="inline-flex items-center justify-center rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-800"
               >
-                Ver PDF
+                {t('quote.view_pdf')}
               </a>
             ) : null}
             {quoteResult.urlPublicView ? (
@@ -91,7 +93,7 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
                 rel="noreferrer"
                 className="inline-flex items-center justify-center rounded-full border border-emerald-300 px-4 py-2 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-100"
               >
-                Ver cotización
+                {t('quote.view_quote')}
               </a>
             ) : null}
           </div>
@@ -101,7 +103,7 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="quoteFirstName" className="mb-2 block text-sm font-medium text-slate-700">
-                Nombre
+                {t('quote.first_name')}
               </label>
               <input
                 id="quoteFirstName"
@@ -114,7 +116,7 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
             </div>
             <div>
               <label htmlFor="quoteLastName" className="mb-2 block text-sm font-medium text-slate-700">
-                Apellido
+                {t('quote.last_name')}
               </label>
               <input
                 id="quoteLastName"
@@ -129,7 +131,7 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
 
           <div>
             <label htmlFor="quoteEmail" className="mb-2 block text-sm font-medium text-slate-700">
-              Correo
+              {t('quote.email')}
             </label>
             <input
               id="quoteEmail"
@@ -137,7 +139,7 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               className="quote-input"
-              placeholder="tuemail@correo.com"
+              placeholder={t('quote.email_placeholder')}
               required
             />
           </div>
@@ -145,7 +147,7 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="quoteStartDate" className="mb-2 block text-sm font-medium text-slate-700">
-                Fecha de inicio
+                {t('quote.start_date')}
               </label>
               <input
                 id="quoteStartDate"
@@ -165,7 +167,7 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
             </div>
             <div>
               <label htmlFor="quoteEndDate" className="mb-2 block text-sm font-medium text-slate-700">
-                Fecha de término
+                {t('quote.end_date')}
               </label>
               <input
                 id="quoteEndDate"
@@ -181,14 +183,14 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
 
           <div>
             <label htmlFor="quoteExplanation" className="mb-2 block text-sm font-medium text-slate-700">
-              Detalle de la reserva
+              {t('quote.notes')}
             </label>
             <textarea
               id="quoteExplanation"
               value={explanation}
               onChange={(event) => setExplanation(event.target.value)}
               className="quote-input quote-textarea"
-              placeholder="Cuéntanos número de personas, servicios requeridos, etc."
+              placeholder={t('quote.notes_placeholder')}
               minLength={10}
               required
             />
@@ -205,7 +207,7 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
             disabled={status === 'submitting'}
             className="inline-flex items-center justify-center rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {status === 'submitting' ? 'Enviando cotización…' : 'Solicitar cotización'}
+            {status === 'submitting' ? t('quote.submitting') : t('quote.submit')}
           </button>
         </form>
       )}

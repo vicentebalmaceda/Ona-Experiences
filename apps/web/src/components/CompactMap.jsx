@@ -1,11 +1,15 @@
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
+import { useTranslation } from 'react-i18next';
 import { createMarkerIcon, popupTemplate } from '../utils/map.js';
+import { getRatingStats } from '../utils/rating.js';
 
-function CompactMap({ items, ratingVersion, onSelect, ariaLabel = 'Mapa interactivo' }) {
+function CompactMap({ items, ratingVersion, onSelect, ariaLabel }) {
+  const { t } = useTranslation();
   const mapElementRef = useRef(null);
   const mapRef = useRef(null);
   const markerLayerRef = useRef(null);
+  const resolvedAriaLabel = ariaLabel || t('map.aria_default');
 
   useEffect(() => {
     if (!mapElementRef.current || mapRef.current) return;
@@ -53,9 +57,21 @@ function CompactMap({ items, ratingVersion, onSelect, ariaLabel = 'Mapa interact
     items.forEach(item => {
       if (typeof item.lat !== 'number' || typeof item.lng !== 'number') return;
 
+      const stats = getRatingStats(item, ratingVersion);
+      const labels = {
+        typeLabel: item.type === 'Lodge' ? t('types.lodge') : t('types.guide'),
+        notInformed: t('map.not_informed'),
+        zone: t('map.zone'),
+        representative: t('map.representative'),
+        phone: t('map.phone'),
+        email: t('map.email'),
+        reviews: t('map.reviews', { count: stats.reviews }),
+        viewDetail: t('map.view_detail')
+      };
+
       const marker = L.marker([item.lat, item.lng], {
         icon: createMarkerIcon(item.type)
-      }).bindPopup(popupTemplate(item, ratingVersion), { className: 'custom-popup' });
+      }).bindPopup(popupTemplate(item, ratingVersion, labels), { className: 'custom-popup' });
 
       marker.on('click', () => onSelect?.(item));
       marker.addTo(markerLayer);
@@ -71,9 +87,9 @@ function CompactMap({ items, ratingVersion, onSelect, ariaLabel = 'Mapa interact
     }
 
     setTimeout(() => map.invalidateSize(), 80);
-  }, [items, ratingVersion, onSelect]);
+  }, [items, ratingVersion, onSelect, t]);
 
-  return <div ref={mapElementRef} className="interactive-map" role="region" aria-label={ariaLabel}></div>;
+  return <div ref={mapElementRef} className="interactive-map" role="region" aria-label={resolvedAriaLabel}></div>;
 }
 
 export default CompactMap;
