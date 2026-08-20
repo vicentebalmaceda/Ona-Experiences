@@ -17,7 +17,8 @@ export function mapCatalogVariantToGuide(variant: CatalogVariant): Guide {
     gallery: presentation.gallery,
     rating: presentation.rating,
     reviews: presentation.reviews,
-    ratingLabel: presentation.ratingLabel
+    ratingLabel: presentation.ratingLabel,
+    referencePrice: presentation.referencePrice
   };
 }
 

@@ -2,11 +2,10 @@ import { Link } from 'react-router-dom';
 import GalleryStrip from './GalleryStrip.jsx';
 import RatingPanel from './RatingPanel.jsx';
 import { getRatingStats, renderStars } from '../utils/rating.js';
+import { getReferencePrice } from '../utils/referencePrice.js';
 
 function DirectoryCard({ item, ratingVersion, onRate }) {
-  const feeText = item.type === 'Lodge'
-    ? '$200.000 mensual + 10% comisión desde la segunda reserva'
-    : '$50.000 mensual';
+  const referencePrice = getReferencePrice(item);
   const stats = getRatingStats(item, ratingVersion);
   const detailPath = item.productId
     ? item.type === 'Lodge'
@@ -43,10 +42,12 @@ function DirectoryCard({ item, ratingVersion, onRate }) {
           <p className="mt-2 contact-link"><span className="font-semibold text-slate-900">Email:</span> {item.email || 'No informado'}</p>
           <p className="mt-2"><span className="font-semibold text-slate-900">Zona:</span> {item.zone}</p>
         </div>
-        <div className="mt-5 border-t border-slate-200 pt-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Tarifa visible</p>
-          <p className="mt-2 text-base font-bold text-slate-900">{feeText}</p>
-        </div>
+        {referencePrice ? (
+          <div className="mt-5 border-t border-slate-200 pt-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Precio de referencia</p>
+            <p className="mt-2 text-base font-bold text-slate-900">{referencePrice}</p>
+          </div>
+        ) : null}
         <RatingPanel item={item} ratingVersion={ratingVersion} onRate={onRate} />
         {detailPath ? (
           <Link

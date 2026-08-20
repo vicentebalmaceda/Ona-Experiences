@@ -78,6 +78,7 @@ access_token: <PRODUCTION_TOKEN>
 | `descriptions[]` (`Zone`) | `presentation.zone` | Strip HTML → string |
 | `descriptions[]` (`Phone`) | `presentation.phone` | Strip HTML → string |
 | `descriptions[]` (`Email`) | `presentation.email` | Prefer `mailto:` href, else stripped text |
+| `descriptions[]` (`reference_price`) | `presentation.referencePrice` | Strip HTML → display string; empty/missing hides price UI |
 | `id` | web product id | For pictures/detail follow-ups only |
 
 **Not provided by market_info descriptions:** `representative`, `rating`, `reviews`, `ratingLabel` — keep seed enrichment for those. Missing description blocks leave the matching presentation field null until seed fills gaps.

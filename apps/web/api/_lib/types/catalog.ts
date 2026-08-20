@@ -14,6 +14,8 @@ export interface ServicePresentation {
   rating: number | null;
   reviews: number | null;
   ratingLabel: string | null;
+  /** Display text from BSale description attribute `reference_price`. */
+  referencePrice: string | null;
   /** HTML (or plain) copy from BSale market_info descripción web. */
   description: string | null;
 }
@@ -30,6 +32,7 @@ export const EMPTY_SERVICE_PRESENTATION: ServicePresentation = {
   rating: null,
   reviews: null,
   ratingLabel: null,
+  referencePrice: null,
   description: null
 };
 
@@ -74,6 +77,7 @@ export interface Lodge {
   rating: number | null;
   reviews: number | null;
   ratingLabel: string | null;
+  referencePrice: string | null;
 }
 
 export interface Guide {
@@ -90,4 +94,5 @@ export interface Guide {
   rating: number | null;
   reviews: number | null;
   ratingLabel: string | null;
+  referencePrice: string | null;
 }

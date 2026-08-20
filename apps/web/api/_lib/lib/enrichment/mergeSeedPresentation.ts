@@ -14,6 +14,7 @@ export interface CatalogSeedRecord {
   rating?: number | null;
   reviews?: number | null;
   ratingLabel?: string | null;
+  referencePrice?: string | null;
   description?: string | null;
 }
 
@@ -40,6 +41,7 @@ export function mergeSeedPresentation(
     'rating',
     'reviews',
     'ratingLabel',
+    'referencePrice',
     'description'
   ];
 

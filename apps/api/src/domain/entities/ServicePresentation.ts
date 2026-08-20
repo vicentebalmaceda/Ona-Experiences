@@ -10,6 +10,7 @@ export interface ServicePresentation {
   rating: number | null;
   reviews: number | null;
   ratingLabel: string | null;
+  referencePrice: string | null;
 }
 
 export const EMPTY_SERVICE_PRESENTATION: ServicePresentation = {
@@ -23,5 +24,6 @@ export const EMPTY_SERVICE_PRESENTATION: ServicePresentation = {
   gallery: null,
   rating: null,
   reviews: null,
-  ratingLabel: null
+  ratingLabel: null,
+  referencePrice: null
 };

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import CompactMap from './CompactMap.jsx';
 import { getRatingStats, renderStars } from '../utils/rating.js';
+import { getReferencePrice } from '../utils/referencePrice.js';
 
 function imageUrl(src) {
   if (!src) return '';
@@ -11,14 +12,9 @@ function normalizeText(value) {
   return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
-function feeTextFor(item) {
-  return item.type === 'Lodge'
-    ? '$200.000 mensual + 10% comisión desde la segunda reserva'
-    : '$50.000 mensual';
-}
-
 function ExperienceListItem({ item, ratingVersion, onSelect }) {
   const stats = getRatingStats(item, ratingVersion);
+  const referencePrice = getReferencePrice(item);
 
   return (
     <button type="button" onClick={() => onSelect(item)} className="experience-list-item group">
@@ -36,8 +32,12 @@ function ExperienceListItem({ item, ratingVersion, onSelect }) {
         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
           <span className="rating-stars leading-none">{renderStars(stats.average)}</span>
           <span>{stats.reviews} reseñas</span>
-          <span className="hidden h-1 w-1 rounded-full bg-slate-300 sm:inline-block"></span>
-          <span className="truncate font-semibold text-slate-700">{feeTextFor(item)}</span>
+          {referencePrice ? (
+            <>
+              <span className="hidden h-1 w-1 rounded-full bg-slate-300 sm:inline-block"></span>
+              <span className="truncate font-semibold text-slate-700">{referencePrice}</span>
+            </>
+          ) : null}
         </div>
       </div>
     </button>

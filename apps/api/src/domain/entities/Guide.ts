@@ -11,4 +11,5 @@ export interface Guide {
   rating: number | null;
   reviews: number | null;
   ratingLabel: string | null;
+  referencePrice: string | null;
 }

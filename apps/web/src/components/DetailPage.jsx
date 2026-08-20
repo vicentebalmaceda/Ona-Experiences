@@ -6,6 +6,7 @@ import PhotoLightbox from './PhotoLightbox.jsx';
 import RatingPanel from './RatingPanel.jsx';
 import QuoteRequestForm from './QuoteRequestForm.jsx';
 import { getRatingStats, renderStars } from '../utils/rating.js';
+import { getReferencePrice } from '../utils/referencePrice.js';
 
 const DESCRIPTION_ALLOWED_TAGS = [
   'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
@@ -32,12 +33,6 @@ function uniqueImageUrls(sources) {
   return urls;
 }
 
-function feeTextFor(item) {
-  return item.type === 'Lodge'
-    ? '$200.000 mensual + 10% comisión desde la segunda reserva'
-    : '$50.000 mensual';
-}
-
 function normalizedPhone(phone) {
   return String(phone || '').replace(/[^0-9]/g, '');
 }
@@ -54,6 +49,7 @@ function sanitizeMarketDescription(html) {
 
 function DetailPage({ item, catalogType, productId, ratingVersion, onRate, onBack, onNavigate }) {
   const stats = getRatingStats(item, ratingVersion);
+  const referencePrice = getReferencePrice(item);
   const gallery = item.gallery?.length ? item.gallery : [item.image];
   const uniqueGallery = useMemo(
     () => uniqueImageUrls([...(gallery || []), item.image]),
@@ -142,7 +138,9 @@ function DetailPage({ item, catalogType, productId, ratingVersion, onRate, onBac
               <div className="mt-6 grid gap-5 md:grid-cols-3">
                 <div className="detail-fact"><span>Tipo</span><strong>{item.type}</strong></div>
                 <div className="detail-fact"><span>Zona</span><strong>{item.zone}</strong></div>
-                <div className="detail-fact"><span>Tarifa visible</span><strong>{feeTextFor(item)}</strong></div>
+                {referencePrice ? (
+                  <div className="detail-fact"><span>Precio de referencia</span><strong>{referencePrice}</strong></div>
+                ) : null}
               </div>
               {descriptionHtml ? (
                 <div
@@ -215,10 +213,12 @@ function DetailPage({ item, catalogType, productId, ratingVersion, onRate, onBac
                 <p className="mt-2 text-sm leading-6 text-slate-300">Envía una cotización vinculada a tu correo a través de BSale.</p>
               </div>
 
-              <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Tarifa visible</p>
-                <p className="mt-2 text-lg font-black text-slate-950">{feeTextFor(item)}</p>
-              </div>
+              {referencePrice ? (
+                <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Precio de referencia</p>
+                  <p className="mt-2 text-lg font-black text-slate-950">{referencePrice}</p>
+                </div>
+              ) : null}
 
               <QuoteRequestForm
                 catalogType={catalogType}

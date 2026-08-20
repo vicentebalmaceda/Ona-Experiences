@@ -66,6 +66,9 @@ export class MarketInfoEnricher implements ServiceEnricher {
       if (fromDescriptions.email !== undefined) presentation.email = fromDescriptions.email;
       if (fromDescriptions.lat !== undefined) presentation.lat = fromDescriptions.lat;
       if (fromDescriptions.lng !== undefined) presentation.lng = fromDescriptions.lng;
+      if (fromDescriptions.referencePrice !== undefined) {
+        presentation.referencePrice = fromDescriptions.referencePrice;
+      }
 
       const productName = nonEmpty(info.name) ? info.name.trim() : variant.productName;
 

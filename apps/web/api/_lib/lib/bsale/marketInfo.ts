@@ -17,6 +17,7 @@ export type DescriptionsPresentation = {
   email?: string;
   lat?: number;
   lng?: number;
+  referencePrice?: string;
 };
 
 function isPictureArray(
@@ -65,8 +66,8 @@ function parseCoordinate(raw: string): number | undefined {
 }
 
 /**
- * Maps expand=[descriptions] blocks (Lat, Lng, Zone, Phone, Email) into presentation fields.
- * Missing or empty entries are omitted so callers can leave those fields null.
+ * Maps expand=[descriptions] blocks (Lat, Lng, Zone, Phone, Email, reference_price)
+ * into presentation fields. Missing or empty entries are omitted so callers can leave those fields null.
  */
 export function extractPresentationFromDescriptions(
   info: BsaleMarketInfo
@@ -111,6 +112,13 @@ export function extractPresentationFromDescriptions(
   if (typeof emailHtml === 'string') {
     const email = extractMailto(emailHtml) ?? stripHtml(emailHtml);
     if (email) result.email = email;
+  }
+
+  const referencePriceHtml =
+    byName.get('reference_price')?.html ?? byName.get('referenceprice')?.html;
+  if (typeof referencePriceHtml === 'string') {
+    const referencePrice = stripHtml(referencePriceHtml);
+    if (referencePrice) result.referencePrice = referencePrice;
   }
 
   return result;
