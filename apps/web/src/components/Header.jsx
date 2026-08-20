@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+const ONA_FLYFISHING_URL = 'https://www.onaflyfishing.cl';
+
 const links = [
-  { label: 'Mapa', section: 'mapa-section' },
+  { label: 'Ir a onaflyfishing', href: ONA_FLYFISHING_URL },
   { label: 'Lodges', section: 'lodges-section' },
   { label: 'Guías', section: 'guias-section' }
 ];
@@ -24,6 +26,44 @@ function Header({ onNavigate }) {
     ? { type: 'button', onClick: () => goTo('inicio'), className: 'flex items-center gap-3 text-left' }
     : { to: '/#inicio', className: 'flex items-center gap-3' };
 
+  function renderNavLink(link, { mobile = false } = {}) {
+    const key = link.href || link.section;
+    if (link.href) {
+      return (
+        <a
+          key={key}
+          href={link.href}
+          className={mobile ? 'block rounded-lg px-3 py-2 hover:bg-white/5' : 'transition hover:text-white'}
+          onClick={() => setOpen(false)}
+        >
+          {link.label}
+        </a>
+      );
+    }
+    if (onNavigate) {
+      return (
+        <button
+          key={key}
+          type="button"
+          onClick={() => goTo(link.section)}
+          className={mobile ? 'block w-full rounded-lg px-3 py-2 text-left hover:bg-white/5' : 'transition hover:text-white'}
+        >
+          {link.label}
+        </button>
+      );
+    }
+    return (
+      <Link
+        key={key}
+        to={`/#${link.section}`}
+        onClick={mobile ? () => setOpen(false) : undefined}
+        className={mobile ? 'block rounded-lg px-3 py-2 hover:bg-white/5' : 'hover:text-white'}
+      >
+        {link.label}
+      </Link>
+    );
+  }
+
   return (
     <header className="fixed inset-x-0 top-0 z-[1000] border-b border-white/10 bg-slate-950/70 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
@@ -35,13 +75,7 @@ function Header({ onNavigate }) {
           </div>
         </LogoWrapper>
         <nav className="hidden items-center gap-6 text-sm text-slate-200 md:flex">
-          {links.map(link => (
-            onNavigate ? (
-              <button key={link.section} type="button" onClick={() => goTo(link.section)} className="transition hover:text-white">{link.label}</button>
-            ) : (
-              <Link key={link.section} to={`/#${link.section}`} className="hover:text-white">{link.label}</Link>
-            )
-          ))}
+          {links.map(link => renderNavLink(link))}
           {onNavigate ? (
             <button type="button" onClick={() => goTo('contacto')} className="rounded-full bg-white px-4 py-2 font-semibold text-slate-900 transition hover:bg-slate-200">Contacto</button>
           ) : (
@@ -54,13 +88,7 @@ function Header({ onNavigate }) {
       </div>
       <div className={`${open ? 'block' : 'hidden'} border-t border-white/10 bg-slate-950/95 md:hidden`}>
         <div className="space-y-1 px-4 py-4 text-sm text-slate-200">
-          {links.map(link => (
-            onNavigate ? (
-              <button key={link.section} type="button" onClick={() => goTo(link.section)} className="block w-full rounded-lg px-3 py-2 text-left hover:bg-white/5">{link.label}</button>
-            ) : (
-              <Link key={link.section} to={`/#${link.section}`} onClick={() => setOpen(false)} className="block rounded-lg px-3 py-2 hover:bg-white/5">{link.label}</Link>
-            )
-          ))}
+          {links.map(link => renderNavLink(link, { mobile: true }))}
           {onNavigate ? (
             <button type="button" onClick={() => goTo('contacto')} className="block w-full rounded-lg bg-white px-3 py-2 text-left font-semibold text-slate-900">Contacto</button>
           ) : (
