@@ -160,6 +160,18 @@ describe('ReviewService', () => {
     expect((await service.listVisibleForProduct('lodge', 12)).count).toBe(1);
   });
 
+  it('keeps a saved Review when notification emails fail', async () => {
+    const mailer = createMailer();
+    mailer.sendReviewThankYou = vi.fn().mockRejectedValue(new Error('resend down'));
+    const { service } = createService({ mailer });
+    await service.createInvite({ catalogType: 'lodge', bsaleProductId: 12, customer });
+
+    await expect(service.submitReview('invite-token-1', 5, comment)).resolves.toEqual({
+      reviewId: expect.any(String)
+    });
+    expect((await service.listVisibleForProduct('lodge', 12)).count).toBe(1);
+  });
+
   it('returns an empty view when the Product was never upserted', async () => {
     const { service } = createService();
     await expect(service.listVisibleForProduct('guide', 3)).resolves.toEqual({

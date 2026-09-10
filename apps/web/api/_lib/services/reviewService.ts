@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { formatReviewDisplayName } from '../lib/reviews/displayName.js';
+import { createLogger } from '../utils/logger.js';
 import type { ReviewStore } from '../lib/reviews/reviewStore.js';
 import type { Mailer, ReviewInviteEmail, ReviewSubmittedEmail } from '../mailer/types.js';
 import type { CatalogType } from '../types/catalog.js';
@@ -20,6 +21,8 @@ export const REVIEW_INVITE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 export const REVIEW_COMMENT_MIN = 20;
 export const REVIEW_COMMENT_MAX = 500;
 export const PUBLIC_REVIEW_LIMIT = 5;
+
+const log = createLogger('reviews');
 
 export interface ReviewServiceDeps {
   store: ReviewStore;
@@ -113,8 +116,15 @@ export class ReviewService {
       comment: trimmed,
       reviewId: review.id
     };
-    await this.deps.mailer.sendReviewThankYou(submitted);
-    await this.deps.mailer.sendReviewAdminNotification(submitted);
+    try {
+      await this.deps.mailer.sendReviewThankYou(submitted);
+      await this.deps.mailer.sendReviewAdminNotification(submitted);
+    } catch (error) {
+      log.error('Review saved but notification emails failed', {
+        reviewId: review.id,
+        message: error instanceof Error ? error.message : String(error)
+      });
+    }
 
     return { reviewId: review.id };
   }

@@ -51,6 +51,11 @@ function ProductDetailPage({ catalogType }) {
         if (cancelled) return;
         const enriched = mergeSingleWithSeed(apiItem, seed);
         setItem({ ...enriched, type: internalLabel });
+        setReviews({
+          average: apiItem.rating ?? null,
+          count: Number(apiItem.reviews || 0),
+          items: []
+        });
         try {
           const reviewView = await fetchProductReviews(catalogType, productId);
           if (!cancelled) setReviews(reviewView);

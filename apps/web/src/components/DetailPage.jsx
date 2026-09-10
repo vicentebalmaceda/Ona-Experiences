@@ -53,7 +53,11 @@ function displayTypeLabel(type, t) {
 
 function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate }) {
   const { t } = useTranslation();
-  const stats = getRatingStats(item);
+  const catalogStats = getRatingStats(item);
+  const stats = {
+    average: reviews?.average ?? catalogStats.average,
+    reviews: reviews?.count ?? catalogStats.reviews
+  };
   const visibleReviews = reviews?.items ?? [];
   const referencePrice = getReferencePrice(item);
   const gallery = item.gallery?.length ? item.gallery : [item.image];
@@ -144,14 +148,9 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
         <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_370px]">
           <div className="space-y-6">
             <section className="detail-content-card">
-              <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 pb-5">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.2em] text-deep">{t('detail.summary')}</p>
-                  <h2 className="mt-2 text-2xl font-black text-slate-950">{t('detail.profile_review')}</h2>
-                </div>
-                {stats.reviews > 0 ? (
-                  <span className="rounded-full bg-mist px-4 py-2 text-sm font-black text-deep">{t('detail.highly_recommended')}</span>
-                ) : null}
+              <div className="border-b border-slate-200 pb-5">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-deep">{t('detail.summary')}</p>
+                <h2 className="mt-2 text-2xl font-black text-slate-950">{t('detail.profile_review')}</h2>
               </div>
               <div className="mt-6 grid gap-5 md:grid-cols-3">
                 <div className="detail-fact"><span>{t('detail.type')}</span><strong>{typeLabel}</strong></div>
