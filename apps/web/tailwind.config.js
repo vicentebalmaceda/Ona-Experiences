@@ -20,7 +20,7 @@ export default {
         card: '0 16px 30px rgba(15,23,42,.08)'
       },
       backgroundImage: {
-        hero: "url('/assets/OnaExperiences.jpg')"
+        hero: "url('/assets/OnaExperiences.jpeg')"
       }
     }
   },
