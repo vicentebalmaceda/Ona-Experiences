@@ -118,6 +118,8 @@
     "comments_title": "Opiniones estilo Booking",
     "avg_visible": "Calificación promedio visible en el directorio.",
     "reviews_ready": "Base de reseñas lista para crecer desde backend.",
+    "reviews_visible": "Promedio calculado solo con reseñas visibles.",
+    "no_reviews_yet": "Aún no hay reseñas verificadas para esta experiencia.",
     "current_label": "Etiqueta actual de evaluación.",
     "before_booking_title": "Recomendación antes de agendar",
     "before_booking_text": "Confirmar disponibilidad, temporada, condiciones del río, servicios incluidos, traslados y forma de pago directamente con el contacto informado.",
@@ -161,7 +163,28 @@
     "your_score": "Tu calificación: {{score}} de 5. Puedes cambiarla cuando quieras.",
     "reviews_registered": "{{count}} reseñas registradas.",
     "reviews_count": "{{count}} reseñas",
-    "highly_recommended": "Muy recomendado"
+    "highly_recommended": "Muy recomendado",
+    "none": "Sin reseñas",
+    "none_short": "—"
+  },
+  "review": {
+    "eyebrow": "Reseña verificada",
+    "title": "Cuéntanos tu experiencia",
+    "loading": "Cargando tu invitación…",
+    "missing_token": "Falta el enlace de invitación.",
+    "invalid_title": "Esta invitación no es válida",
+    "invalid_invite": "La invitación expiró o ya fue usada.",
+    "for_product": "Reseña para",
+    "rating_label": "Puntaje (1 a 5)",
+    "comment_label": "Comentario",
+    "comment_placeholder": "Cuéntanos cómo fue la experiencia…",
+    "comment_hint": "Entre 20 y 500 caracteres.",
+    "submit": "Enviar reseña",
+    "submitting": "Enviando…",
+    "submit_error": "No pudimos guardar tu reseña.",
+    "thanks_title": "Gracias por tu reseña",
+    "thanks_text": "Ya es visible en la ficha. Te enviamos un correo de confirmación.",
+    "back_home": "Volver al inicio"
   },
   "common": {
     "phone": "Teléfono:",

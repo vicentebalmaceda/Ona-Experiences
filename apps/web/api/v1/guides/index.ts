@@ -3,7 +3,7 @@ import { validateQuery } from '../../_lib/middleware/validate.js';
 import { getServices } from '../../_lib/services/container.js';
 import { paginationQuerySchema } from '../../_lib/types/schemas.js';
 import { methodNotAllowed } from '../../_lib/utils/http.js';
-import { toGuideListResponse } from '../../_lib/utils/responseMappers.js';
+import { attachGuideReviewAggregates, toGuideListResponse } from '../../_lib/utils/responseMappers.js';
 
 export default createApiHandler(async (req, res) => {
   if (req.method !== 'GET') {
@@ -12,6 +12,11 @@ export default createApiHandler(async (req, res) => {
   }
 
   const { limit, offset } = validateQuery(paginationQuerySchema, req);
-  const result = await getServices().catalogService.list('guide', { limit, offset });
-  res.status(200).json(toGuideListResponse(result));
+  const services = getServices();
+  const result = await services.catalogService.list('guide', { limit, offset });
+  const mapped = toGuideListResponse(result);
+  res.status(200).json({
+    ...mapped,
+    items: await attachGuideReviewAggregates(mapped.items, services.reviewService)
+  });
 });

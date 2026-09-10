@@ -8,16 +8,21 @@ import {
   QUOTE_TEMPLATE_VARIABLE_KEYS,
   quoteEmailSubject,
   quoteTemplateVariables,
+  reviewInviteEmailSubject,
+  reviewInviteTemplateVariables,
   truncateResendValue
 } from './templateVariables.js';
-import type { ContactMessage, QuoteNotification } from './types.js';
+import type { ContactMessage, QuoteNotification, ReviewInviteEmail } from './types.js';
 
 const env = {
   RESEND_API_KEY: 're_test',
   MAIL_FROM: 'Website <noreply@ona.example>',
   ADMIN_EMAIL: 'admin@ona.example',
   RESEND_CONTACT_TEMPLATE_ID: 'contact-form',
-  RESEND_QUOTE_TEMPLATE_ID: 'quote-notification'
+  RESEND_QUOTE_TEMPLATE_ID: 'quote-notification',
+  RESEND_REVIEW_INVITE_TEMPLATE_ID: 'review-invite',
+  RESEND_REVIEW_THANKS_TEMPLATE_ID: 'review-thanks',
+  RESEND_REVIEW_ADMIN_TEMPLATE_ID: 'review-admin'
 } as ConstructorParameters<typeof ResendMailer>[0];
 
 const contact: ContactMessage = {
@@ -156,6 +161,31 @@ describe('ResendMailer', () => {
       variables: quoteTemplateVariables(quote)
     });
     expect(options).toEqual({ idempotencyKey: 'quote-notification:v6:42' });
+  });
+
+  it('sends a review invite to the Customer', async () => {
+    const invite: ReviewInviteEmail = {
+      to: 'maria@example.com',
+      firstName: 'María',
+      productName: 'Bio Bio Lodge',
+      reviewUrl: 'https://ona.example/review?token=abc',
+      expiresAt: '2026-10-10T15:00:00.000Z'
+    };
+    const send = vi.fn().mockResolvedValue({ data: { id: 'msg_3' }, error: null });
+    const mailer = new ResendMailer(env, { emails: { send } } as never);
+
+    await mailer.sendReviewInvite(invite);
+
+    expect(reviewInviteEmailSubject(invite)).toContain('Bio Bio Lodge');
+    expect(send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: ['maria@example.com'],
+        template: {
+          id: 'review-invite',
+          variables: reviewInviteTemplateVariables(invite)
+        }
+      })
+    );
   });
 
   it('propagates Resend failures as DomainError', async () => {

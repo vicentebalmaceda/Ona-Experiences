@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import CompactMap from './CompactMap.jsx';
 import GalleryStrip from './GalleryStrip.jsx';
 import PhotoLightbox from './PhotoLightbox.jsx';
-import RatingPanel from './RatingPanel.jsx';
 import QuoteRequestForm from './QuoteRequestForm.jsx';
 import { getRatingStats, renderStars } from '../utils/rating.js';
 import { getReferencePrice } from '../utils/referencePrice.js';
@@ -52,9 +51,10 @@ function displayTypeLabel(type, t) {
   return type === 'Lodge' ? t('types.lodge') : t('types.guide');
 }
 
-function DetailPage({ item, catalogType, productId, ratingVersion, onRate, onBack, onNavigate }) {
+function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate }) {
   const { t } = useTranslation();
-  const stats = getRatingStats(item, ratingVersion);
+  const stats = getRatingStats(item);
+  const visibleReviews = reviews?.items ?? [];
   const referencePrice = getReferencePrice(item);
   const gallery = item.gallery?.length ? item.gallery : [item.image];
   const uniqueGallery = useMemo(
@@ -104,11 +104,17 @@ function DetailPage({ item, catalogType, productId, ratingVersion, onRate, onBac
           <div className="detail-rating-box">
             <div className="text-right">
               <p className="text-sm font-bold uppercase tracking-[0.16em] text-slate-500">{t('detail.rating')}</p>
-              <p className="mt-1 text-4xl font-black text-slate-950">{stats.average.toFixed(1)}</p>
+              <p className="mt-1 text-4xl font-black text-slate-950">
+                {stats.average != null ? stats.average.toFixed(1) : '—'}
+              </p>
             </div>
             <div>
               <p className="rating-stars text-xl leading-none">{renderStars(stats.average)}</p>
-              <p className="mt-2 text-sm font-semibold text-slate-500">{t('detail.reviews_registered', { count: stats.reviews })}</p>
+              <p className="mt-2 text-sm font-semibold text-slate-500">
+                {stats.reviews > 0
+                  ? t('detail.reviews_registered', { count: stats.reviews })
+                  : t('rating.none')}
+              </p>
             </div>
           </div>
         </div>
@@ -143,7 +149,9 @@ function DetailPage({ item, catalogType, productId, ratingVersion, onRate, onBac
                   <p className="text-xs font-black uppercase tracking-[0.2em] text-deep">{t('detail.summary')}</p>
                   <h2 className="mt-2 text-2xl font-black text-slate-950">{t('detail.profile_review')}</h2>
                 </div>
-                <span className="rounded-full bg-mist px-4 py-2 text-sm font-black text-deep">{item.ratingLabel || t('detail.highly_recommended')}</span>
+                {stats.reviews > 0 ? (
+                  <span className="rounded-full bg-mist px-4 py-2 text-sm font-black text-deep">{t('detail.highly_recommended')}</span>
+                ) : null}
               </div>
               <div className="mt-6 grid gap-5 md:grid-cols-3">
                 <div className="detail-fact"><span>{t('detail.type')}</span><strong>{typeLabel}</strong></div>
@@ -183,7 +191,7 @@ function DetailPage({ item, catalogType, productId, ratingVersion, onRate, onBac
                   </div>
                 </div>
                 <div className="detail-map-shell">
-                  <CompactMap items={[item]} ratingVersion={ratingVersion} onSelect={() => {}} ariaLabel={t('detail.map_aria', { name: item.name })} />
+                  <CompactMap items={[item]} onSelect={() => {}} ariaLabel={t('detail.map_aria', { name: item.name })} />
                 </div>
               </div>
             </section>
@@ -194,25 +202,34 @@ function DetailPage({ item, catalogType, productId, ratingVersion, onRate, onBac
               <div className="mt-6 grid gap-4 md:grid-cols-3">
                 <div className="review-summary-card">
                   <span>★</span>
-                  <strong>{stats.average.toFixed(1)} / 5</strong>
+                  <strong>{stats.average != null ? `${stats.average.toFixed(1)} / 5` : '—'}</strong>
                   <p>{t('detail.avg_visible')}</p>
                 </div>
                 <div className="review-summary-card">
                   <span>✓</span>
                   <strong>{t('rating.reviews_count', { count: stats.reviews })}</strong>
-                  <p>{t('detail.reviews_ready')}</p>
-                </div>
-                <div className="review-summary-card">
-                  <span>↗</span>
-                  <strong>{item.ratingLabel || t('detail.highly_recommended')}</strong>
-                  <p>{t('detail.current_label')}</p>
+                  <p>{stats.reviews > 0 ? t('detail.reviews_visible') : t('rating.none')}</p>
                 </div>
               </div>
+              {visibleReviews.length ? (
+                <ul className="mt-6 space-y-4">
+                  {visibleReviews.map((review) => (
+                    <li key={review.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="font-black text-slate-950">{review.displayName}</p>
+                        <p className="rating-stars text-sm">{renderStars(review.rating)}</p>
+                      </div>
+                      <p className="mt-3 text-sm leading-6 text-slate-600">{review.comment}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-6 text-sm leading-6 text-slate-500">{t('detail.no_reviews_yet')}</p>
+              )}
               <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-5">
                 <h3 className="text-lg font-black text-slate-950">{t('detail.before_booking_title')}</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-600">{t('detail.before_booking_text')}</p>
               </div>
-              <RatingPanel item={item} ratingVersion={ratingVersion} onRate={onRate} />
             </section>
 
             <section className="detail-content-card overflow-hidden p-0">

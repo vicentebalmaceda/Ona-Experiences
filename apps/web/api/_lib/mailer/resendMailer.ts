@@ -6,13 +6,21 @@ import {
   contactEmailSubject,
   contactTemplateVariables,
   quoteEmailSubject,
-  quoteTemplateVariables
+  quoteTemplateVariables,
+  reviewAdminEmailSubject,
+  reviewAdminTemplateVariables,
+  reviewInviteEmailSubject,
+  reviewInviteTemplateVariables,
+  reviewThanksEmailSubject,
+  reviewThanksTemplateVariables
 } from './templateVariables.js';
 import type {
   ContactMessage,
   EmailAttachment,
   Mailer,
-  QuoteNotification
+  QuoteNotification,
+  ReviewInviteEmail,
+  ReviewSubmittedEmail
 } from './types.js';
 
 const log = createLogger('mailer');
@@ -90,6 +98,58 @@ export class ResendMailer implements Mailer {
         message: error.message
       });
       throw new DomainError('Failed to send quote notification', 500, 'MAILER_ERROR');
+    }
+  }
+
+  async sendReviewInvite(data: ReviewInviteEmail): Promise<void> {
+    const { error } = await this.resend.emails.send({
+      from: this.env.MAIL_FROM,
+      to: [data.to],
+      subject: reviewInviteEmailSubject(data),
+      template: {
+        id: this.env.RESEND_REVIEW_INVITE_TEMPLATE_ID,
+        variables: reviewInviteTemplateVariables(data)
+      }
+    });
+
+    if (error) {
+      log.error('Failed to send review invite email', { message: error.message });
+      throw new DomainError('Failed to send review invite', 500, 'MAILER_ERROR');
+    }
+  }
+
+  async sendReviewThankYou(data: ReviewSubmittedEmail): Promise<void> {
+    const { error } = await this.resend.emails.send({
+      from: this.env.MAIL_FROM,
+      to: [data.customerEmail],
+      subject: reviewThanksEmailSubject(data),
+      template: {
+        id: this.env.RESEND_REVIEW_THANKS_TEMPLATE_ID,
+        variables: reviewThanksTemplateVariables(data)
+      }
+    });
+
+    if (error) {
+      log.error('Failed to send review thank-you email', { message: error.message });
+      throw new DomainError('Failed to send review thank-you', 500, 'MAILER_ERROR');
+    }
+  }
+
+  async sendReviewAdminNotification(data: ReviewSubmittedEmail): Promise<void> {
+    const { error } = await this.resend.emails.send({
+      from: this.env.MAIL_FROM,
+      to: [this.env.ADMIN_EMAIL],
+      replyTo: data.customerEmail,
+      subject: reviewAdminEmailSubject(data),
+      template: {
+        id: this.env.RESEND_REVIEW_ADMIN_TEMPLATE_ID,
+        variables: reviewAdminTemplateVariables(data)
+      }
+    });
+
+    if (error) {
+      log.error('Failed to send review admin email', { message: error.message });
+      throw new DomainError('Failed to send review admin notification', 500, 'MAILER_ERROR');
     }
   }
 }

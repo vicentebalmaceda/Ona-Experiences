@@ -45,7 +45,29 @@ export interface QuoteNotification {
   attachments?: EmailAttachment[];
 }
 
+export interface ReviewInviteEmail {
+  to: string;
+  firstName: string;
+  productName: string;
+  reviewUrl: string;
+  expiresAt: string;
+}
+
+export interface ReviewSubmittedEmail {
+  customerEmail: string;
+  firstName: string;
+  lastName: string;
+  productName: string;
+  catalogType: string;
+  rating: number;
+  comment: string;
+  reviewId: string;
+}
+
 export interface Mailer {
   sendContactMessage(data: ContactMessage): Promise<void>;
   sendQuoteNotification(data: QuoteNotification): Promise<void>;
+  sendReviewInvite(data: ReviewInviteEmail): Promise<void>;
+  sendReviewThankYou(data: ReviewSubmittedEmail): Promise<void>;
+  sendReviewAdminNotification(data: ReviewSubmittedEmail): Promise<void>;
 }

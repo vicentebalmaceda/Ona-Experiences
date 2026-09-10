@@ -17,7 +17,13 @@ const envSchema = z.object({
   MAIL_FROM: z.string().min(1, 'MAIL_FROM is required'),
   ADMIN_EMAIL: z.string().email('ADMIN_EMAIL must be a valid email'),
   RESEND_CONTACT_TEMPLATE_ID: z.string().min(1, 'RESEND_CONTACT_TEMPLATE_ID is required'),
-  RESEND_QUOTE_TEMPLATE_ID: z.string().min(1, 'RESEND_QUOTE_TEMPLATE_ID is required')
+  RESEND_QUOTE_TEMPLATE_ID: z.string().min(1, 'RESEND_QUOTE_TEMPLATE_ID is required'),
+  RESEND_REVIEW_INVITE_TEMPLATE_ID: z.string().min(1, 'RESEND_REVIEW_INVITE_TEMPLATE_ID is required'),
+  RESEND_REVIEW_THANKS_TEMPLATE_ID: z.string().min(1, 'RESEND_REVIEW_THANKS_TEMPLATE_ID is required'),
+  RESEND_REVIEW_ADMIN_TEMPLATE_ID: z.string().min(1, 'RESEND_REVIEW_ADMIN_TEMPLATE_ID is required'),
+  POSTGRES_URL: z.string().min(1, 'POSTGRES_URL is required'),
+  ADMIN_API_SECRET: z.string().min(16, 'ADMIN_API_SECRET must be at least 16 characters'),
+  PUBLIC_APP_URL: z.string().url('PUBLIC_APP_URL must be a valid URL')
 });
 
 const envSchemaWithDefaults = envSchema.transform((data) => ({

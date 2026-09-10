@@ -57,7 +57,7 @@ function CompactMap({ items, ratingVersion, onSelect, ariaLabel }) {
     items.forEach(item => {
       if (typeof item.lat !== 'number' || typeof item.lng !== 'number') return;
 
-      const stats = getRatingStats(item, ratingVersion);
+      const stats = getRatingStats(item);
       const labels = {
         typeLabel: item.type === 'Lodge' ? t('types.lodge') : t('types.guide'),
         notInformed: t('map.not_informed'),
@@ -66,6 +66,7 @@ function CompactMap({ items, ratingVersion, onSelect, ariaLabel }) {
         phone: t('map.phone'),
         email: t('map.email'),
         reviews: t('map.reviews', { count: stats.reviews }),
+        noReviews: t('rating.none'),
         viewDetail: t('map.view_detail')
       };
 

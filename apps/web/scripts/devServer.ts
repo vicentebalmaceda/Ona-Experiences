@@ -54,6 +54,11 @@ const routes: Route[] = [
     load: () => import('../api/v1/lodges/index.js')
   },
   {
+    pattern: /^\/api\/v1\/lodges\/([^/]+)\/reviews$/,
+    paramNames: ['productId'],
+    load: () => import('../api/v1/lodges/[productId]/reviews.js')
+  },
+  {
     pattern: /^\/api\/v1\/lodges\/([^/]+)$/,
     paramNames: ['productId'],
     load: () => import('../api/v1/lodges/[productId]/index.js')
@@ -69,6 +74,11 @@ const routes: Route[] = [
     load: () => import('../api/v1/guides/index.js')
   },
   {
+    pattern: /^\/api\/v1\/guides\/([^/]+)\/reviews$/,
+    paramNames: ['productId'],
+    load: () => import('../api/v1/guides/[productId]/reviews.js')
+  },
+  {
     pattern: /^\/api\/v1\/guides\/([^/]+)$/,
     paramNames: ['productId'],
     load: () => import('../api/v1/guides/[productId]/index.js')
@@ -82,6 +92,26 @@ const routes: Route[] = [
     pattern: /^\/api\/v1\/contact$/,
     paramNames: [],
     load: () => import('../api/v1/contact.js')
+  },
+  {
+    pattern: /^\/api\/v1\/review-invites$/,
+    paramNames: [],
+    load: () => import('../api/v1/review-invites/index.js')
+  },
+  {
+    pattern: /^\/api\/v1\/review-invites\/([^/]+)$/,
+    paramNames: ['token'],
+    load: () => import('../api/v1/review-invites/[token].js')
+  },
+  {
+    pattern: /^\/api\/v1\/reviews$/,
+    paramNames: [],
+    load: () => import('../api/v1/reviews/index.js')
+  },
+  {
+    pattern: /^\/api\/v1\/reviews\/([^/]+)$/,
+    paramNames: ['reviewId'],
+    load: () => import('../api/v1/reviews/[reviewId].js')
   },
   {
     pattern: /^\/api\/webhooks\/bsale$/,

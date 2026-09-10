@@ -118,6 +118,8 @@
     "comments_title": "Booking-style reviews",
     "avg_visible": "Average rating shown in the directory.",
     "reviews_ready": "Review base ready to grow from the backend.",
+    "reviews_visible": "Average from visible reviews only.",
+    "no_reviews_yet": "There are no verified reviews for this experience yet.",
     "current_label": "Current evaluation label.",
     "before_booking_title": "Recommendation before booking",
     "before_booking_text": "Confirm availability, season, river conditions, included services, transfers, and payment method directly with the listed contact.",
@@ -161,7 +163,28 @@
     "your_score": "Your rating: {{score}} out of 5. You can change it anytime.",
     "reviews_registered": "{{count}} registered reviews.",
     "reviews_count": "{{count}} reviews",
-    "highly_recommended": "Highly recommended"
+    "highly_recommended": "Highly recommended",
+    "none": "No reviews",
+    "none_short": "—"
+  },
+  "review": {
+    "eyebrow": "Verified review",
+    "title": "Tell us about your experience",
+    "loading": "Loading your invite…",
+    "missing_token": "The invite link is missing.",
+    "invalid_title": "This invite is not valid",
+    "invalid_invite": "The invite expired or was already used.",
+    "for_product": "Review for",
+    "rating_label": "Score (1 to 5)",
+    "comment_label": "Comment",
+    "comment_placeholder": "Tell us how the experience was…",
+    "comment_hint": "Between 20 and 500 characters.",
+    "submit": "Submit review",
+    "submitting": "Sending…",
+    "submit_error": "We could not save your review.",
+    "thanks_title": "Thank you for your review",
+    "thanks_text": "It is now visible on the listing. We sent you a confirmation email.",
+    "back_home": "Back to home"
   },
   "common": {
     "phone": "Phone:",

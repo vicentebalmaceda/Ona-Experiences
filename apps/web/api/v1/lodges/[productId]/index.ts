@@ -3,7 +3,7 @@ import { validateParams } from '../../../_lib/middleware/validate.js';
 import { getServices } from '../../../_lib/services/container.js';
 import { productIdParamSchema } from '../../../_lib/types/schemas.js';
 import { methodNotAllowed } from '../../../_lib/utils/http.js';
-import { mapCatalogVariantToLodge } from '../../../_lib/utils/responseMappers.js';
+import { attachLodgeReviewAggregates, mapCatalogVariantToLodge } from '../../../_lib/utils/responseMappers.js';
 
 export default createApiHandler(async (req, res) => {
   if (req.method !== 'GET') {
@@ -12,6 +12,11 @@ export default createApiHandler(async (req, res) => {
   }
 
   const { productId } = validateParams(productIdParamSchema, req);
-  const variant = await getServices().catalogService.get('lodge', productId);
-  res.status(200).json(mapCatalogVariantToLodge(variant));
+  const services = getServices();
+  const variant = await services.catalogService.get('lodge', productId);
+  const [lodge] = await attachLodgeReviewAggregates(
+    [mapCatalogVariantToLodge(variant)],
+    services.reviewService
+  );
+  res.status(200).json(lodge);
 });

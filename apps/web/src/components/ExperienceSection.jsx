@@ -15,7 +15,7 @@ function normalizeText(value) {
 
 function ExperienceListItem({ item, ratingVersion, onSelect }) {
   const { t } = useTranslation();
-  const stats = getRatingStats(item, ratingVersion);
+  const stats = getRatingStats(item);
   const referencePrice = getReferencePrice(item);
 
   return (
@@ -29,11 +29,19 @@ function ExperienceListItem({ item, ratingVersion, onSelect }) {
             <h3 className="truncate text-base font-extrabold text-slate-950">{item.name}</h3>
             <p className="mt-1 truncate text-sm text-slate-500">{item.zone}</p>
           </div>
-          <div className="rounded-xl bg-slate-950 px-2.5 py-1 text-xs font-extrabold text-white">{stats.average.toFixed(1)}</div>
+          <div className="rounded-xl bg-slate-950 px-2.5 py-1 text-xs font-extrabold text-white">
+            {stats.average != null ? stats.average.toFixed(1) : t('rating.none_short')}
+          </div>
         </div>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-          <span className="rating-stars leading-none">{renderStars(stats.average)}</span>
-          <span>{t('experience.reviews_count', { count: stats.reviews })}</span>
+          {stats.reviews > 0 ? (
+            <>
+              <span className="rating-stars leading-none">{renderStars(stats.average)}</span>
+              <span>{t('experience.reviews_count', { count: stats.reviews })}</span>
+            </>
+          ) : (
+            <span>{t('rating.none')}</span>
+          )}
           {referencePrice ? (
             <>
               <span className="hidden h-1 w-1 rounded-full bg-slate-300 sm:inline-block"></span>
