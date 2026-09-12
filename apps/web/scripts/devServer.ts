@@ -11,6 +11,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { matchV1Route } from '../api/_lib/v1Router.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -36,86 +37,18 @@ loadDotEnv(resolve(__dirname, '../.env'));
 // signatures of the imported handlers without a full type-level emulation.
 type Handler = (req: any, res: any) => Promise<void> | void;
 
-interface Route {
+interface StandaloneRoute {
   pattern: RegExp;
-  paramNames: string[];
   load: () => Promise<{ default: Handler }>;
 }
 
-const routes: Route[] = [
+const standaloneRoutes: StandaloneRoute[] = [
   {
     pattern: /^\/(?:api\/)?health$/,
-    paramNames: [],
     load: () => import('../api/health.js')
   },
   {
-    pattern: /^\/api\/v1\/lodges$/,
-    paramNames: [],
-    load: () => import('../api/v1/lodges/index.js')
-  },
-  {
-    pattern: /^\/api\/v1\/lodges\/([^/]+)\/reviews$/,
-    paramNames: ['productId'],
-    load: () => import('../api/v1/lodges/[productId]/reviews.js')
-  },
-  {
-    pattern: /^\/api\/v1\/lodges\/([^/]+)$/,
-    paramNames: ['productId'],
-    load: () => import('../api/v1/lodges/[productId]/index.js')
-  },
-  {
-    pattern: /^\/api\/v1\/lodges\/([^/]+)\/sales$/,
-    paramNames: ['productId'],
-    load: () => import('../api/v1/lodges/[productId]/sales.js')
-  },
-  {
-    pattern: /^\/api\/v1\/guides$/,
-    paramNames: [],
-    load: () => import('../api/v1/guides/index.js')
-  },
-  {
-    pattern: /^\/api\/v1\/guides\/([^/]+)\/reviews$/,
-    paramNames: ['productId'],
-    load: () => import('../api/v1/guides/[productId]/reviews.js')
-  },
-  {
-    pattern: /^\/api\/v1\/guides\/([^/]+)$/,
-    paramNames: ['productId'],
-    load: () => import('../api/v1/guides/[productId]/index.js')
-  },
-  {
-    pattern: /^\/api\/v1\/guides\/([^/]+)\/sales$/,
-    paramNames: ['productId'],
-    load: () => import('../api/v1/guides/[productId]/sales.js')
-  },
-  {
-    pattern: /^\/api\/v1\/contact$/,
-    paramNames: [],
-    load: () => import('../api/v1/contact.js')
-  },
-  {
-    pattern: /^\/api\/v1\/review-invites$/,
-    paramNames: [],
-    load: () => import('../api/v1/review-invites/index.js')
-  },
-  {
-    pattern: /^\/api\/v1\/review-invites\/([^/]+)$/,
-    paramNames: ['token'],
-    load: () => import('../api/v1/review-invites/[token].js')
-  },
-  {
-    pattern: /^\/api\/v1\/reviews$/,
-    paramNames: [],
-    load: () => import('../api/v1/reviews/index.js')
-  },
-  {
-    pattern: /^\/api\/v1\/reviews\/([^/]+)$/,
-    paramNames: ['reviewId'],
-    load: () => import('../api/v1/reviews/[reviewId].js')
-  },
-  {
     pattern: /^\/api\/webhooks\/bsale$/,
-    paramNames: [],
     load: () => import('../api/webhooks/bsale.js')
   }
 ];
@@ -170,24 +103,19 @@ const port = Number(process.env.BFF_PORT ?? 3003);
 
 createServer(async (req, res) => {
   const pathname = new URL(req.url ?? '/', 'http://localhost').pathname;
-  const route = routes.find((candidate) => candidate.pattern.test(pathname));
+  const standalone = standaloneRoutes.find((candidate) => candidate.pattern.test(pathname));
+  const match = standalone ? undefined : matchV1Route(pathname);
 
-  if (!route) {
+  if (!standalone && !match) {
     res.statusCode = 404;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.end(JSON.stringify({ error: 'Not found' }));
     return;
   }
 
-  const match = pathname.match(route.pattern)!;
-  const params: Record<string, string> = {};
-  route.paramNames.forEach((name, index) => {
-    params[name] = decodeURIComponent(match[index + 1]);
-  });
-
   const body = await readBody(req);
-  const { vercelReq, vercelRes } = enhance(req, res, params, body);
-  const { default: handler } = await route.load();
+  const { vercelReq, vercelRes } = enhance(req, res, match?.params ?? {}, body);
+  const handler: Handler = standalone ? (await standalone.load()).default : match!.handler;
   await handler(vercelReq, vercelRes);
 }).listen(port, () => {
   console.log(`BFF dev server listening on http://localhost:${port}`);

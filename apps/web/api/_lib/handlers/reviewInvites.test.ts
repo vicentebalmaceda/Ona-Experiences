@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createMockRes } from '../_lib/test/mockRes.js';
+import { createMockRes } from '../test/mockRes.js';
+import { reviewInvitesHandler } from './reviewInvites.js';
 
 const createInvite = vi.fn();
 
-vi.mock('../_lib/services/container.js', () => ({
+vi.mock('../services/container.js', () => ({
   getServices: () => ({
     reviewService: { createInvite }
   })
@@ -19,7 +20,6 @@ describe('POST /api/v1/review-invites', () => {
   });
 
   it('rejects missing admin credentials', async () => {
-    const { default: handler } = await import('./review-invites/index.js');
     const req = {
       method: 'POST',
       headers: { origin: 'http://localhost:5173' },
@@ -32,14 +32,13 @@ describe('POST /api/v1/review-invites', () => {
     };
     const res = createMockRes();
 
-    await handler(req as never, res as never);
+    await reviewInvitesHandler(req as never, res as never);
 
     expect(res.statusCode).toBe(401);
     expect(createInvite).not.toHaveBeenCalled();
   });
 
   it('creates an invite when the admin secret is valid', async () => {
-    const { default: handler } = await import('./review-invites/index.js');
     const req = {
       method: 'POST',
       headers: {
@@ -55,7 +54,7 @@ describe('POST /api/v1/review-invites', () => {
     };
     const res = createMockRes();
 
-    await handler(req as never, res as never);
+    await reviewInvitesHandler(req as never, res as never);
 
     expect(res.statusCode).toBe(201);
     expect(res.body).toEqual({

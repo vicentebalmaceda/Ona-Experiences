@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { contactRequestSchema } from '../_lib/types/schemas.js';
-import { DomainError } from '../_lib/types/errors.js';
-import { createMockRes } from '../_lib/test/mockRes.js';
+import { contactRequestSchema } from '../types/schemas.js';
+import { DomainError } from '../types/errors.js';
+import { createMockRes } from '../test/mockRes.js';
+import { contactHandler } from './contact.js';
 
 const sendContactMessage = vi.fn();
 
-vi.mock('../_lib/services/container.js', () => ({
+vi.mock('../services/container.js', () => ({
   getServices: () => ({
     mailer: { sendContactMessage }
   })
@@ -50,7 +51,6 @@ describe('POST /api/v1/contact handler', () => {
   });
 
   it('accepts a valid request and calls the mailer', async () => {
-    const { default: handler } = await import('./contact.js');
     const req = {
       method: 'POST',
       headers: { origin: 'http://localhost:5173' },
@@ -64,7 +64,7 @@ describe('POST /api/v1/contact handler', () => {
     };
     const res = createMockRes();
 
-    await handler(req as never, res as never);
+    await contactHandler(req as never, res as never);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual({ ok: true });
@@ -77,7 +77,6 @@ describe('POST /api/v1/contact handler', () => {
   });
 
   it('rejects invalid input with 400', async () => {
-    const { default: handler } = await import('./contact.js');
     const req = {
       method: 'POST',
       headers: { origin: 'http://localhost:5173' },
@@ -86,7 +85,7 @@ describe('POST /api/v1/contact handler', () => {
     };
     const res = createMockRes();
 
-    await handler(req as never, res as never);
+    await contactHandler(req as never, res as never);
 
     expect(res.statusCode).toBe(400);
     expect(sendContactMessage).not.toHaveBeenCalled();
@@ -96,7 +95,6 @@ describe('POST /api/v1/contact handler', () => {
     sendContactMessage.mockRejectedValue(
       new DomainError('Failed to send contact email', 500, 'MAILER_ERROR')
     );
-    const { default: handler } = await import('./contact.js');
     const req = {
       method: 'POST',
       headers: { origin: 'http://localhost:5173' },
@@ -110,7 +108,7 @@ describe('POST /api/v1/contact handler', () => {
     };
     const res = createMockRes();
 
-    await handler(req as never, res as never);
+    await contactHandler(req as never, res as never);
 
     expect(res.statusCode).toBe(500);
     expect(res.body).toMatchObject({ code: 'MAILER_ERROR' });
