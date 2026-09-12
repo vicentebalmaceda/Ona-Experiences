@@ -2,10 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { lodges as seedLodges, guides as seedGuides } from '../data.js';
-import { fetchLodgeById } from '../api/lodges.js';
+import { fetchLodgeById, fetchProductReviews } from '../api/lodges.js';
 import { fetchGuideById } from '../api/guides.js';
 import { mergeSingleWithSeed } from '../utils/catalogMerge.js';
-import { saveUserRating } from '../utils/rating.js';
 import Header from '../components/Header.jsx';
 import DetailPage from '../components/DetailPage.jsx';
 import Footer from '../components/Footer.jsx';
@@ -33,7 +32,7 @@ function ProductDetailPage({ catalogType }) {
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [ratingVersion, setRatingVersion] = useState(0);
+  const [reviews, setReviews] = useState({ average: null, count: 0, items: [] });
 
   const backLabel = catalogType === 'lodges' ? t('detail.back_to_lodges') : t('detail.back_to_guides');
 
@@ -45,12 +44,27 @@ function ProductDetailPage({ catalogType }) {
       setLoading(true);
       setError(null);
       setItem(null);
+      setReviews({ average: null, count: 0, items: [] });
 
       try {
         const apiItem = await fetch(productId);
         if (cancelled) return;
         const enriched = mergeSingleWithSeed(apiItem, seed);
         setItem({ ...enriched, type: internalLabel });
+        setReviews({
+          average: apiItem.rating ?? null,
+          count: Number(apiItem.reviews || 0),
+          items: []
+        });
+        try {
+          const reviewView = await fetchProductReviews(catalogType, productId);
+          if (!cancelled) setReviews(reviewView);
+        } catch (reviewError) {
+          if (!cancelled) {
+            console.error(`Failed to load ${catalogType} reviews:`, reviewError);
+            setReviews({ average: null, count: 0, items: [] });
+          }
+        }
       } catch (loadError) {
         if (cancelled) return;
         console.error(`Failed to load ${catalogType} detail:`, loadError);
@@ -65,11 +79,6 @@ function ProductDetailPage({ catalogType }) {
       cancelled = true;
     };
   }, [catalogType, productId, t]);
-
-  function handleRate(ratedItem, score) {
-    saveUserRating(ratedItem, score);
-    setRatingVersion(version => version + 1);
-  }
 
   return (
     <div className="min-h-screen bg-sand font-body text-slate-900 antialiased">
@@ -103,8 +112,7 @@ function ProductDetailPage({ catalogType }) {
             item={item}
             catalogType={catalogType}
             productId={productId}
-            ratingVersion={ratingVersion}
-            onRate={handleRate}
+            reviews={reviews}
             onBack={() => navigate({ pathname: '/', hash: config.backHash })}
             onNavigate={(sectionId) => navigate({ pathname: '/', hash: `#${sectionId}` })}
           />

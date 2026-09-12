@@ -3,7 +3,7 @@
   "framework": "vite",
   "installCommand": "cd ../.. && npm install",
   "functions": {
-    "api/**/*.ts": {
+    "api/v1/[...path].ts": {
       "includeFiles": "api/_lib/lib/enrichment/catalog-seed.json"
     }
   },

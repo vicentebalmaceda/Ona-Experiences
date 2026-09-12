@@ -40,3 +40,15 @@ export async function fetchLodgeById(productId) {
 export async function fetchGuideById(productId) {
   return fetchCatalogItem('guides', productId);
 }
+
+export async function fetchProductReviews(path, productId) {
+  const url = `${apiBase()}/api/v1/${path}/${productId}/reviews`;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Failed to fetch ${path}/${productId}/reviews (${response.status}): ${body}`);
+  }
+
+  return response.json();
+}

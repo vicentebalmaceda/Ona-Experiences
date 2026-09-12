@@ -7,7 +7,7 @@ Monorepo for the ONA Experiences platform: marketing web (React + Tailwind) with
 ```txt
 apps/
   web/          # React + Vite + Tailwind SPA + serverless BFF (single Vercel project)
-    api/        #   Vercel Serverless Functions (/api/v1/*, /api/webhooks/bsale, /api/health)
+    api/        #   Vercel functions: /api/v1/[...path], /api/webhooks/bsale, /api/health
     services/   #   Business logic (catalog, sales, webhooks)
     lib/        #   BSale client + repositories, seed enrichment
     cache/      #   Cache abstraction (memory dev / Vercel KV prod)
@@ -54,7 +54,7 @@ npm run test -w @ona/web   # BFF unit tests (Vitest; Resend mocked)
 One Vercel project with **Root Directory = `apps/web`**:
 
 - The Vite SPA is served statically; `vercel.json` provides the SPA fallback rewrite and maps `/health` → `/api/health`.
-- Every file in `apps/web/api/` becomes a serverless function, so `/api/v1/*` is same-origin with the frontend (leave `VITE_API_URL` empty).
+- `/api/v1/*` is one catch-all serverless function (`api/v1/[...path].ts`). Health and the BSale webhook stay separate. Files under `api/_lib/` are not functions. `/api/v1/*` is same-origin with the frontend (leave `VITE_API_URL` empty).
 - Attach `api.<domain>` as an additional domain on the same project to expose the identical `/api/v1/*` paths on a dedicated subdomain.
 - Set the `BSALE_*` and Resend (`RESEND_API_KEY`, `MAIL_FROM`, `ADMIN_EMAIL`) variables (and optionally `KV_REST_API_URL`/`KV_REST_API_TOKEN` for the distributed cache) as project environment variables.
 

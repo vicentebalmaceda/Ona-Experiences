@@ -1,4 +1,9 @@
-import type { ContactMessage, QuoteNotification } from './types.js';
+import type {
+  ContactMessage,
+  QuoteNotification,
+  ReviewInviteEmail,
+  ReviewSubmittedEmail
+} from './types.js';
 
 /** Resend string variable values are capped at 2000 characters. */
 export const RESEND_VAR_MAX_LENGTH = 2000;
@@ -94,5 +99,55 @@ export function quoteTemplateVariables(
     URL_PUBLIC_VIEW: data.urlPublicView ?? '',
     URL_PDF: data.urlPdf ?? '',
     ITEMS_SUMMARY: truncateResendValue(formatItemsSummary(data))
+  };
+}
+
+export function reviewInviteEmailSubject(data: ReviewInviteEmail): string {
+  return `Cuéntanos tu experiencia en ${data.productName}`;
+}
+
+export function reviewInviteTemplateVariables(
+  data: ReviewInviteEmail
+): Record<string, string> {
+  return {
+    CUSTOMER_FIRST_NAME: data.firstName,
+    PRODUCT_NAME: data.productName,
+    REVIEW_URL: data.reviewUrl,
+    EXPIRES_ON: data.expiresAt.slice(0, 10)
+  };
+}
+
+export function reviewThanksEmailSubject(data: ReviewSubmittedEmail): string {
+  return `Gracias por tu reseña de ${data.productName}`;
+}
+
+export function reviewThanksTemplateVariables(
+  data: ReviewSubmittedEmail
+): Record<string, string> {
+  return {
+    CUSTOMER_FIRST_NAME: data.firstName,
+    PRODUCT_NAME: data.productName,
+    RATING: String(data.rating),
+    COMMENT: truncateResendValue(data.comment)
+  };
+}
+
+export function reviewAdminEmailSubject(data: ReviewSubmittedEmail): string {
+  return `Nueva reseña — ${data.productName}`;
+}
+
+export function reviewAdminTemplateVariables(
+  data: ReviewSubmittedEmail
+): Record<string, string> {
+  const last = data.lastName.trim();
+  const name = `${data.firstName} ${last}`.trim();
+  return {
+    CUSTOMER_NAME: name || data.firstName,
+    CUSTOMER_EMAIL: data.customerEmail,
+    PRODUCT_NAME: data.productName,
+    CATALOG_TYPE: data.catalogType,
+    RATING: String(data.rating),
+    COMMENT: truncateResendValue(data.comment),
+    REVIEW_ID: data.reviewId
   };
 }

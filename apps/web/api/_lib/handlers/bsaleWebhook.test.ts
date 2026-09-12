@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DomainError } from '../_lib/types/errors.js';
-import { createMockRes } from '../_lib/test/mockRes.js';
+import { DomainError } from '../types/errors.js';
+import { createMockRes } from '../test/mockRes.js';
 
 const dispatch = vi.fn();
 
-vi.mock('../_lib/services/webhookService.js', async () => {
-  const actual = await vi.importActual<typeof import('../_lib/services/webhookService.js')>(
-    '../_lib/services/webhookService.js'
+vi.mock('../services/webhookService.js', async () => {
+  const actual = await vi.importActual<typeof import('../services/webhookService.js')>(
+    '../services/webhookService.js'
   );
   return {
     ...actual,
@@ -32,7 +32,7 @@ describe('POST /api/webhooks/bsale', () => {
   });
 
   it('accepts an open webhook with the BSale document payload', async () => {
-    const { default: handler } = await import('../webhooks/bsale.js');
+    const { default: handler } = await import('../../webhooks/bsale.js');
     const req = {
       method: 'POST',
       headers: { origin: 'http://localhost:5173' },
@@ -50,7 +50,7 @@ describe('POST /api/webhooks/bsale', () => {
   });
 
   it('rejects malformed payloads', async () => {
-    const { default: handler } = await import('../webhooks/bsale.js');
+    const { default: handler } = await import('../../webhooks/bsale.js');
     const req = {
       method: 'POST',
       headers: { origin: 'http://localhost:5173' },
@@ -70,7 +70,7 @@ describe('POST /api/webhooks/bsale', () => {
     dispatch.mockRejectedValue(
       new DomainError('Failed to send quote notification', 500, 'MAILER_ERROR')
     );
-    const { default: handler } = await import('../webhooks/bsale.js');
+    const { default: handler } = await import('../../webhooks/bsale.js');
     const req = {
       method: 'POST',
       headers: { origin: 'http://localhost:5173' },

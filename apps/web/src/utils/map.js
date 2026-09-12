@@ -21,7 +21,7 @@ function escapeHtml(value) {
 }
 
 export function popupTemplate(item, ratingVersion, labels = {}) {
-  const stats = getRatingStats(item, ratingVersion);
+  const stats = getRatingStats(item);
   const detailPath = item.productId
     ? item.type === 'Lodge'
       ? `/lodges/${item.productId}`
@@ -44,7 +44,11 @@ export function popupTemplate(item, ratingVersion, labels = {}) {
       <div class="popup-image" style="background-image:url('${item.image}')"></div>
       <span class="popup-badge ${item.type === 'Lodge' ? 'lodge' : 'guia'}">${typeLabel}</span>
       <h3 style="margin:10px 0 6px;font-size:18px;font-weight:800;color:#0f172a;line-height:1.25;">${escapeHtml(item.name)}</h3>
-      <div class="popup-rating"><span>${renderStars(stats.average)}</span><strong>${stats.average.toFixed(1)}</strong><small>${reviewsLabel}</small></div>
+      <div class="popup-rating">${
+        stats.average != null
+          ? `<span>${renderStars(stats.average)}</span><strong>${stats.average.toFixed(1)}</strong><small>${reviewsLabel}</small>`
+          : `<small>${escapeHtml(labels.noReviews || 'Sin reseñas')}</small>`
+      }</div>
       <p style="margin:0 0 8px;color:#475569;font-size:13px;"><strong>${zoneLabel}</strong> ${escapeHtml(item.zone)}</p>
       ${item.representative ? `<p style="margin:0 0 8px;color:#475569;font-size:13px;"><strong>${representativeLabel}</strong> ${escapeHtml(item.representative)}</p>` : ''}
       <p style="margin:0 0 5px;color:#475569;font-size:13px;"><strong>${phoneLabel}</strong> ${escapeHtml(item.phone || notInformed)}</p>

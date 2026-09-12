@@ -1,20 +1,24 @@
 import { getEnv } from '../config/env.js';
+import { getSql } from '../db/postgres.js';
 import { BsaleClient } from '../lib/bsale/client.js';
 import { BsaleClientRepository } from '../lib/bsale/clients.js';
 import { BsaleSalesRepository } from '../lib/bsale/documents.js';
 import { BsaleMarketInfoRepository } from '../lib/bsale/marketInfo.js';
 import { BsaleCatalogRepository, BsaleProductTypeResolver } from '../lib/bsale/products.js';
 import { BsaleVariantPricing } from '../lib/bsale/pricing.js';
+import { PostgresReviewStore } from '../lib/reviews/postgresReviewStore.js';
 import { MarketInfoEnricher } from '../lib/enrichment/marketInfoEnricher.js';
 import { SeedServiceEnricher } from '../lib/enrichment/seedEnricher.js';
 import { ResendMailer } from '../mailer/resendMailer.js';
 import type { Mailer } from '../mailer/types.js';
 import { CatalogService } from './catalogService.js';
+import { ReviewService } from './reviewService.js';
 import { SalesService } from './salesService.js';
 
 export interface Services {
   catalogService: CatalogService;
   salesService: SalesService;
+  reviewService: ReviewService;
   mailer: Mailer;
   salesRepository: BsaleSalesRepository;
   clientRepository: BsaleClientRepository;
@@ -43,15 +47,26 @@ export function getServices(): Services {
     new SeedServiceEnricher()
   ];
 
+  const mailer = new ResendMailer(env);
+  const catalogService = new CatalogService(catalogRepository, enrichers);
+
   services = {
-    catalogService: new CatalogService(catalogRepository, enrichers),
+    catalogService,
     salesService: new SalesService(
       catalogRepository,
       clientRepository,
       new BsaleVariantPricing(client, env),
       salesRepository
     ),
-    mailer: new ResendMailer(env),
+    reviewService: new ReviewService({
+      store: new PostgresReviewStore(getSql(env.POSTGRES_URL)),
+      catalog: {
+        get: (type, productId) => catalogService.get(type, productId)
+      },
+      mailer,
+      publicAppUrl: env.PUBLIC_APP_URL
+    }),
+    mailer,
     salesRepository,
     clientRepository
   };

@@ -23,6 +23,9 @@ The mapper in `templateVariables.ts` must stay aligned with this document.
 5. Set env:
    - `RESEND_CONTACT_TEMPLATE_ID=<alias or UUID>`
    - `RESEND_QUOTE_TEMPLATE_ID=<alias or UUID>`
+   - `RESEND_REVIEW_INVITE_TEMPLATE_ID=<alias or UUID>`
+   - `RESEND_REVIEW_THANKS_TEMPLATE_ID=<alias or UUID>`
+   - `RESEND_REVIEW_ADMIN_TEMPLATE_ID=<alias or UUID>`
 
 ---
 
@@ -104,3 +107,64 @@ If there are no items:
 ```text
 (sin detalle de ítems)
 ```
+
+---
+
+## Review invite — `RESEND_REVIEW_INVITE_TEMPLATE_ID`
+
+**Purpose:** Email the Customer a one-time link to submit a Review.
+
+| Field | Value |
+| --- | --- |
+| `from` | `MAIL_FROM` |
+| `to` | Customer email |
+| `subject` | `Cuéntanos tu experiencia en {PRODUCT_NAME}` |
+
+| Variable | Example |
+| --- | --- |
+| `CUSTOMER_FIRST_NAME` | `María` |
+| `PRODUCT_NAME` | `Bio Bio Lodge` |
+| `REVIEW_URL` | `https://ona.example/review?token=…` |
+| `EXPIRES_ON` | `2026-10-10` |
+
+---
+
+## Review thank-you — `RESEND_REVIEW_THANKS_TEMPLATE_ID`
+
+**Purpose:** Confirm to the Customer that their Review was received.
+
+| Field | Value |
+| --- | --- |
+| `from` | `MAIL_FROM` |
+| `to` | Customer email |
+| `subject` | `Gracias por tu reseña de {PRODUCT_NAME}` |
+
+| Variable | Example |
+| --- | --- |
+| `CUSTOMER_FIRST_NAME` | `María` |
+| `PRODUCT_NAME` | `Bio Bio Lodge` |
+| `RATING` | `5` |
+| `COMMENT` | `Una estadía excelente…` |
+
+---
+
+## Review admin notification — `RESEND_REVIEW_ADMIN_TEMPLATE_ID`
+
+**Purpose:** Notify `ADMIN_EMAIL` that a Review was submitted (so it can be hidden if needed).
+
+| Field | Value |
+| --- | --- |
+| `from` | `MAIL_FROM` |
+| `to` | `ADMIN_EMAIL` |
+| `replyTo` | Customer email |
+| `subject` | `Nueva reseña — {PRODUCT_NAME}` |
+
+| Variable | Example |
+| --- | --- |
+| `CUSTOMER_NAME` | `María González` |
+| `CUSTOMER_EMAIL` | `maria@example.com` |
+| `PRODUCT_NAME` | `Bio Bio Lodge` |
+| `CATALOG_TYPE` | `lodge` |
+| `RATING` | `5` |
+| `COMMENT` | `Una estadía excelente…` |
+| `REVIEW_ID` | UUID |

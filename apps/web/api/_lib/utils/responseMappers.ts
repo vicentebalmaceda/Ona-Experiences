@@ -1,6 +1,8 @@
-import type { CatalogVariant, Guide, ListVariantsResult, Lodge } from '../types/catalog.js';
+import type { CatalogType, CatalogVariant, Guide, ListVariantsResult, Lodge } from '../types/catalog.js';
 import { EMPTY_SERVICE_PRESENTATION } from '../types/catalog.js';
+import type { ReviewAggregate } from '../types/reviews.js';
 import type { QuoteSale } from '../types/sales.js';
+import { ReviewService, aggregateLookup } from '../services/reviewService.js';
 
 function mapVariantPresentation(variant: CatalogVariant) {
   return variant.presentation ?? EMPTY_SERVICE_PRESENTATION;
@@ -61,6 +63,48 @@ export function toGuideListResponse(result: ListVariantsResult) {
     items: result.items.map(mapCatalogVariantToGuide),
     pagination: result.pagination
   };
+}
+
+export function applyVisibleReviewAggregate<T extends { productId: number; rating: number | null; reviews: number | null; ratingLabel: string | null }>(
+  item: T,
+  aggregate: ReviewAggregate
+): T {
+  if (aggregate.count === 0 || aggregate.average == null) {
+    return { ...item, rating: null, reviews: 0, ratingLabel: null };
+  }
+  return {
+    ...item,
+    rating: aggregate.average,
+    reviews: aggregate.count,
+    ratingLabel: null
+  };
+}
+
+export async function attachLodgeReviewAggregates(
+  items: Lodge[],
+  reviewService: ReviewService
+): Promise<Lodge[]> {
+  return attachAggregates(items, 'lodge', reviewService);
+}
+
+export async function attachGuideReviewAggregates(
+  items: Guide[],
+  reviewService: ReviewService
+): Promise<Guide[]> {
+  return attachAggregates(items, 'guide', reviewService);
+}
+
+async function attachAggregates<T extends { productId: number; rating: number | null; reviews: number | null; ratingLabel: string | null }>(
+  items: T[],
+  catalogType: CatalogType,
+  reviewService: ReviewService
+): Promise<T[]> {
+  const aggregates = await reviewService.getAggregatesFor(
+    items.map((item) => ({ catalogType, bsaleProductId: item.productId }))
+  );
+  return items.map((item) =>
+    applyVisibleReviewAggregate(item, aggregateLookup(aggregates, catalogType, item.productId))
+  );
 }
 
 export function toSaleResponse(quote: QuoteSale) {

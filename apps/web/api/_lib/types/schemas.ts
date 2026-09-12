@@ -53,3 +53,38 @@ export const contactRequestSchema = z.object({
 });
 
 export type ContactRequestBody = z.infer<typeof contactRequestSchema>;
+
+export const createReviewInviteSchema = z.object({
+  catalogType: z.enum(['lodge', 'guide']),
+  bsaleProductId: z.coerce.number().int().positive(),
+  customer: z.object({
+    email: z.string().trim().email().max(320),
+    firstName: z.string().trim().min(1).max(80),
+    lastName: z.string().trim().min(1).max(80)
+  }),
+  bsaleDocumentId: z.coerce.number().int().positive().optional(),
+  bsaleVariantId: z.coerce.number().int().positive().optional(),
+  adminNote: z.string().trim().max(500).optional()
+});
+
+export type CreateReviewInviteBody = z.infer<typeof createReviewInviteSchema>;
+
+export const reviewTokenParamSchema = z.object({
+  token: z.string().trim().min(16).max(128)
+});
+
+export const submitReviewSchema = z.object({
+  token: z.string().trim().min(16).max(128),
+  rating: z.coerce.number().int().min(1).max(5),
+  comment: z.string().trim().min(20).max(500)
+});
+
+export type SubmitReviewBody = z.infer<typeof submitReviewSchema>;
+
+export const reviewIdParamSchema = z.object({
+  reviewId: z.string().uuid()
+});
+
+export const hideReviewSchema = z.object({
+  hidden: z.boolean()
+});

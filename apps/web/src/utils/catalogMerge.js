@@ -2,12 +2,14 @@ function isMissing(value) {
   return value === null || value === undefined;
 }
 
+const SEED_RATING_KEYS = new Set(['rating', 'reviews', 'ratingLabel']);
+
 function mergeItemWithSeed(apiItem, seed) {
   if (!seed) return apiItem;
 
   const enriched = { ...apiItem };
   for (const [key, seedValue] of Object.entries(seed)) {
-    if (key === 'productId') continue;
+    if (key === 'productId' || SEED_RATING_KEYS.has(key)) continue;
     if (isMissing(enriched[key])) {
       enriched[key] = seedValue;
     }

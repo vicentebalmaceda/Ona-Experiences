@@ -34,7 +34,7 @@ function DirectoryCard({ item, ratingVersion, onRate }) {
             <p className="mt-1 text-xs font-semibold text-slate-500">{item.ratingLabel || t('rating.highly_recommended')}</p>
           </div>
           <div className="text-right">
-            <p className="text-2xl font-extrabold leading-none text-slate-900">{stats.average.toFixed(1)}</p>
+            <p className="text-2xl font-extrabold leading-none text-slate-900">{stats.average != null ? stats.average.toFixed(1) : '—'}</p>
             <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">{t('rating.reviews_count', { count: stats.reviews })}</p>
           </div>
         </div>
