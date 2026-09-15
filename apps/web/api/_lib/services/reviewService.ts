@@ -6,10 +6,10 @@ import type { Mailer, ReviewInviteEmail, ReviewSubmittedEmail } from '../mailer/
 import type { CatalogType } from '../types/catalog.js';
 import { DomainError } from '../types/errors.js';
 import type {
-  CatalogProductLookup,
   CreateReviewInviteInput,
   ProductReviewsView,
   PublicReview,
+  QuoteInviteResolver,
   ReviewAggregate,
   ReviewInvitePreview,
   ReviewInviteRecord,
@@ -26,7 +26,7 @@ const log = createLogger('reviews');
 
 export interface ReviewServiceDeps {
   store: ReviewStore;
-  catalog: CatalogProductLookup;
+  quoteResolver: QuoteInviteResolver;
   mailer: Mailer;
   publicAppUrl: string;
   now?: () => Date;
@@ -43,28 +43,34 @@ export class ReviewService {
   }
 
   async createInvite(input: CreateReviewInviteInput): Promise<{ inviteId: string; expiresAt: string }> {
-    const variant = await this.deps.catalog.get(input.catalogType, input.bsaleProductId);
+    const reviewed = await this.deps.store.findReviewedInviteByDocumentId(input.bsaleDocumentId);
+    if (reviewed) {
+      throw new DomainError('Quote already has a Review', 409, 'QUOTE_ALREADY_REVIEWED');
+    }
+
+    const quote = await this.deps.quoteResolver.resolve(input.bsaleDocumentId);
     const product = await this.deps.store.upsertProduct({
-      catalogType: input.catalogType,
-      bsaleProductId: variant.productId,
-      name: variant.productName
+      catalogType: quote.catalogType,
+      bsaleProductId: quote.bsaleProductId,
+      name: quote.productName,
+      active: quote.productActive
     });
 
-    const email = normalizeEmail(input.customer.email);
+    const email = normalizeEmail(quote.customer.email);
     const now = this.now();
-    await this.deps.store.revokeUnusedInvites(product.id, email, now);
+    await this.deps.store.revokeUnusedInvitesForDocument(input.bsaleDocumentId, now);
 
     const token = this.createToken();
     const expiresAt = new Date(now.getTime() + REVIEW_INVITE_TTL_MS);
     const invite = await this.deps.store.createInvite({
       productId: product.id,
       email,
-      firstName: input.customer.firstName.trim(),
-      lastName: input.customer.lastName.trim(),
+      firstName: quote.customer.firstName.trim(),
+      lastName: quote.customer.lastName.trim(),
       tokenHash: hashInviteToken(token),
       expiresAt,
-      bsaleDocumentId: input.bsaleDocumentId ?? null,
-      bsaleVariantId: input.bsaleVariantId ?? null,
+      bsaleDocumentId: input.bsaleDocumentId,
+      bsaleVariantId: quote.bsaleVariantId,
       adminNote: input.adminNote?.trim() || null
     });
 

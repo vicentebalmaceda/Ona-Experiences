@@ -7,12 +7,22 @@ export interface ReviewCustomer {
 }
 
 export interface CreateReviewInviteInput {
+  bsaleDocumentId: number;
+  adminNote?: string;
+}
+
+/** Quote fields needed to issue a Review Invite (resolved from BSale). */
+export interface ResolvedQuoteForInvite {
+  customer: ReviewCustomer;
   catalogType: CatalogType;
   bsaleProductId: number;
-  customer: ReviewCustomer;
-  bsaleDocumentId?: number;
-  bsaleVariantId?: number;
-  adminNote?: string;
+  productName: string;
+  productActive: boolean;
+  bsaleVariantId: number;
+}
+
+export interface QuoteInviteResolver {
+  resolve(bsaleDocumentId: number): Promise<ResolvedQuoteForInvite>;
 }
 
 export interface ProductRecord {
@@ -72,13 +82,6 @@ export interface ReviewInvitePreview {
   productName: string;
   catalogType: CatalogType;
   expiresAt: string;
-}
-
-export interface CatalogProductLookup {
-  get(
-    type: CatalogType,
-    productId: number
-  ): Promise<{ productId: number; productName: string }>;
 }
 
 export function reviewAggregateKey(catalogType: CatalogType, bsaleProductId: number): string {

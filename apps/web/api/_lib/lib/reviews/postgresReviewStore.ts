@@ -62,11 +62,12 @@ export class PostgresReviewStore implements ReviewStore {
   constructor(private readonly sql: NeonQueryFunction<false, false>) {}
 
   async upsertProduct(input: UpsertProductInput): Promise<ProductRecord> {
+    const active = input.active ?? true;
     const rows = await this.sql`
       INSERT INTO products (catalog_type, bsale_product_id, name, active, updated_at)
-      VALUES (${input.catalogType}, ${input.bsaleProductId}, ${input.name}, true, now())
+      VALUES (${input.catalogType}, ${input.bsaleProductId}, ${input.name}, ${active}, now())
       ON CONFLICT (catalog_type, bsale_product_id)
-      DO UPDATE SET name = excluded.name, active = true, updated_at = now()
+      DO UPDATE SET name = excluded.name, active = excluded.active, updated_at = now()
       RETURNING id, catalog_type, bsale_product_id, name, active
     `;
     return toProduct(rows[0] as ProductRow);
@@ -92,12 +93,23 @@ export class PostgresReviewStore implements ReviewStore {
     return rows[0] ? toProduct(rows[0] as ProductRow) : null;
   }
 
-  async revokeUnusedInvites(productId: string, email: string, revokedAt: Date): Promise<void> {
+  async findReviewedInviteByDocumentId(bsaleDocumentId: number): Promise<ReviewInviteRecord | null> {
+    const rows = await this.sql`
+      SELECT ri.id, ri.product_id, ri.email, ri.first_name, ri.last_name, ri.token_hash, ri.expires_at,
+        ri.used_at, ri.revoked_at, ri.bsale_document_id, ri.bsale_variant_id, ri.admin_note
+      FROM review_invites ri
+      INNER JOIN reviews r ON r.invite_id = ri.id
+      WHERE ri.bsale_document_id = ${bsaleDocumentId}
+      LIMIT 1
+    `;
+    return rows[0] ? toInvite(rows[0] as InviteRow) : null;
+  }
+
+  async revokeUnusedInvitesForDocument(bsaleDocumentId: number, revokedAt: Date): Promise<void> {
     await this.sql`
       UPDATE review_invites
       SET revoked_at = ${revokedAt.toISOString()}
-      WHERE product_id = ${productId}
-        AND email = ${email}
+      WHERE bsale_document_id = ${bsaleDocumentId}
         AND used_at IS NULL
         AND revoked_at IS NULL
     `;

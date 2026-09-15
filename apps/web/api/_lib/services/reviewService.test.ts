@@ -1,10 +1,19 @@
 import { describe, expect, it, vi } from 'vitest';
 import { MemoryReviewStore } from '../lib/reviews/memoryReviewStore.js';
 import type { Mailer } from '../mailer/types.js';
-import type { CatalogProductLookup } from '../types/reviews.js';
+import type { QuoteInviteResolver, ResolvedQuoteForInvite } from '../types/reviews.js';
 import { ReviewService, REVIEW_INVITE_TTL_MS } from './reviewService.js';
 
 const now = new Date('2026-09-10T15:00:00.000Z');
+
+const resolvedQuote: ResolvedQuoteForInvite = {
+  customer: { email: 'Maria@Example.com', firstName: 'María', lastName: 'González' },
+  catalogType: 'lodge',
+  bsaleProductId: 12,
+  productName: 'Bio Bio Lodge',
+  productActive: true,
+  bsaleVariantId: 44
+};
 
 function createMailer(): Mailer {
   return {
@@ -16,48 +25,44 @@ function createMailer(): Mailer {
   };
 }
 
-function createCatalog(): CatalogProductLookup {
+function createResolver(
+  quote: ResolvedQuoteForInvite = resolvedQuote
+): QuoteInviteResolver {
   return {
-    get: vi.fn().mockResolvedValue({ productId: 12, productName: 'Bio Bio Lodge' })
+    resolve: vi.fn().mockResolvedValue(quote)
   };
 }
 
 function createService(overrides?: {
   mailer?: Mailer;
-  catalog?: CatalogProductLookup;
+  quoteResolver?: QuoteInviteResolver;
   store?: MemoryReviewStore;
   now?: () => Date;
   createToken?: () => string;
 }) {
   const mailer = overrides?.mailer ?? createMailer();
-  const catalog = overrides?.catalog ?? createCatalog();
+  const quoteResolver = overrides?.quoteResolver ?? createResolver();
   const store = overrides?.store ?? new MemoryReviewStore();
   const service = new ReviewService({
     store,
-    catalog,
+    quoteResolver,
     mailer,
     publicAppUrl: 'https://ona.example',
     now: overrides?.now ?? (() => now),
     createToken: overrides?.createToken ?? (() => 'invite-token-1')
   });
-  return { service, mailer, catalog, store };
+  return { service, mailer, quoteResolver, store };
 }
 
-const customer = { email: 'Maria@Example.com', firstName: 'María', lastName: 'González' };
 const comment = 'Una estadía excelente en el lodge, volveríamos sin dudar.';
 
 describe('ReviewService', () => {
-  it('upserts a Product from BSale and emails a 30-day invite', async () => {
-    const { service, mailer, catalog } = createService();
+  it('creates a Review Invite from a Quote id and emails the Customer', async () => {
+    const { service, mailer, quoteResolver, store } = createService();
 
-    const result = await service.createInvite({
-      catalogType: 'lodge',
-      bsaleProductId: 12,
-      customer,
-      bsaleDocumentId: 99
-    });
+    const result = await service.createInvite({ bsaleDocumentId: 6634 });
 
-    expect(catalog.get).toHaveBeenCalledWith('lodge', 12);
+    expect(quoteResolver.resolve).toHaveBeenCalledWith(6634);
     expect(result.expiresAt).toBe(new Date(now.getTime() + REVIEW_INVITE_TTL_MS).toISOString());
     expect(mailer.sendReviewInvite).toHaveBeenCalledWith({
       to: 'maria@example.com',
@@ -66,17 +71,37 @@ describe('ReviewService', () => {
       reviewUrl: 'https://ona.example/review?token=invite-token-1',
       expiresAt: result.expiresAt
     });
+
+    const product = await store.getProductByExternalKey('lodge', 12);
+    expect(product).toMatchObject({ name: 'Bio Bio Lodge', active: true });
+    const invite = [...store.invites.values()][0];
+    expect(invite).toMatchObject({
+      bsaleDocumentId: 6634,
+      bsaleVariantId: 44,
+      email: 'maria@example.com'
+    });
   });
 
-  it('revokes an unused invite when another is sent for the same Customer and Product', async () => {
+  it('upserts an inactive Product when the Quote product is inactive in BSale', async () => {
+    const { service, store } = createService({
+      quoteResolver: createResolver({ ...resolvedQuote, productActive: false })
+    });
+
+    await service.createInvite({ bsaleDocumentId: 6634 });
+
+    const product = await store.getProductByExternalKey('lodge', 12);
+    expect(product?.active).toBe(false);
+  });
+
+  it('revokes an unused Invite when another is issued for the same Quote', async () => {
     let token = 'first-token';
     const { service } = createService({
       createToken: () => token
     });
 
-    await service.createInvite({ catalogType: 'lodge', bsaleProductId: 12, customer });
+    await service.createInvite({ bsaleDocumentId: 6634 });
     token = 'second-token';
-    await service.createInvite({ catalogType: 'lodge', bsaleProductId: 12, customer });
+    await service.createInvite({ bsaleDocumentId: 6634 });
 
     await expect(service.previewInvite('first-token')).rejects.toMatchObject({
       code: 'INVITE_REVOKED',
@@ -89,9 +114,22 @@ describe('ReviewService', () => {
     });
   });
 
+  it('rejects a new Invite when the Quote already has a Review', async () => {
+    let token = 'used-token';
+    const { service } = createService({ createToken: () => token });
+    await service.createInvite({ bsaleDocumentId: 6634 });
+    await service.submitReview('used-token', 5, comment);
+
+    token = 'another-token';
+    await expect(service.createInvite({ bsaleDocumentId: 6634 })).rejects.toMatchObject({
+      code: 'QUOTE_ALREADY_REVIEWED',
+      statusCode: 409
+    });
+  });
+
   it('accepts a redeemable invite as a visible Review and emails customer plus admin', async () => {
     const { service, mailer } = createService();
-    await service.createInvite({ catalogType: 'lodge', bsaleProductId: 12, customer });
+    await service.createInvite({ bsaleDocumentId: 6634 });
 
     const submitted = await service.submitReview('invite-token-1', 5, comment);
 
@@ -122,8 +160,9 @@ describe('ReviewService', () => {
 
   it('rejects a used, unknown, or too-short invite', async () => {
     let token = 'used-token';
-    const { service } = createService({ createToken: () => token });
-    await service.createInvite({ catalogType: 'lodge', bsaleProductId: 12, customer });
+    const store = new MemoryReviewStore();
+    const { service } = createService({ createToken: () => token, store });
+    await service.createInvite({ bsaleDocumentId: 6634 });
     await service.submitReview('used-token', 4, comment);
 
     await expect(service.submitReview('used-token', 5, comment)).rejects.toMatchObject({
@@ -135,12 +174,16 @@ describe('ReviewService', () => {
     });
 
     token = 'short-token';
-    await service.createInvite({
-      catalogType: 'lodge',
-      bsaleProductId: 12,
-      customer: { ...customer, email: 'otro@example.com' }
+    const other = createService({
+      createToken: () => token,
+      store,
+      quoteResolver: createResolver({
+        ...resolvedQuote,
+        customer: { ...resolvedQuote.customer, email: 'otro@example.com' }
+      })
     });
-    await expect(service.submitReview('short-token', 5, 'muy corto')).rejects.toMatchObject({
+    await other.service.createInvite({ bsaleDocumentId: 9001 });
+    await expect(other.service.submitReview('short-token', 5, 'muy corto')).rejects.toMatchObject({
       code: 'INVALID_COMMENT',
       statusCode: 400
     });
@@ -148,7 +191,7 @@ describe('ReviewService', () => {
 
   it('drops a hidden Review from the public average and list', async () => {
     const { service } = createService();
-    await service.createInvite({ catalogType: 'lodge', bsaleProductId: 12, customer });
+    await service.createInvite({ bsaleDocumentId: 6634 });
     const { reviewId } = await service.submitReview('invite-token-1', 2, comment);
 
     await service.setReviewHidden(reviewId, true);
@@ -164,7 +207,7 @@ describe('ReviewService', () => {
     const mailer = createMailer();
     mailer.sendReviewThankYou = vi.fn().mockRejectedValue(new Error('resend down'));
     const { service } = createService({ mailer });
-    await service.createInvite({ catalogType: 'lodge', bsaleProductId: 12, customer });
+    await service.createInvite({ bsaleDocumentId: 6634 });
 
     await expect(service.submitReview('invite-token-1', 5, comment)).resolves.toEqual({
       reviewId: expect.any(String)
@@ -184,7 +227,7 @@ describe('ReviewService', () => {
   it('treats an expired unused invite as invalid', async () => {
     let current = now;
     const { service } = createService({ now: () => current });
-    await service.createInvite({ catalogType: 'lodge', bsaleProductId: 12, customer });
+    await service.createInvite({ bsaleDocumentId: 6634 });
     current = new Date(now.getTime() + REVIEW_INVITE_TTL_MS + 1);
 
     await expect(service.previewInvite('invite-token-1')).rejects.toMatchObject({

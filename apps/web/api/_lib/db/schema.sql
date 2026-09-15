@@ -31,6 +31,10 @@ CREATE TABLE IF NOT EXISTS review_invites (
 CREATE INDEX IF NOT EXISTS review_invites_product_email_idx
   ON review_invites (product_id, email);
 
+CREATE INDEX IF NOT EXISTS review_invites_document_id_idx
+  ON review_invites (bsale_document_id)
+  WHERE bsale_document_id IS NOT NULL;
+
 CREATE TABLE IF NOT EXISTS reviews (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   product_id uuid NOT NULL REFERENCES products (id),
@@ -45,3 +49,17 @@ CREATE TABLE IF NOT EXISTS reviews (
 CREATE INDEX IF NOT EXISTS reviews_product_visible_idx
   ON reviews (product_id, created_at DESC)
   WHERE hidden_at IS NULL;
+
+-- Invite-fuel Quote snapshot (ADR 0004). Written on Quote webhook when invite-ready.
+CREATE TABLE IF NOT EXISTS quotes (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  bsale_document_id integer NOT NULL UNIQUE,
+  product_id uuid NOT NULL REFERENCES products (id),
+  email text NOT NULL,
+  first_name text NOT NULL,
+  last_name text NOT NULL,
+  bsale_client_id integer,
+  bsale_variant_id integer NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);

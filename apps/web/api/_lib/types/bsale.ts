@@ -102,8 +102,9 @@ export interface BsaleDocumentDetail {
   /** Some document types use `comment`; cotización lines use `note`. */
   comment?: string | null;
   note?: string | null;
-  variant?: { id?: number; description?: string; code?: string };
+  variant?: { id?: number; description?: string; code?: string; href?: string };
   variantId?: number;
+  product?: { id?: number; name?: string; href?: string };
 }
 
 export interface BsaleDocument {

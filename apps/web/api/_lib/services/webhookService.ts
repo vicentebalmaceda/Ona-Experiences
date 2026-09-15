@@ -9,6 +9,7 @@ import type { BsaleClient, BsaleDocument, BsaleDocumentDetail } from '../types/b
 import { DomainError } from '../types/errors.js';
 import { createLogger } from '../utils/logger.js';
 import { getServices } from './container.js';
+import type { QuoteCapture } from './bsaleQuoteCapture.js';
 
 const log = createLogger('webhook');
 
@@ -157,6 +158,7 @@ export interface WebhookServiceDeps {
   salesRepository?: BsaleSalesRepository;
   clientRepository?: BsaleClientRepository;
   quoteDocumentTypeId?: number;
+  quoteCapture?: QuoteCapture;
 }
 
 export class WebhookService {
@@ -165,6 +167,7 @@ export class WebhookService {
   private readonly salesRepository: BsaleSalesRepository;
   private readonly clientRepository: BsaleClientRepository;
   private readonly quoteDocumentTypeId: number;
+  private readonly quoteCapture: QuoteCapture | null;
 
   constructor(deps: WebhookServiceDeps = {}) {
     this.cache = deps.cache ?? getCache();
@@ -179,6 +182,7 @@ export class WebhookService {
       this.salesRepository = deps.salesRepository;
       this.clientRepository = deps.clientRepository;
       this.quoteDocumentTypeId = deps.quoteDocumentTypeId;
+      this.quoteCapture = deps.quoteCapture ?? null;
     } else {
       const services = getServices();
       this.mailer = deps.mailer ?? services.mailer;
@@ -186,6 +190,7 @@ export class WebhookService {
       this.clientRepository = deps.clientRepository ?? services.clientRepository;
       this.quoteDocumentTypeId =
         deps.quoteDocumentTypeId ?? getEnv().BSALE_QUOTE_DOCUMENT_TYPE_ID;
+      this.quoteCapture = deps.quoteCapture ?? services.quoteCapture;
     }
   }
 
@@ -281,6 +286,16 @@ export class WebhookService {
     }
 
     const customer = await this.resolveCustomer(document);
+    const numericDocumentId = Number(document.id);
+    if (this.quoteCapture && Number.isFinite(numericDocumentId)) {
+      const parsedClientId =
+        customer?.id != null && customer.id !== '' ? Number(customer.id) : NaN;
+      await this.quoteCapture.captureFromDocumentId(
+        numericDocumentId,
+        Number.isFinite(parsedClientId) ? parsedClientId : null
+      );
+    }
+
     const notification = mapDocumentToQuoteNotification(document, customer);
     await this.mailer.sendQuoteNotification(notification);
     await cache.set(idempotencyKey, { sent: true }, CACHE_TTL_SECONDS.quoteNotification);

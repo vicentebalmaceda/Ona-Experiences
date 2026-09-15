@@ -102,6 +102,9 @@ describe('WebhookService document handling', () => {
   let clientRepository: {
     getById: ReturnType<typeof vi.fn>;
   };
+  let quoteCapture: {
+    captureFromDocumentId: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     cache = createMemoryCache();
@@ -125,6 +128,9 @@ describe('WebhookService document handling', () => {
         phone: '+56911111111'
       })
     };
+    quoteCapture = {
+      captureFromDocumentId: vi.fn().mockResolvedValue(true)
+    };
   });
 
   function service(quoteDocumentTypeId = 37) {
@@ -133,9 +139,28 @@ describe('WebhookService document handling', () => {
       mailer: mailer as never,
       salesRepository: salesRepository as never,
       clientRepository: clientRepository as never,
-      quoteDocumentTypeId
+      quoteDocumentTypeId,
+      quoteCapture: quoteCapture as never
     });
   }
+
+  it('persists an invite-ready Quote before sending the admin email', async () => {
+    const result = await service().dispatch(sampleEvent);
+
+    expect(result).toEqual({ handled: true, detail: 'quote notification sent' });
+    expect(quoteCapture.captureFromDocumentId).toHaveBeenCalledWith(6599, 2343);
+    expect(mailer.sendQuoteNotification).toHaveBeenCalledTimes(1);
+    const captureOrder = quoteCapture.captureFromDocumentId.mock.invocationCallOrder[0];
+    const mailOrder = mailer.sendQuoteNotification.mock.invocationCallOrder[0];
+    expect(captureOrder).toBeLessThan(mailOrder);
+  });
+
+  it('does not send email when Quote persist fails', async () => {
+    quoteCapture.captureFromDocumentId.mockRejectedValue(new Error('postgres down'));
+
+    await expect(service().dispatch(sampleEvent)).rejects.toThrow('postgres down');
+    expect(mailer.sendQuoteNotification).not.toHaveBeenCalled();
+  });
 
   it('fetches via resource, enriches client, and includes note in email payload', async () => {
     const result = await service().dispatch(sampleEvent);
@@ -149,6 +174,15 @@ describe('WebhookService document handling', () => {
     expect(payload.items[0].note).toContain('Detalles:muchisima gente');
     expect(payload.items[0].description).toBe('Alto Bío Bío (Bío-Bío Lodge)');
     expect(payload.customer.email).toBe('juan@example.com');
+  });
+
+  it('still emails when the Quote is not invite-ready', async () => {
+    quoteCapture.captureFromDocumentId.mockResolvedValue(false);
+
+    const result = await service().dispatch(sampleEvent);
+
+    expect(result.detail).toBe('quote notification sent');
+    expect(mailer.sendQuoteNotification).toHaveBeenCalledTimes(1);
   });
 
   it('skips non-quote document types', async () => {
