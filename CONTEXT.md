@@ -21,13 +21,13 @@ A Review that an admin has not hidden. Only Visible Reviews form a Product's pub
 _Avoid_: Published review (implies an approval queue), seed rating, local rating
 
 **Review Invite**:
-A one-time, manually issued permission, delivered by Spanish email, for a known Customer to submit exactly one Review for a specific Product. It is always backed by exactly one Quote: the admin supplies that Quote's BSale document id; Customer and Product come from the Quote (exactly one line item). It expires 30 days after it is issued. While that Quote has no Review, issuing another Invite for the same Quote revokes any unused prior Invite. A Quote that already has a Review cannot receive another Invite.
+A one-time, manually issued permission, delivered by Spanish email, for a known Customer to submit exactly one Review for a specific Product. It is always backed by exactly one Quote: the admin supplies that Quote's BSale document id. Customer and Product come from the local Quote when it was captured invite-ready at webhook time; otherwise they may still be resolved live from BSale. It expires 30 days after it is issued. While that Quote has no Review, issuing another Invite for the same Quote revokes any unused prior Invite. A Quote that already has a Review cannot receive another Invite.
 _Avoid_: Magic link (implementation), survey, open form, automatic post-quote invite, invite without a Quote, manual Customer+Product invite
 
 **Customer**:
-The person ONA communicates with for quotes and Review Invites (name + email from the booking/quote flow).
+The person ONA communicates with for Quotes and Review Invites (name + email). On a synced Quote, Customer fields are captured from BSale's client at webhook time.
 _Avoid_: Client (BSale’s `/clients` record), User (no end-user accounts in v1), guest (informal only)
 
 **Quote**:
-A pre-sale BSale document (cotización) created for a Customer against a Product variant. It is the required backing document for a Review Invite; at most one Review can exist for a given Quote.
-_Avoid_: Sale (API path name only today), Order, Booking (not modeled yet)
+ONA's durable record of a pre-sale BSale cotización for a Customer against a Product variant. BSale's document id is the external key. It is written when the Quote webhook successfully captures an invite-ready cotización (exactly one line with product and variant, Customer email present): Customer fields are embedded, the Product is upserted, and the booked Variant is remembered. Incomplete Quotes are not stored; the admin Quote email may still send. At most one Review can exist for a given Quote.
+_Avoid_: Sale (API path name only today), Order, Booking (not modeled yet), treating the live BSale document alone as the Quote ONA acts on, persisting incomplete cotizaciones
