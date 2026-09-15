@@ -104,6 +104,32 @@ export function matchV1Route(pathname: string): V1Match | null {
   return { handler: route.handler, params };
 }
 
+/**
+ * Resolve the public /api/v1 pathname for the entry function.
+ * Prefer a nested path on `req.url` (rewrites often preserve it). If the URL is
+ * only `/api/v1`, fall back to a `path` query (rewrite `?path=$1` or legacy catch-all).
+ */
+export function pathnameFromV1Request(
+  url: string | undefined,
+  pathQuery?: string | string[]
+): string {
+  const fromUrl = new URL(url ?? '/', 'http://localhost').pathname;
+  if (fromUrl.startsWith('/api/v1/')) {
+    return fromUrl;
+  }
+
+  if (pathQuery !== undefined) {
+    const segments = Array.isArray(pathQuery)
+      ? pathQuery.filter(Boolean)
+      : pathQuery.split('/').filter(Boolean);
+    if (segments.length > 0) {
+      return `/api/v1/${segments.join('/')}`;
+    }
+  }
+
+  return fromUrl;
+}
+
 export function mergeV1Query(
   query: VercelRequest['query'],
   params: Record<string, string>

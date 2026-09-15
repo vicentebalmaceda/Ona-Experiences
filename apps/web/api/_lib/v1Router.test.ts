@@ -8,7 +8,7 @@ import { reviewInviteByTokenHandler } from './handlers/reviewInviteByToken.js';
 import { reviewInvitesHandler } from './handlers/reviewInvites.js';
 import { reviewByIdHandler } from './handlers/reviewById.js';
 import { reviewsHandler } from './handlers/reviews.js';
-import { matchV1Route, mergeV1Query } from './v1Router.js';
+import { matchV1Route, mergeV1Query, pathnameFromV1Request } from './v1Router.js';
 
 describe('matchV1Route', () => {
   it('does not match an unknown v1 path', () => {
@@ -48,6 +48,22 @@ describe('matchV1Route', () => {
     const match = matchV1Route(pathname);
     expect(match?.handler).toBe(handler);
     expect(match?.params).toEqual(params);
+  });
+});
+
+describe('pathnameFromV1Request', () => {
+  it('keeps nested paths from req.url after a rewrite to /api/v1', () => {
+    expect(pathnameFromV1Request('/api/v1/lodges/2018')).toBe('/api/v1/lodges/2018');
+    expect(pathnameFromV1Request('/api/v1/lodges/2018/reviews?x=1')).toBe(
+      '/api/v1/lodges/2018/reviews'
+    );
+  });
+
+  it('rebuilds nested paths from path query when url is only /api/v1', () => {
+    expect(pathnameFromV1Request('/api/v1', 'lodges/2018')).toBe('/api/v1/lodges/2018');
+    expect(pathnameFromV1Request('/api/v1', ['lodges', '2018', 'reviews'])).toBe(
+      '/api/v1/lodges/2018/reviews'
+    );
   });
 });
 

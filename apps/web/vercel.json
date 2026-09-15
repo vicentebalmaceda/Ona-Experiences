@@ -3,12 +3,13 @@
   "framework": "vite",
   "installCommand": "cd ../.. && npm install",
   "functions": {
-    "api/v1/[...path].ts": {
+    "api/v1/index.ts": {
       "includeFiles": "api/_lib/lib/enrichment/catalog-seed.json"
     }
   },
   "rewrites": [
     { "source": "/health", "destination": "/api/health" },
+    { "source": "/api/v1/(.*)", "destination": "/api/v1?path=$1" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
