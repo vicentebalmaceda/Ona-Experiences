@@ -10,6 +10,7 @@ export interface UpsertProductInput {
   catalogType: CatalogType;
   bsaleProductId: number;
   name: string;
+  active?: boolean;
 }
 
 export interface CreateInviteInput {
@@ -40,7 +41,8 @@ export interface ReviewStore {
     catalogType: CatalogType,
     bsaleProductId: number
   ): Promise<ProductRecord | null>;
-  revokeUnusedInvites(productId: string, email: string, revokedAt: Date): Promise<void>;
+  findReviewedInviteByDocumentId(bsaleDocumentId: number): Promise<ReviewInviteRecord | null>;
+  revokeUnusedInvitesForDocument(bsaleDocumentId: number, revokedAt: Date): Promise<void>;
   createInvite(input: CreateInviteInput): Promise<ReviewInviteRecord>;
   findInviteByTokenHash(tokenHash: string): Promise<ReviewInviteRecord | null>;
   markInviteUsed(inviteId: string, usedAt: Date): Promise<void>;

@@ -80,6 +80,29 @@ export class BsaleProductTypeResolver {
       ? this.env.BSALE_LODGE_PRODUCT_TYPE_NAME
       : this.env.BSALE_GUIDE_PRODUCT_TYPE_NAME;
   }
+
+  async resolveCatalogType(product: BsaleProduct): Promise<CatalogType> {
+    const productTypeId = resolveProductTypeId(product);
+    if (productTypeId == null) {
+      throw new DomainError(
+        'BSale product has no product type',
+        422,
+        'PRODUCT_TYPE_MISSING'
+      );
+    }
+
+    const lodgeTypeId = await this.resolveIdByName(this.getProductTypeName('lodge'));
+    if (productTypeId === lodgeTypeId) return 'lodge';
+
+    const guideTypeId = await this.resolveIdByName(this.getProductTypeName('guide'));
+    if (productTypeId === guideTypeId) return 'guide';
+
+    throw new DomainError(
+      'BSale product is neither a lodge nor a guide',
+      422,
+      'UNSUPPORTED_PRODUCT_TYPE'
+    );
+  }
 }
 
 export class BsaleCatalogRepository {

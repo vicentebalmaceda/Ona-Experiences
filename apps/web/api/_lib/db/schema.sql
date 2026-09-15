@@ -31,6 +31,10 @@ CREATE TABLE IF NOT EXISTS review_invites (
 CREATE INDEX IF NOT EXISTS review_invites_product_email_idx
   ON review_invites (product_id, email);
 
+CREATE INDEX IF NOT EXISTS review_invites_document_id_idx
+  ON review_invites (bsale_document_id)
+  WHERE bsale_document_id IS NOT NULL;
+
 CREATE TABLE IF NOT EXISTS reviews (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   product_id uuid NOT NULL REFERENCES products (id),

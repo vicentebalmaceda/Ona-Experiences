@@ -24,11 +24,7 @@ describe('POST /api/v1/review-invites', () => {
       method: 'POST',
       headers: { origin: 'http://localhost:5173' },
       url: '/api/v1/review-invites',
-      body: {
-        catalogType: 'lodge',
-        bsaleProductId: 12,
-        customer: { email: 'maria@example.com', firstName: 'María', lastName: 'González' }
-      }
+      body: { bsaleDocumentId: 6634 }
     };
     const res = createMockRes();
 
@@ -46,11 +42,7 @@ describe('POST /api/v1/review-invites', () => {
         authorization: 'Bearer test-admin-secret-16'
       },
       url: '/api/v1/review-invites',
-      body: {
-        catalogType: 'lodge',
-        bsaleProductId: 12,
-        customer: { email: 'maria@example.com', firstName: 'María', lastName: 'González' }
-      }
+      body: { bsaleDocumentId: 6634, adminNote: 'post-stay' }
     };
     const res = createMockRes();
 
@@ -62,9 +54,8 @@ describe('POST /api/v1/review-invites', () => {
       expiresAt: '2026-10-10T15:00:00.000Z'
     });
     expect(createInvite).toHaveBeenCalledWith({
-      catalogType: 'lodge',
-      bsaleProductId: 12,
-      customer: { email: 'maria@example.com', firstName: 'María', lastName: 'González' }
+      bsaleDocumentId: 6634,
+      adminNote: 'post-stay'
     });
   });
 });

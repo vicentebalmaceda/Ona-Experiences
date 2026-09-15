@@ -1,5 +1,5 @@
 import type { Env } from '../../config/env.js';
-import type { BsaleDocument } from '../../types/bsale.js';
+import type { BsaleDocument, BsaleDocumentDetail, BsaleListResponse } from '../../types/bsale.js';
 import type { CreateQuoteParams, QuoteSale } from '../../types/sales.js';
 import { createLogger } from '../../utils/logger.js';
 import type { BsaleClient } from './client.js';
@@ -18,6 +18,14 @@ export class BsaleSalesRepository {
 
   async getDocument(documentId: number | string): Promise<BsaleDocument> {
     return this.getDocumentByResource(`/documents/${documentId}.json`);
+  }
+
+  async getDocumentDetails(
+    documentId: number | string
+  ): Promise<BsaleListResponse<BsaleDocumentDetail>> {
+    return this.client.get<BsaleListResponse<BsaleDocumentDetail>>(
+      `/documents/${documentId}/details.json`
+    );
   }
 
   /**

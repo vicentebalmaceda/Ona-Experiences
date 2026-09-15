@@ -11,6 +11,7 @@ import { MarketInfoEnricher } from '../lib/enrichment/marketInfoEnricher.js';
 import { SeedServiceEnricher } from '../lib/enrichment/seedEnricher.js';
 import { ResendMailer } from '../mailer/resendMailer.js';
 import type { Mailer } from '../mailer/types.js';
+import { BsaleQuoteInviteResolver } from './bsaleQuoteInviteResolver.js';
 import { CatalogService } from './catalogService.js';
 import { ReviewService } from './reviewService.js';
 import { SalesService } from './salesService.js';
@@ -49,6 +50,13 @@ export function getServices(): Services {
 
   const mailer = new ResendMailer(env);
   const catalogService = new CatalogService(catalogRepository, enrichers);
+  const quoteResolver = new BsaleQuoteInviteResolver({
+    sales: salesRepository,
+    clients: clientRepository,
+    bsale: client,
+    productTypes: productTypeResolver,
+    env
+  });
 
   services = {
     catalogService,
@@ -60,9 +68,7 @@ export function getServices(): Services {
     ),
     reviewService: new ReviewService({
       store: new PostgresReviewStore(getSql(env.POSTGRES_URL)),
-      catalog: {
-        get: (type, productId) => catalogService.get(type, productId)
-      },
+      quoteResolver,
       mailer,
       publicAppUrl: env.PUBLIC_APP_URL
     }),

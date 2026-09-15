@@ -55,15 +55,7 @@ export const contactRequestSchema = z.object({
 export type ContactRequestBody = z.infer<typeof contactRequestSchema>;
 
 export const createReviewInviteSchema = z.object({
-  catalogType: z.enum(['lodge', 'guide']),
-  bsaleProductId: z.coerce.number().int().positive(),
-  customer: z.object({
-    email: z.string().trim().email().max(320),
-    firstName: z.string().trim().min(1).max(80),
-    lastName: z.string().trim().min(1).max(80)
-  }),
-  bsaleDocumentId: z.coerce.number().int().positive().optional(),
-  bsaleVariantId: z.coerce.number().int().positive().optional(),
+  bsaleDocumentId: z.coerce.number().int().positive(),
   adminNote: z.string().trim().max(500).optional()
 });
 

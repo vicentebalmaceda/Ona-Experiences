@@ -22,12 +22,13 @@ export class MemoryReviewStore implements ReviewStore {
   readonly reviews = new Map<string, ReviewRecord>();
 
   async upsertProduct(input: UpsertProductInput): Promise<ProductRecord> {
+    const active = input.active ?? true;
     const existing = [...this.products.values()].find(
       (product) =>
         product.catalogType === input.catalogType && product.bsaleProductId === input.bsaleProductId
     );
     if (existing) {
-      const updated = { ...existing, name: input.name, active: true };
+      const updated = { ...existing, name: input.name, active };
       this.products.set(existing.id, updated);
       return updated;
     }
@@ -37,7 +38,7 @@ export class MemoryReviewStore implements ReviewStore {
       catalogType: input.catalogType,
       bsaleProductId: input.bsaleProductId,
       name: input.name,
-      active: true
+      active
     };
     this.products.set(created.id, created);
     return created;
@@ -58,11 +59,19 @@ export class MemoryReviewStore implements ReviewStore {
     );
   }
 
-  async revokeUnusedInvites(productId: string, email: string, revokedAt: Date): Promise<void> {
+  async findReviewedInviteByDocumentId(bsaleDocumentId: number): Promise<ReviewInviteRecord | null> {
+    for (const invite of this.invites.values()) {
+      if (invite.bsaleDocumentId !== bsaleDocumentId) continue;
+      const hasReview = [...this.reviews.values()].some((review) => review.inviteId === invite.id);
+      if (hasReview) return invite;
+    }
+    return null;
+  }
+
+  async revokeUnusedInvitesForDocument(bsaleDocumentId: number, revokedAt: Date): Promise<void> {
     for (const invite of this.invites.values()) {
       if (
-        invite.productId === productId &&
-        invite.email === email &&
+        invite.bsaleDocumentId === bsaleDocumentId &&
         invite.usedAt == null &&
         invite.revokedAt == null
       ) {
