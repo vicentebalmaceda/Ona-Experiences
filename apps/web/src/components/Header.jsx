@@ -40,6 +40,8 @@ function Header({ onNavigate }) {
         <a
           key={key}
           href={link.href}
+          target="_blank"
+          rel="noopener noreferrer"
           className={mobile ? 'block rounded-lg px-3 py-2 hover:bg-white/5' : 'transition hover:text-white'}
           onClick={() => setOpen(false)}
         >
