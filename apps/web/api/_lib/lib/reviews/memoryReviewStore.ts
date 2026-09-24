@@ -152,6 +152,29 @@ export class MemoryReviewStore implements ReviewStore {
     }
     return result;
   }
+
+  async listInvites(): Promise<ReviewInviteRecord[]> {
+    return [...this.invites.values()].sort(
+      (a, b) => b.expiresAt.getTime() - a.expiresAt.getTime()
+    );
+  }
+
+  async listReviews(): Promise<ReviewRecord[]> {
+    return [...this.reviews.values()].sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    );
+  }
+
+  async findOpenInviteByDocumentId(bsaleDocumentId: number): Promise<ReviewInviteRecord | null> {
+    const open = [...this.invites.values()].filter(
+      (invite) =>
+        invite.bsaleDocumentId === bsaleDocumentId &&
+        invite.usedAt == null &&
+        invite.revokedAt == null
+    );
+    open.sort((a, b) => b.expiresAt.getTime() - a.expiresAt.getTime());
+    return open[0] ?? null;
+  }
 }
 
 function toAggregate(reviews: ReviewRecord[]): ReviewAggregate {

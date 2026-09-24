@@ -1001,3 +1001,29 @@ body {
     right: 4px;
   }
 }
+
+@layer components {
+  .admin-surface {
+    @apply rounded-3xl border border-black/5 bg-white shadow-card;
+  }
+
+  .admin-eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-forest-500;
+  }
+
+  .admin-field-label {
+    @apply mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-forest-700;
+  }
+
+  .admin-field-control {
+    @apply w-full rounded-2xl border border-forest-200 bg-white px-4 py-3 text-sm text-forest-950 outline-none transition placeholder:text-forest-300 focus:border-ona-500 focus:ring-4 focus:ring-ona-100;
+  }
+
+  .admin-button-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-forest-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-forest-800 focus:outline-none focus:ring-4 focus:ring-forest-100 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .admin-button-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-forest-200 bg-white px-4 py-3 text-sm font-semibold text-forest-900 transition hover:border-forest-300 hover:bg-forest-50 focus:outline-none focus:ring-4 focus:ring-forest-100;
+  }
+}

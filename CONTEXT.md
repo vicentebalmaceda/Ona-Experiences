@@ -28,6 +28,10 @@ _Avoid_: Magic link (implementation), survey, open form, automatic post-quote in
 The person ONA communicates with for Quotes and Review Invites (name + email). On a synced Quote, Customer fields are captured from BSale's client at webhook time.
 _Avoid_: Client (BSale’s `/clients` record), User (no end-user accounts in v1), guest (informal only)
 
+**Admin**:
+A person authorized to issue Review Invites and control which Reviews are Visible. Not a Customer and not an end-user account.
+_Avoid_: User, staff account
+
 **Quote**:
 ONA's durable record of a pre-sale BSale cotización for a Customer against a Product variant. BSale's document id is the external key. It is written when the Quote webhook successfully captures an invite-ready cotización (exactly one line with product and variant, Customer email present): Customer fields are embedded, the Product is upserted, and the booked Variant is remembered. Incomplete Quotes are not stored; the admin Quote email may still send. At most one Review can exist for a given Quote.
 _Avoid_: Sale (API path name only today), Order, Booking (not modeled yet), treating the live BSale document alone as the Quote ONA acts on, persisting incomplete cotizaciones

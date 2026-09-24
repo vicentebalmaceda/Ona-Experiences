@@ -237,6 +237,39 @@ export class PostgresReviewStore implements ReviewStore {
 
     return result;
   }
+
+  async listInvites(): Promise<ReviewInviteRecord[]> {
+    const rows = await this.sql`
+      SELECT id, product_id, email, first_name, last_name, token_hash, expires_at,
+        used_at, revoked_at, bsale_document_id, bsale_variant_id, admin_note
+      FROM review_invites
+      ORDER BY expires_at DESC
+    `;
+    return (rows as InviteRow[]).map(toInvite);
+  }
+
+  async listReviews(): Promise<ReviewRecord[]> {
+    const rows = await this.sql`
+      SELECT id, product_id, invite_id, rating, comment, display_name, hidden_at, created_at
+      FROM reviews
+      ORDER BY created_at DESC
+    `;
+    return (rows as ReviewRow[]).map(toReview);
+  }
+
+  async findOpenInviteByDocumentId(bsaleDocumentId: number): Promise<ReviewInviteRecord | null> {
+    const rows = await this.sql`
+      SELECT id, product_id, email, first_name, last_name, token_hash, expires_at,
+        used_at, revoked_at, bsale_document_id, bsale_variant_id, admin_note
+      FROM review_invites
+      WHERE bsale_document_id = ${bsaleDocumentId}
+        AND used_at IS NULL
+        AND revoked_at IS NULL
+      ORDER BY expires_at DESC
+      LIMIT 1
+    `;
+    return rows[0] ? toInvite(rows[0] as InviteRow) : null;
+  }
 }
 
 function toProduct(row: ProductRow): ProductRecord {

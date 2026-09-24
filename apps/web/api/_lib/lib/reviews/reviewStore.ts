@@ -54,4 +54,7 @@ export interface ReviewStore {
   getVisibleAggregatesByExternalKeys(
     keys: Array<{ catalogType: CatalogType; bsaleProductId: number }>
   ): Promise<Map<string, ReviewAggregate>>;
+  listInvites(): Promise<ReviewInviteRecord[]>;
+  listReviews(): Promise<ReviewRecord[]>;
+  findOpenInviteByDocumentId(bsaleDocumentId: number): Promise<ReviewInviteRecord | null>;
 }

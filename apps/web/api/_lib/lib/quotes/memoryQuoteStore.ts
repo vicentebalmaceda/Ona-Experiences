@@ -45,4 +45,10 @@ export class MemoryQuoteStore implements QuoteStore {
       [...this.quotes.values()].find((quote) => quote.bsaleDocumentId === bsaleDocumentId) ?? null
     );
   }
+
+  async listQuotes(): Promise<QuoteRecord[]> {
+    return [...this.quotes.values()].sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    );
+  }
 }

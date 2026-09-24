@@ -22,7 +22,12 @@ const envSchema = z.object({
   RESEND_REVIEW_THANKS_TEMPLATE_ID: z.string().min(1, 'RESEND_REVIEW_THANKS_TEMPLATE_ID is required'),
   RESEND_REVIEW_ADMIN_TEMPLATE_ID: z.string().min(1, 'RESEND_REVIEW_ADMIN_TEMPLATE_ID is required'),
   POSTGRES_URL: z.string().min(1, 'POSTGRES_URL is required'),
-  ADMIN_API_SECRET: z.string().min(16, 'ADMIN_API_SECRET must be at least 16 characters'),
+  /** Comma-separated emails allowed to log into /admin (case-insensitive). */
+  ADMIN_EMAILS: z.string().min(1, 'ADMIN_EMAILS is required'),
+  ADMIN_PASSWORD: z.string().min(8, 'ADMIN_PASSWORD must be at least 8 characters'),
+  ADMIN_SESSION_SECRET: z
+    .string()
+    .min(32, 'ADMIN_SESSION_SECRET must be at least 32 characters'),
   PUBLIC_APP_URL: z.string().url('PUBLIC_APP_URL must be a valid URL')
 });
 

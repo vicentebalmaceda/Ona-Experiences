@@ -80,3 +80,16 @@ export const reviewIdParamSchema = z.object({
 export const hideReviewSchema = z.object({
   hidden: z.boolean()
 });
+
+export const adminLoginSchema = z.object({
+  email: z.string().trim().email(),
+  password: z.string().min(1)
+});
+
+export const adminDocumentIdParamSchema = z.object({
+  bsaleDocumentId: z.coerce.number().int().positive()
+});
+
+export const adminInviteNoteSchema = z.object({
+  adminNote: z.string().trim().max(500).optional()
+});
