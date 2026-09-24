@@ -42,7 +42,7 @@ function Header({ onNavigate }) {
           href={link.href}
           target="_blank"
           rel="noopener noreferrer"
-          className={mobile ? 'block rounded-lg px-3 py-2 hover:bg-white/5' : 'transition hover:text-white'}
+          className={mobile ? 'block rounded-lg px-3 py-2 font-semibold text-ona-300 hover:bg-white/5 hover:text-ona-200' : 'font-semibold text-ona-300 transition hover:text-ona-200'}
           onClick={() => setOpen(false)}
         >
           {link.label}

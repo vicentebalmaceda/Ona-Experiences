@@ -5,7 +5,8 @@ import CompactMap from './CompactMap.jsx';
 import GalleryStrip from './GalleryStrip.jsx';
 import PhotoLightbox from './PhotoLightbox.jsx';
 import QuoteRequestForm from './QuoteRequestForm.jsx';
-import { getRatingStats, renderStars } from '../utils/rating.js';
+import ReviewsCarousel from './ReviewsCarousel.jsx';
+import { formatRating, getRatingStats, renderStars } from '../utils/rating.js';
 import { getReferencePrice } from '../utils/referencePrice.js';
 
 const DESCRIPTION_ALLOWED_TAGS = [
@@ -109,7 +110,7 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
             <div className="text-right">
               <p className="text-sm font-bold uppercase tracking-[0.16em] text-slate-500">{t('detail.rating')}</p>
               <p className="mt-1 text-4xl font-black text-slate-950">
-                {stats.average != null ? stats.average.toFixed(1) : '—'}
+                {formatRating(stats.average)}
               </p>
             </div>
             <div>
@@ -201,7 +202,7 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
               <div className="mt-6 grid gap-4 md:grid-cols-3">
                 <div className="review-summary-card">
                   <span>★</span>
-                  <strong>{stats.average != null ? `${stats.average.toFixed(1)} / 5` : '—'}</strong>
+                  <strong>{formatRating(stats.average)}</strong>
                   <p>{t('detail.avg_visible')}</p>
                 </div>
                 <div className="review-summary-card">
@@ -211,17 +212,7 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
                 </div>
               </div>
               {visibleReviews.length ? (
-                <ul className="mt-6 space-y-4">
-                  {visibleReviews.map((review) => (
-                    <li key={review.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <p className="font-black text-slate-950">{review.displayName}</p>
-                        <p className="rating-stars text-sm">{renderStars(review.rating)}</p>
-                      </div>
-                      <p className="mt-3 text-sm leading-6 text-slate-600">{review.comment}</p>
-                    </li>
-                  ))}
-                </ul>
+                <ReviewsCarousel reviews={visibleReviews} />
               ) : (
                 <p className="mt-6 text-sm leading-6 text-slate-500">{t('detail.no_reviews_yet')}</p>
               )}

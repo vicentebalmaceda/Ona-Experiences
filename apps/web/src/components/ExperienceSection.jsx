@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import CompactMap from './CompactMap.jsx';
-import { getRatingStats, renderStars } from '../utils/rating.js';
+import { formatRating, getRatingStats, renderStars, sortItemsByRating } from '../utils/rating.js';
 import { getReferencePrice } from '../utils/referencePrice.js';
 
 function imageUrl(src) {
@@ -30,7 +30,7 @@ function ExperienceListItem({ item, ratingVersion, onSelect }) {
             <p className="mt-1 truncate text-sm text-slate-500">{item.zone}</p>
           </div>
           <div className="rounded-xl bg-slate-950 px-2.5 py-1 text-xs font-extrabold text-white">
-            {stats.average != null ? stats.average.toFixed(1) : t('rating.none_short')}
+            {stats.average != null ? formatRating(stats.average) : t('rating.none_short')}
           </div>
         </div>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
@@ -73,6 +73,8 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
       return zoneMatch && textMatch;
     });
   }, [items, query, zone]);
+
+  const sortedItems = useMemo(() => sortItemsByRating(filteredItems), [filteredItems]);
 
   const heroItem = filteredItems[0] || items[0];
 
@@ -118,7 +120,7 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
                   <p className="text-xs font-black uppercase tracking-[0.2em] text-deep">{t('experience.directory')}</p>
                   <h3 className="mt-1 text-2xl font-extrabold text-slate-950">{eyebrow}</h3>
                 </div>
-                <span className="rounded-full bg-mist px-3 py-1.5 text-xs font-black text-deep">{t('experience.visible', { count: filteredItems.length })}</span>
+                <span className="rounded-full bg-mist px-3 py-1.5 text-xs font-black text-deep">{t('experience.visible', { count: sortedItems.length })}</span>
               </div>
 
               <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_0.8fr]">
@@ -132,7 +134,7 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
             </div>
 
             <div className="experience-list-scroll">
-              {filteredItems.length ? filteredItems.map(item => (
+              {sortedItems.length ? sortedItems.map(item => (
                 <ExperienceListItem
                   key={item.productId ?? `${item.type}-${item.name}`}
                   item={item}
@@ -153,9 +155,9 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
                 <p className="text-xs uppercase tracking-[0.2em] text-slate-300">{t('experience.map_label')}</p>
                 <h3 className="text-lg font-bold text-white">{t('experience.map_title', { eyebrow: eyebrow.toLowerCase() })}</h3>
               </div>
-              <div className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-white">{t('experience.map_points', { count: filteredItems.length })}</div>
+              <div className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-white">{t('experience.map_points', { count: sortedItems.length })}</div>
             </div>
-            <CompactMap items={filteredItems} ratingVersion={ratingVersion} onSelect={onSelect} ariaLabel={t('experience.map_aria', { eyebrow })} />
+            <CompactMap items={sortedItems} ratingVersion={ratingVersion} onSelect={onSelect} ariaLabel={t('experience.map_aria', { eyebrow })} />
             <div className="map-panel-footer">
               <span className="inline-flex items-center gap-2"><span className="marker-dot marker-dot-lodge"></span>{t('experience.lodges_legend')}</span>
               <span className="inline-flex items-center gap-2"><span className="marker-dot marker-dot-guide"></span>{t('experience.guides_legend')}</span>

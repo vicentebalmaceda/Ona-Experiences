@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import GalleryStrip from './GalleryStrip.jsx';
 import RatingPanel from './RatingPanel.jsx';
-import { getRatingStats, renderStars } from '../utils/rating.js';
+import { formatRating, getRatingStats, renderStars } from '../utils/rating.js';
 import { getReferencePrice } from '../utils/referencePrice.js';
 
 function displayTypeLabel(type, t) {
@@ -34,7 +34,7 @@ function DirectoryCard({ item, ratingVersion, onRate }) {
             <p className="mt-1 text-xs font-semibold text-slate-500">{item.ratingLabel || t('rating.highly_recommended')}</p>
           </div>
           <div className="text-right">
-            <p className="text-2xl font-extrabold leading-none text-slate-900">{stats.average != null ? stats.average.toFixed(1) : '—'}</p>
+            <p className="text-2xl font-extrabold leading-none text-slate-900">{formatRating(stats.average)}</p>
             <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">{t('rating.reviews_count', { count: stats.reviews })}</p>
           </div>
         </div>

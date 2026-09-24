@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { getRatingStats } from '../utils/rating.js';
+import { formatRating, getRatingStats } from '../utils/rating.js';
 
 function RatingPanel({ item, ratingVersion, onRate }) {
   const { t } = useTranslation();
@@ -13,7 +13,7 @@ function RatingPanel({ item, ratingVersion, onRate }) {
             <p className="rating-panel__title">{t('rating.title')}</p>
             <p className="rating-panel__text">{t('rating.text')}</p>
           </div>
-          <div className="rating-panel__score"><span>★</span><span>{stats.average != null ? stats.average.toFixed(1) : '—'}</span></div>
+          <div className="rating-panel__score"><span>★</span><span>{formatRating(stats.average)}</span></div>
         </div>
         <div className="rating-actions" aria-label={t('rating.rate_aria', { name: item.name })}>
           {[1, 2, 3, 4, 5].map(score => (

@@ -1,5 +1,5 @@
 import L from 'leaflet';
-import { getRatingStats, renderStars } from './rating.js';
+import { formatRating, getRatingStats, renderStars } from './rating.js';
 
 export function createMarkerIcon(type) {
   return L.divIcon({
@@ -46,7 +46,7 @@ export function popupTemplate(item, ratingVersion, labels = {}) {
       <h3 style="margin:10px 0 6px;font-size:18px;font-weight:800;color:#0f172a;line-height:1.25;">${escapeHtml(item.name)}</h3>
       <div class="popup-rating">${
         stats.average != null
-          ? `<span>${renderStars(stats.average)}</span><strong>${stats.average.toFixed(1)}</strong><small>${reviewsLabel}</small>`
+          ? `<span>${renderStars(stats.average)}</span><strong>${escapeHtml(formatRating(stats.average))}</strong><small>${reviewsLabel}</small>`
           : `<small>${escapeHtml(labels.noReviews || 'Sin reseñas')}</small>`
       }</div>
       <p style="margin:0 0 8px;color:#475569;font-size:13px;"><strong>${zoneLabel}</strong> ${escapeHtml(item.zone)}</p>
