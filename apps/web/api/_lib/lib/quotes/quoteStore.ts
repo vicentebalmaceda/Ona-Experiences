@@ -24,4 +24,5 @@ export interface UpsertQuoteInput {
 export interface QuoteStore {
   upsertQuote(input: UpsertQuoteInput): Promise<QuoteRecord>;
   getByBsaleDocumentId(bsaleDocumentId: number): Promise<QuoteRecord | null>;
+  listQuotes(): Promise<QuoteRecord[]>;
 }

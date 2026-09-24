@@ -17,12 +17,14 @@ import { BsaleQuoteInviteResolver } from './bsaleQuoteInviteResolver.js';
 import { CatalogService } from './catalogService.js';
 import { LocalFirstQuoteInviteResolver } from './localFirstQuoteInviteResolver.js';
 import { ReviewService } from './reviewService.js';
+import { AdminService } from './adminService.js';
 import { SalesService } from './salesService.js';
 
 export interface Services {
   catalogService: CatalogService;
   salesService: SalesService;
   reviewService: ReviewService;
+  adminService: AdminService;
   mailer: Mailer;
   salesRepository: BsaleSalesRepository;
   clientRepository: BsaleClientRepository;
@@ -75,6 +77,13 @@ export function getServices(): Services {
     fallback: bsaleQuoteResolver
   });
 
+  const reviewService = new ReviewService({
+    store: reviewStore,
+    quoteResolver,
+    mailer,
+    publicAppUrl: env.PUBLIC_APP_URL
+  });
+
   services = {
     catalogService,
     salesService: new SalesService(
@@ -83,11 +92,11 @@ export function getServices(): Services {
       new BsaleVariantPricing(client, env),
       salesRepository
     ),
-    reviewService: new ReviewService({
-      store: reviewStore,
-      quoteResolver,
-      mailer,
-      publicAppUrl: env.PUBLIC_APP_URL
+    reviewService,
+    adminService: new AdminService({
+      quoteStore,
+      reviewStore,
+      reviewService
     }),
     mailer,
     salesRepository,

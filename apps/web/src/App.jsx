@@ -3,6 +3,7 @@ import DocumentMeta from './components/DocumentMeta.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import ProductDetailPage from './pages/ProductDetailPage.jsx';
 import ReviewPage from './pages/ReviewPage.jsx';
+import AdminApp from './admin/AdminApp.jsx';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/lodges/:productId" element={<ProductDetailPage catalogType="lodges" />} />
         <Route path="/guides/:productId" element={<ProductDetailPage catalogType="guides" />} />
         <Route path="/review" element={<ReviewPage />} />
+        <Route path="/admin/*" element={<AdminApp />} />
       </Routes>
     </>
   );

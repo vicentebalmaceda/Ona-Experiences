@@ -1,12 +1,19 @@
 import { describe, expect, it } from 'vitest';
+import { adminLoginHandler, adminLogoutHandler, adminMeHandler } from './handlers/adminAuth.js';
+import {
+  adminQuoteResendInviteHandler,
+  adminQuoteSendInviteHandler,
+  adminQuotesHandler,
+  adminReviewByIdHandler,
+  adminReviewInvitesHandler,
+  adminReviewsHandler
+} from './handlers/adminPanel.js';
 import { guideItemHandler, lodgeItemHandler } from './handlers/catalogItem.js';
 import { guideListHandler, lodgeListHandler } from './handlers/catalogList.js';
 import { guideReviewsHandler, lodgeReviewsHandler } from './handlers/catalogReviews.js';
 import { guideSalesHandler, lodgeSalesHandler } from './handlers/catalogSales.js';
 import { contactHandler } from './handlers/contact.js';
 import { reviewInviteByTokenHandler } from './handlers/reviewInviteByToken.js';
-import { reviewInvitesHandler } from './handlers/reviewInvites.js';
-import { reviewByIdHandler } from './handlers/reviewById.js';
 import { reviewsHandler } from './handlers/reviews.js';
 import { matchV1Route, mergeV1Query, pathnameFromV1Request } from './v1Router.js';
 
@@ -37,12 +44,23 @@ describe('matchV1Route', () => {
     ['/api/v1/guides/65562/sales', guideSalesHandler, { productId: '65562' }],
     ['/api/v1/contact', contactHandler, {}],
     ['/api/v1/reviews', reviewsHandler, {}],
-    ['/api/v1/reviews/11111111-1111-1111-1111-111111111111', reviewByIdHandler, {
-      reviewId: '11111111-1111-1111-1111-111111111111'
-    }],
-    ['/api/v1/review-invites', reviewInvitesHandler, {}],
     ['/api/v1/review-invites/invite-token-16chars', reviewInviteByTokenHandler, {
       token: 'invite-token-16chars'
+    }],
+    ['/api/v1/admin/login', adminLoginHandler, {}],
+    ['/api/v1/admin/logout', adminLogoutHandler, {}],
+    ['/api/v1/admin/me', adminMeHandler, {}],
+    ['/api/v1/admin/quotes', adminQuotesHandler, {}],
+    ['/api/v1/admin/quotes/6634/invite', adminQuoteSendInviteHandler, {
+      bsaleDocumentId: '6634'
+    }],
+    ['/api/v1/admin/quotes/6634/invite/resend', adminQuoteResendInviteHandler, {
+      bsaleDocumentId: '6634'
+    }],
+    ['/api/v1/admin/review-invites', adminReviewInvitesHandler, {}],
+    ['/api/v1/admin/reviews', adminReviewsHandler, {}],
+    ['/api/v1/admin/reviews/11111111-1111-1111-1111-111111111111', adminReviewByIdHandler, {
+      reviewId: '11111111-1111-1111-1111-111111111111'
     }]
   ] as const)('dispatches %s', (pathname, handler, params) => {
     const match = matchV1Route(pathname);

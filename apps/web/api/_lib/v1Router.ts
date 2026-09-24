@@ -1,12 +1,19 @@
 import type { VercelRequest } from '@vercel/node';
+import { adminLoginHandler, adminLogoutHandler, adminMeHandler } from './handlers/adminAuth.js';
+import {
+  adminQuoteResendInviteHandler,
+  adminQuoteSendInviteHandler,
+  adminQuotesHandler,
+  adminReviewByIdHandler,
+  adminReviewInvitesHandler,
+  adminReviewsHandler
+} from './handlers/adminPanel.js';
 import { guideItemHandler, lodgeItemHandler } from './handlers/catalogItem.js';
 import { guideListHandler, lodgeListHandler } from './handlers/catalogList.js';
 import { guideReviewsHandler, lodgeReviewsHandler } from './handlers/catalogReviews.js';
 import { guideSalesHandler, lodgeSalesHandler } from './handlers/catalogSales.js';
 import { contactHandler } from './handlers/contact.js';
-import { reviewByIdHandler } from './handlers/reviewById.js';
 import { reviewInviteByTokenHandler } from './handlers/reviewInviteByToken.js';
-import { reviewInvitesHandler } from './handlers/reviewInvites.js';
 import { reviewsHandler } from './handlers/reviews.js';
 import type { ApiHandler } from './middleware/withErrorHandler.js';
 
@@ -68,9 +75,49 @@ const routes: Route[] = [
     handler: contactHandler
   },
   {
-    pattern: /^\/api\/v1\/review-invites$/,
+    pattern: /^\/api\/v1\/admin\/login$/,
     paramNames: [],
-    handler: reviewInvitesHandler
+    handler: adminLoginHandler
+  },
+  {
+    pattern: /^\/api\/v1\/admin\/logout$/,
+    paramNames: [],
+    handler: adminLogoutHandler
+  },
+  {
+    pattern: /^\/api\/v1\/admin\/me$/,
+    paramNames: [],
+    handler: adminMeHandler
+  },
+  {
+    pattern: /^\/api\/v1\/admin\/quotes$/,
+    paramNames: [],
+    handler: adminQuotesHandler
+  },
+  {
+    pattern: /^\/api\/v1\/admin\/quotes\/([^/]+)\/invite\/resend$/,
+    paramNames: ['bsaleDocumentId'],
+    handler: adminQuoteResendInviteHandler
+  },
+  {
+    pattern: /^\/api\/v1\/admin\/quotes\/([^/]+)\/invite$/,
+    paramNames: ['bsaleDocumentId'],
+    handler: adminQuoteSendInviteHandler
+  },
+  {
+    pattern: /^\/api\/v1\/admin\/review-invites$/,
+    paramNames: [],
+    handler: adminReviewInvitesHandler
+  },
+  {
+    pattern: /^\/api\/v1\/admin\/reviews$/,
+    paramNames: [],
+    handler: adminReviewsHandler
+  },
+  {
+    pattern: /^\/api\/v1\/admin\/reviews\/([^/]+)$/,
+    paramNames: ['reviewId'],
+    handler: adminReviewByIdHandler
   },
   {
     pattern: /^\/api\/v1\/review-invites\/([^/]+)$/,
@@ -81,11 +128,6 @@ const routes: Route[] = [
     pattern: /^\/api\/v1\/reviews$/,
     paramNames: [],
     handler: reviewsHandler
-  },
-  {
-    pattern: /^\/api\/v1\/reviews\/([^/]+)$/,
-    paramNames: ['reviewId'],
-    handler: reviewByIdHandler
   }
 ];
 

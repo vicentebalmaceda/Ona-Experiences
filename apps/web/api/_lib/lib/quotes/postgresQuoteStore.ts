@@ -54,6 +54,16 @@ export class PostgresQuoteStore implements QuoteStore {
     `;
     return rows[0] ? toQuote(rows[0] as QuoteRow) : null;
   }
+
+  async listQuotes(): Promise<QuoteRecord[]> {
+    const rows = await this.sql`
+      SELECT id, bsale_document_id, product_id, email, first_name, last_name,
+        bsale_client_id, bsale_variant_id, created_at, updated_at
+      FROM quotes
+      ORDER BY created_at DESC
+    `;
+    return (rows as QuoteRow[]).map(toQuote);
+  }
 }
 
 function toQuote(row: QuoteRow): QuoteRecord {
