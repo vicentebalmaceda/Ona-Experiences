@@ -794,6 +794,124 @@ body {
   line-height: 1.55;
 }
 
+.reviews-carousel__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.reviews-carousel__count {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.reviews-carousel__nav {
+  display: flex;
+  gap: 8px;
+}
+
+.reviews-carousel__btn {
+  display: inline-flex;
+  height: 36px;
+  width: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 700;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.reviews-carousel__btn:hover {
+  background: #f8fafc;
+  transform: translateY(-1px);
+}
+
+.review-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  border: 1px solid #dbe4ef;
+  background:
+    linear-gradient(135deg, rgba(31, 79, 115, 0.06), transparent 42%),
+    linear-gradient(180deg, #ffffff 0%, #f7fafc 100%);
+  padding: 24px;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.06);
+}
+
+.review-card__quote {
+  position: absolute;
+  top: 8px;
+  right: 18px;
+  font-family: Georgia, Cambria, 'Times New Roman', serif;
+  font-size: 72px;
+  line-height: 1;
+  color: rgba(31, 79, 115, 0.14);
+  pointer-events: none;
+}
+
+.review-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.review-card__name {
+  font-size: 16px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.review-card__score {
+  display: inline-flex;
+  min-width: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: #0f172a;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 8px 10px;
+}
+
+.review-card__comment {
+  margin-top: 16px;
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.reviews-carousel__dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.reviews-carousel__dot {
+  height: 8px;
+  width: 8px;
+  border-radius: 999px;
+  border: 0;
+  background: #cbd5e1;
+  transition: width 0.15s ease, background 0.15s ease;
+}
+
+.reviews-carousel__dot.is-active {
+  width: 22px;
+  background: #1f4f73;
+}
+
 .booking-panel {
   align-self: start;
 }

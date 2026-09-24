@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import CompactMap from './CompactMap.jsx';
-import { getRatingStats, renderStars } from '../utils/rating.js';
+import { formatRating, getRatingStats, renderStars, sortItemsByRating } from '../utils/rating.js';
 import { getReferencePrice } from '../utils/referencePrice.js';
 
 function imageUrl(src) {
@@ -30,7 +30,7 @@ function ExperienceListItem({ item, ratingVersion, onSelect }) {
             <p className="mt-1 truncate text-sm text-slate-500">{item.zone}</p>
           </div>
           <div className="rounded-xl bg-slate-950 px-2.5 py-1 text-xs font-extrabold text-white">
-            {stats.average != null ? stats.average.toFixed(1) : t('rating.none_short')}
+            {stats.average != null ? formatRating(stats.average) : t('rating.none_short')}
           </div>
         </div>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
@@ -67,11 +67,12 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
 
   const filteredItems = useMemo(() => {
     const normalizedQuery = normalizeText(query.trim());
-    return items.filter(item => {
+    const filtered = items.filter(item => {
       const zoneMatch = zone === 'all' || item.zone === zone;
       const textMatch = !normalizedQuery || normalizeText(`${item.name} ${item.zone} ${item.email} ${item.representative || ''}`).includes(normalizedQuery);
       return zoneMatch && textMatch;
     });
+    return sortItemsByRating(filtered);
   }, [items, query, zone]);
 
   const heroItem = filteredItems[0] || items[0];

@@ -15,7 +15,7 @@ function Footer() {
             href={ONA_FLYFISHING_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-slate-700 underline-offset-2 transition hover:text-slate-900 hover:underline"
+            className="font-semibold text-ona-600 underline-offset-2 transition hover:text-ona-700 hover:underline"
           >
             ONA Fly Fishing
           </a>
