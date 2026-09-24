@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { renderStars } from '../utils/rating.js';
+import { formatRating, renderStars } from '../utils/rating.js';
 
 function ReviewsCarousel({ reviews }) {
   const { t } = useTranslation();
@@ -50,7 +50,7 @@ function ReviewsCarousel({ reviews }) {
             <p className="review-card__name">{review.displayName}</p>
             <p className="rating-stars text-sm">{renderStars(review.rating)}</p>
           </div>
-          <span className="review-card__score">{Number(review.rating).toFixed(1)}</span>
+          <span className="review-card__score">{formatRating(review.rating)}</span>
         </div>
         <p className="review-card__comment">{review.comment}</p>
       </article>
