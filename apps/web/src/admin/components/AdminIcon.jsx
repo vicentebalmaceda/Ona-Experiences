@@ -1,4 +1,5 @@
 const paths = {
+  summary: 'M4 4h7v7H4V4Zm9 0h7v7h-7V4ZM4 13h7v7H4v-7Zm9 0h7v7h-7v-7Z',
   quotes: 'M4 4h16v4H4V4Zm0 6h16v10H4V10Zm3 3h4v4H7v-4Z',
   mail: 'M3 5h18v14H3V5Zm1.5 1.5L12 12l7.5-5.5',
   star: 'm12 2.8 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 2.8Z',

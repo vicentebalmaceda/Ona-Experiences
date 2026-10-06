@@ -1,13 +1,14 @@
 import AdminIcon from './AdminIcon';
 
 const pageTitles = {
+  summary: 'Resumen',
   quotes: 'Cotizaciones',
   invites: 'Invitaciones',
   reviews: 'Reseñas'
 };
 
 export default function AdminTopbar({ page, onMenu, email }) {
-  const title = pageTitles[page] || pageTitles.quotes;
+  const title = pageTitles[page] || pageTitles.summary;
   const initials = (email || 'A')
     .split('@')[0]
     .slice(0, 2)

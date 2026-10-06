@@ -2,6 +2,7 @@ import AdminBrand from './AdminBrand';
 import AdminIcon from './AdminIcon';
 
 const items = [
+  { id: 'summary', label: 'Resumen', icon: 'summary' },
   { id: 'quotes', label: 'Cotizaciones', icon: 'quotes' },
   { id: 'invites', label: 'Invitaciones', icon: 'mail' },
   { id: 'reviews', label: 'Reseñas', icon: 'star' }

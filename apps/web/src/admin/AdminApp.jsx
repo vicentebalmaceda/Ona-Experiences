@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { adminApi } from './api';
 import AdminSidebar from './components/AdminSidebar';
 import AdminTopbar from './components/AdminTopbar';
+import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminInvitesPage from './pages/AdminInvitesPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminQuotesPage from './pages/AdminQuotesPage';
@@ -10,7 +11,7 @@ import AdminReviewsPage from './pages/AdminReviewsPage';
 export default function AdminApp() {
   const [session, setSession] = useState(null);
   const [booting, setBooting] = useState(true);
-  const [page, setPage] = useState('quotes');
+  const [page, setPage] = useState('summary');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [quotes, setQuotes] = useState([]);
   const [invites, setInvites] = useState([]);
@@ -104,6 +105,14 @@ export default function AdminApp() {
       <main className="min-h-screen lg:ml-[282px]">
         <div className="mx-auto max-w-[1540px] p-4 sm:p-6 lg:p-8 xl:p-10">
           <AdminTopbar page={page} onMenu={() => setSidebarOpen(true)} email={session.email} />
+          {page === 'summary' && (
+            <AdminDashboardPage
+              quotes={quotes}
+              invites={invites}
+              reviews={reviews}
+              setPage={setPage}
+            />
+          )}
           {page === 'quotes' && (
             <AdminQuotesPage quotes={quotes} onSend={sendInvite} onResend={resendInvite} />
           )}
