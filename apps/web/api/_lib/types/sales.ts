@@ -18,9 +18,15 @@ export interface Customer {
   /** Passport or foreign id number, optional when documentType is `passport`. */
   passport?: string;
   phone?: string;
-  address?: string;
-  city?: string;
-  municipality?: string;
+  /**
+   * Postal data. The cotización document type in this BSale account requires
+   * address, city, municipality and region on the client (error cli_004), so
+   * the quote request must always carry them.
+   */
+  address: string;
+  city: string;
+  municipality: string;
+  region: string;
   activity?: string;
   companyOrPerson?: 0 | 1;
   isForeigner?: 0 | 1;

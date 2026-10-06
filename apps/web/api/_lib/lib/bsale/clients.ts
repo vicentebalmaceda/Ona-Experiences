@@ -18,9 +18,13 @@ export const DEFAULT_CLIENT_ACTIVITY = 'Sin Giro';
  * - Foreign guests get `isForeigner: 1`; BSale assigns the generic RUT
  *   55555555-5 unless a passport number is provided, which goes in `code`
  *   (https://docs.bsale.dev/clientes, "cliente extranjero").
+ * - `address`, `city`, `municipality` and `region` are always sent: the
+ *   cotización document type requires them on the client (BSale error
+ *   cli_004: "This document type has the following client attributes
+ *   required: city, municipality/district, address, region").
  * - `activity` and `companyOrPerson` get account defaults so the visitor is
- *   not asked for them. Empty optional fields are omitted rather than sent as
- *   blanks so a PUT does not wipe data already stored in BSale.
+ *   not asked for them. Empty optional fields (phone) are omitted rather than
+ *   sent as blanks so a PUT does not wipe data already stored in BSale.
  */
 export function toBsaleClientPayload(customer: Customer): Record<string, unknown> {
   const isForeigner = customer.documentType === 'passport' || customer.isForeigner === 1;
@@ -34,6 +38,10 @@ export function toBsaleClientPayload(customer: Customer): Record<string, unknown
     firstName: customer.firstName,
     lastName: customer.lastName,
     email: customer.email,
+    address: customer.address,
+    city: customer.city,
+    municipality: customer.municipality,
+    region: customer.region,
     activity: customer.activity ?? DEFAULT_CLIENT_ACTIVITY,
     companyOrPerson: customer.companyOrPerson ?? 0,
     isForeigner: isForeigner ? 1 : 0
@@ -45,10 +53,7 @@ export function toBsaleClientPayload(customer: Customer): Record<string, unknown
     payload.code = rut;
   }
 
-  for (const key of ['phone', 'address', 'city', 'municipality'] as const) {
-    const value = customer[key];
-    if (value) payload[key] = value;
-  }
+  if (customer.phone) payload.phone = customer.phone;
 
   return payload;
 }

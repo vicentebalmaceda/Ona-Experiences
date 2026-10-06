@@ -26,21 +26,39 @@ export function loadUserProfile() {
       lastName: profile.lastName,
       documentType: DOCUMENT_TYPES.includes(profile.documentType) ? profile.documentType : 'rut',
       documentNumber: cleanText(profile.documentNumber),
-      phone: cleanText(profile.phone)
+      phone: cleanText(profile.phone),
+      address: cleanText(profile.address),
+      locality: cleanText(profile.locality),
+      region: cleanText(profile.region)
     };
   } catch {
     return null;
   }
 }
 
-export function saveUserProfile({ email, firstName, lastName, documentType, documentNumber, phone }) {
+export function saveUserProfile({
+  email,
+  firstName,
+  lastName,
+  documentType,
+  documentNumber,
+  phone,
+  address,
+  locality,
+  region
+}) {
   const profile = {
     email: normalizeEmail(email),
     firstName: cleanText(firstName),
     lastName: cleanText(lastName),
     documentType: DOCUMENT_TYPES.includes(documentType) ? documentType : 'rut',
     documentNumber: cleanText(documentNumber),
-    phone: cleanText(phone)
+    phone: cleanText(phone),
+    // Postal data: `locality` is the comuna (Chile) or city (abroad);
+    // `region` is the Chilean region or the country.
+    address: cleanText(address),
+    locality: cleanText(locality),
+    region: cleanText(region)
   };
 
   if (!profile.email || !profile.firstName || !profile.lastName) {

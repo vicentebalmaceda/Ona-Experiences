@@ -8,7 +8,7 @@
  * Run it by hand only when you want that; nothing in the repo calls it.
  *
  * Usage (from the repo root):
- *   node <scratchpad>/bsale-client-probe.mjs [--dry-run] [--quote] [--rut 12345678-5]
+ *   node apps/web/scripts/bsale-client-probe.mjs [--dry-run] [--quote] [--rut 12345678-5]
  *
  *   --dry-run   print the payloads and exit without calling BSale (default is live)
  *   --rut       valid Chilean RUT to use for the "new payload" test client
@@ -21,7 +21,9 @@
  *   1. POST /clients.json with the CURRENT payload the web app sends
  *      (code = email, no RUT, no activity) → prints status + raw body.
  *   2. POST /clients.json with the NEW payload (valid RUT as code, activity
- *      "Sin Giro", companyOrPerson 0, isForeigner 0) → prints status + raw body.
+ *      "Sin Giro", companyOrPerson 0, isForeigner 0, plus address/city/
+ *      municipality/region, which the cotización document type requires:
+ *      BSale error cli_004) → prints status + raw body.
  *   3. POST /clients.json with the NEW payload for a FOREIGN guest
  *      (isForeigner 1, passport in code) → prints status + raw body.
  *   4. (--quote) POST /documents.json for the client created in step 2.
@@ -69,6 +71,10 @@ const newPayload = {
   lastName: 'New payload (delete me)',
   email: emailNew,
   code: testRut,
+  address: 'Probe 123',
+  city: 'Las Condes',
+  municipality: 'Las Condes',
+  region: 'Región Metropolitana de Santiago',
   activity: 'Sin Giro',
   companyOrPerson: 0,
   isForeigner: 0
@@ -81,6 +87,10 @@ const foreignPayload = {
   lastName: 'Foreign payload (delete me)',
   email: emailForeign,
   code: 'PROBE-PASS-123',
+  address: '1 Probe St',
+  city: 'Denver',
+  municipality: 'Denver',
+  region: 'United States',
   activity: 'Sin Giro',
   companyOrPerson: 0,
   isForeigner: 1
@@ -152,8 +162,8 @@ function findRepoRoot() {
       dir = dirname(dir);
     }
   }
-  // Fallback: the script lives in the scratchpad, so rely on cwd.
-  return resolve(dirname(fileURLToPath(import.meta.url)));
+  // Fallback: the script lives in apps/web/scripts.
+  return resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 }
 
 function loadDotEnv(path) {

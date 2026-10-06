@@ -3,12 +3,20 @@ import type { Customer } from '../../types/sales.js';
 import type { BsaleClient } from './client.js';
 import { BsaleClientRepository, DEFAULT_CLIENT_ACTIVITY, toBsaleClientPayload } from './clients.js';
 
+const postal = {
+  address: 'Los Trigales 372',
+  city: 'Las Condes',
+  municipality: 'Las Condes',
+  region: 'Región Metropolitana de Santiago'
+};
+
 const chilean: Customer = {
   email: 'maria@example.com',
   firstName: 'María',
   lastName: 'González',
   documentType: 'rut',
-  rut: '12345678-5'
+  rut: '12345678-5',
+  ...postal
 };
 
 const foreign: Customer = {
@@ -16,20 +24,32 @@ const foreign: Customer = {
   firstName: 'John',
   lastName: 'Doe',
   documentType: 'passport',
-  passport: 'AB123456'
+  passport: 'AB123456',
+  address: '1 Main St',
+  city: 'Denver',
+  municipality: 'Denver',
+  region: 'United States'
 };
 
 describe('toBsaleClientPayload', () => {
-  it('sends the RUT as code with account defaults for a Chilean customer', () => {
+  it('sends the RUT as code, the postal data and account defaults for a Chilean customer', () => {
     expect(toBsaleClientPayload(chilean)).toEqual({
       firstName: 'María',
       lastName: 'González',
       email: 'maria@example.com',
       code: '12345678-5',
+      ...postal,
       activity: DEFAULT_CLIENT_ACTIVITY,
       companyOrPerson: 0,
       isForeigner: 0
     });
+  });
+
+  it('always sends the postal attributes the cotización document type requires', () => {
+    for (const key of ['address', 'city', 'municipality', 'region'] as const) {
+      expect(toBsaleClientPayload(chilean)).toHaveProperty(key, postal[key]);
+      expect(toBsaleClientPayload(foreign)).toHaveProperty(key, foreign[key]);
+    }
   });
 
   it('normalizes a dotted RUT before sending it', () => {
@@ -53,11 +73,10 @@ describe('toBsaleClientPayload', () => {
     expect(() => toBsaleClientPayload({ ...chilean, rut: 'maria@example.com' })).toThrow(/valid RUT/);
   });
 
-  it('only includes optional contact fields when they have a value', () => {
-    const payload = toBsaleClientPayload({ ...chilean, phone: '+56912345678', city: '' });
-    expect(payload.phone).toBe('+56912345678');
-    expect(payload).not.toHaveProperty('city');
-    expect(payload).not.toHaveProperty('address');
+  it('only includes the phone when it has a value', () => {
+    expect(toBsaleClientPayload({ ...chilean, phone: '+56912345678' }).phone).toBe('+56912345678');
+    expect(toBsaleClientPayload({ ...chilean, phone: '' })).not.toHaveProperty('phone');
+    expect(toBsaleClientPayload(chilean)).not.toHaveProperty('phone');
   });
 
   it('keeps explicit activity and companyOrPerson overrides', () => {

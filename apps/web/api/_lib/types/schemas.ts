@@ -24,11 +24,15 @@ const optionalTrimmed = (max: number) =>
     .optional()
     .transform((value) => (value ? value : undefined));
 
+const requiredTrimmed = (max: number) => z.string().trim().min(1).max(max);
+
 /**
  * Customer identity on a quote request. BSale needs a valid Chilean RUT in
  * `code`, or `isForeigner: 1` for foreign guests, so the visitor must choose
- * one of the two; everything else (phone, address, city…) stays optional and
- * the BSale payload mapper fills account defaults (activity, companyOrPerson).
+ * one of the two. The cotización document type also requires address, city,
+ * municipality and region on the client (BSale error cli_004), so those are
+ * mandatory too; phone stays optional and the BSale payload mapper fills
+ * account defaults (activity, companyOrPerson).
  */
 export const customerSchema = z
   .object({
@@ -39,9 +43,10 @@ export const customerSchema = z
     rut: optionalTrimmed(20),
     passport: optionalTrimmed(30),
     phone: optionalTrimmed(30),
-    address: optionalTrimmed(200),
-    city: optionalTrimmed(100),
-    municipality: optionalTrimmed(100),
+    address: requiredTrimmed(200),
+    city: requiredTrimmed(100),
+    municipality: requiredTrimmed(100),
+    region: requiredTrimmed(100),
     activity: optionalTrimmed(100),
     companyOrPerson: z.union([z.literal(0), z.literal(1)]).optional(),
     isForeigner: z.union([z.literal(0), z.literal(1)]).optional()

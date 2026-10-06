@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { customerSchema, saleRequestSchema } from './schemas.js';
 
-const base = { email: 'maria@example.com', firstName: 'María', lastName: 'González' };
+const postal = {
+  address: 'Los Trigales 372',
+  city: 'Las Condes',
+  municipality: 'Las Condes',
+  region: 'Región Metropolitana de Santiago'
+};
+const base = { email: 'maria@example.com', firstName: 'María', lastName: 'González', ...postal };
 
 describe('customerSchema', () => {
   it('defaults to a Chilean RUT and normalizes it', () => {
@@ -43,10 +49,24 @@ describe('customerSchema', () => {
     expect(parsed.rut).toBeUndefined();
   });
 
-  it('drops blank optional fields', () => {
-    const parsed = customerSchema.parse({ ...base, rut: '12345678-5', phone: '  ', city: '' });
+  it('drops a blank phone', () => {
+    const parsed = customerSchema.parse({ ...base, rut: '12345678-5', phone: '  ' });
     expect(parsed.phone).toBeUndefined();
-    expect(parsed.city).toBeUndefined();
+  });
+
+  it('requires address, city, municipality and region (BSale cli_004)', () => {
+    for (const key of ['address', 'city', 'municipality', 'region'] as const) {
+      const missing = customerSchema.safeParse({ ...base, rut: '12345678-5', [key]: '  ' });
+      expect(missing.success).toBe(false);
+      if (!missing.success) {
+        expect(missing.error.issues.map((issue) => issue.path[0])).toContain(key);
+      }
+    }
+  });
+
+  it('trims the postal fields', () => {
+    const parsed = customerSchema.parse({ ...base, rut: '12345678-5', municipality: '  Pucón ' });
+    expect(parsed.municipality).toBe('Pucón');
   });
 });
 

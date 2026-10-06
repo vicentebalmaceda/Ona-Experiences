@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createQuoteSale } from '../api/sales.js';
+import { CHILE_REGIONS } from '../utils/chileRegions.js';
 import { formatRut, isValidRut } from '../utils/rut.js';
 import { loadUserProfile, saveUserProfile } from '../utils/userProfile.js';
 
@@ -16,6 +17,9 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
   const [documentType, setDocumentType] = useState('rut');
   const [documentNumber, setDocumentNumber] = useState('');
   const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [locality, setLocality] = useState('');
+  const [region, setRegion] = useState('');
   const [reservationDate, setReservationDate] = useState('');
   const [reservationEndDate, setReservationEndDate] = useState('');
   const [explanation, setExplanation] = useState('');
@@ -34,6 +38,9 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
     setDocumentType(profile.documentType);
     setDocumentNumber(profile.documentNumber);
     setPhone(profile.phone);
+    setAddress(profile.address);
+    setLocality(profile.locality);
+    setRegion(profile.region);
   }, []);
 
   const isRut = documentType === 'rut';
@@ -61,11 +68,31 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
     setRutError('');
     setQuoteResult(null);
 
-    saveUserProfile({ email, firstName, lastName, documentType, documentNumber, phone });
+    saveUserProfile({
+      email,
+      firstName,
+      lastName,
+      documentType,
+      documentNumber,
+      phone,
+      address,
+      locality,
+      region
+    });
 
     const identity = isRut
       ? { documentType: 'rut', rut: documentNumber.trim() }
       : { documentType: 'passport', passport: documentNumber.trim() || undefined };
+
+    // BSale requires address, city, municipality and region on the client for
+    // cotizaciones. Chilean guests give comuna + región (comuna doubles as
+    // city, as BSale's own records do); foreign guests give city + country.
+    const postal = {
+      address: address.trim(),
+      city: locality.trim(),
+      municipality: locality.trim(),
+      region: region.trim()
+    };
 
     try {
       const result = await createQuoteSale(catalogType, productId, {
@@ -74,6 +101,7 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           ...identity,
+          ...postal,
           phone: phone.trim() || undefined
         },
         reservationDate,
@@ -188,6 +216,7 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
                 onChange={(event) => {
                   setDocumentType(event.target.value);
                   setDocumentNumber('');
+                  setRegion('');
                   setRutError('');
                 }}
                 className="quote-input"
@@ -240,6 +269,76 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
               placeholder={t('quote.phone_placeholder')}
               autoComplete="tel"
             />
+          </div>
+
+          <div>
+            <label htmlFor="quoteAddress" className="mb-2 block text-sm font-medium text-slate-700">
+              {t('quote.address')}
+            </label>
+            <input
+              id="quoteAddress"
+              type="text"
+              value={address}
+              onChange={(event) => setAddress(event.target.value)}
+              className="quote-input"
+              placeholder={t('quote.address_placeholder')}
+              autoComplete="street-address"
+              maxLength={200}
+              required
+            />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="quoteLocality" className="mb-2 block text-sm font-medium text-slate-700">
+                {isRut ? t('quote.municipality') : t('quote.city')}
+              </label>
+              <input
+                id="quoteLocality"
+                type="text"
+                value={locality}
+                onChange={(event) => setLocality(event.target.value)}
+                className="quote-input"
+                placeholder={isRut ? t('quote.municipality_placeholder') : t('quote.city_placeholder')}
+                autoComplete="address-level2"
+                maxLength={100}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="quoteRegion" className="mb-2 block text-sm font-medium text-slate-700">
+                {isRut ? t('quote.region') : t('quote.country')}
+              </label>
+              {isRut ? (
+                <select
+                  id="quoteRegion"
+                  value={region}
+                  onChange={(event) => setRegion(event.target.value)}
+                  className="quote-input"
+                  autoComplete="address-level1"
+                  required
+                >
+                  <option value="">{t('quote.region_placeholder')}</option>
+                  {CHILE_REGIONS.map((name) => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  id="quoteRegion"
+                  type="text"
+                  value={region}
+                  onChange={(event) => setRegion(event.target.value)}
+                  className="quote-input"
+                  placeholder={t('quote.country_placeholder')}
+                  autoComplete="country-name"
+                  maxLength={100}
+                  required
+                />
+              )}
+            </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
