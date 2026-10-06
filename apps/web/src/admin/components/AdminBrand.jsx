@@ -4,6 +4,8 @@ export default function AdminBrand({ compact = false, framed = false }) {
       <img
         src="/assets/ona-experience.png"
         alt="Ona Experience"
+        width={1220}
+        height={222}
         className={`${compact ? 'w-[190px]' : 'w-[260px]'} h-auto max-w-full object-contain`}
       />
     </div>
