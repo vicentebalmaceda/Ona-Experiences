@@ -1,6 +1,28 @@
 import { useMemo, useState } from 'react';
 import AdminIcon from '../components/AdminIcon';
 import AdminStatusBadge from '../components/AdminStatusBadge';
+import AdminExportButton from '../components/AdminExportButton';
+import { asDate } from '../utils/csv';
+
+const statusLabels = {
+  open: 'Abierta',
+  used: 'Respondida',
+  expired: 'Expirada',
+  revoked: 'Revocada'
+};
+
+const csvColumns = [
+  { header: 'Documento BSale', value: (row) => row.bsaleDocumentId },
+  { header: 'Nombre', value: (row) => row.firstName },
+  { header: 'Apellido', value: (row) => row.lastName },
+  { header: 'Correo', value: (row) => row.email },
+  { header: 'Producto', value: (row) => row.productName },
+  { header: 'Tipo', value: (row) => row.catalogType },
+  { header: 'Estado', value: (row) => statusLabels[row.status] || row.status },
+  { header: 'Vence', value: (row) => asDate(row.expiresAt) },
+  { header: 'Respondida el', value: (row) => asDate(row.usedAt) },
+  { header: 'Revocada el', value: (row) => asDate(row.revokedAt) }
+];
 
 function formatDate(value) {
   if (!value) return '—';
@@ -27,7 +49,7 @@ export default function AdminInvitesPage({ invites }) {
       </p>
 
       <section className="admin-surface overflow-hidden">
-        <div className="grid gap-3 border-b border-forest-100 p-4 lg:grid-cols-[1fr_180px]">
+        <div className="grid gap-3 border-b border-forest-100 p-4 lg:grid-cols-[1fr_180px_auto]">
           <label className="relative block">
             <AdminIcon
               name="search"
@@ -51,6 +73,7 @@ export default function AdminInvitesPage({ invites }) {
             <option value="expired">Expirada</option>
             <option value="revoked">Revocada</option>
           </select>
+          <AdminExportButton entity="invitaciones" rows={filtered} columns={csvColumns} />
         </div>
 
         <div className="overflow-x-auto">

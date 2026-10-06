@@ -1,5 +1,17 @@
 import { useMemo, useState } from 'react';
 import AdminIcon from '../components/AdminIcon';
+import AdminExportButton from '../components/AdminExportButton';
+import { asDate } from '../utils/csv';
+
+const csvColumns = [
+  { header: 'Cliente', value: (row) => row.displayName },
+  { header: 'Producto', value: (row) => row.productName },
+  { header: 'Tipo', value: (row) => row.catalogType },
+  { header: 'Puntuación', value: (row) => row.rating },
+  { header: 'Comentario', value: (row) => row.comment },
+  { header: 'Visible', value: (row) => Boolean(row.visible) },
+  { header: 'Creada', value: (row) => asDate(row.createdAt) }
+];
 
 export default function AdminReviewsPage({ reviews, onToggleVisibility }) {
   const [query, setQuery] = useState('');
@@ -24,8 +36,8 @@ export default function AdminReviewsPage({ reviews, onToggleVisibility }) {
   return (
     <div className="space-y-5">
       <section className="admin-surface overflow-hidden">
-        <div className="border-b border-forest-100 p-4">
-          <label className="relative block max-w-xl">
+        <div className="flex flex-col gap-3 border-b border-forest-100 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <label className="relative block w-full max-w-xl">
             <AdminIcon
               name="search"
               className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-forest-400"
@@ -37,6 +49,7 @@ export default function AdminReviewsPage({ reviews, onToggleVisibility }) {
               placeholder="Buscar reseñas"
             />
           </label>
+          <AdminExportButton entity="resenas" rows={filtered} columns={csvColumns} />
         </div>
 
         <div className="grid gap-4 p-4 md:grid-cols-2 2xl:grid-cols-3">

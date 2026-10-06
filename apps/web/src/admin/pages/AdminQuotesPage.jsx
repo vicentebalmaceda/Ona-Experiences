@@ -1,6 +1,33 @@
 import { useMemo, useState } from 'react';
 import AdminIcon from '../components/AdminIcon';
 import AdminStatusBadge from '../components/AdminStatusBadge';
+import AdminExportButton from '../components/AdminExportButton';
+import { asDate } from '../utils/csv';
+
+const inviteStatusLabels = {
+  open: 'Abierta',
+  used: 'Respondida',
+  reviewed: 'Con reseña',
+  expired: 'Expirada',
+  revoked: 'Revocada',
+  none: 'Sin invitación'
+};
+
+const csvColumns = [
+  { header: 'Documento BSale', value: (row) => row.bsaleDocumentId },
+  { header: 'Nombre', value: (row) => row.firstName },
+  { header: 'Apellido', value: (row) => row.lastName },
+  { header: 'Correo', value: (row) => row.email },
+  { header: 'Producto', value: (row) => row.productName },
+  { header: 'Tipo', value: (row) => row.catalogType },
+  {
+    header: 'Estado invitación',
+    value: (row) => inviteStatusLabels[row.inviteStatus] || row.inviteStatus
+  },
+  { header: 'Invitación vence', value: (row) => asDate(row.openInviteExpiresAt) },
+  { header: 'Tiene reseña', value: (row) => Boolean(row.hasReview) },
+  { header: 'Creada', value: (row) => asDate(row.createdAt) }
+];
 
 function formatDate(value) {
   if (!value) return '—';
@@ -54,8 +81,8 @@ export default function AdminQuotesPage({ quotes, onSend, onResend }) {
       )}
 
       <section className="admin-surface overflow-hidden">
-        <div className="border-b border-forest-100 p-4">
-          <label className="relative block max-w-xl">
+        <div className="flex flex-col gap-3 border-b border-forest-100 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <label className="relative block w-full max-w-xl">
             <AdminIcon
               name="search"
               className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-forest-400"
@@ -67,6 +94,7 @@ export default function AdminQuotesPage({ quotes, onSend, onResend }) {
               placeholder="Buscar por cliente, correo, producto o documento"
             />
           </label>
+          <AdminExportButton entity="cotizaciones" rows={filtered} columns={csvColumns} />
         </div>
 
         <div className="overflow-x-auto">
