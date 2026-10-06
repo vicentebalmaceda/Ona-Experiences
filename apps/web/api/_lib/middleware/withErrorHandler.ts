@@ -38,17 +38,26 @@ export function withErrorHandler(handler: ApiHandler): ApiHandler {
       }
 
       if (error instanceof BsaleApiError) {
-        const status = error.statusCode === 401 ? 401 : 502;
+        // 4xx (other than auth) means BSale validated and rejected our payload:
+        // surface its message as 422 so the caller can act on it instead of
+        // reading a generic "unavailable".
+        const rejected = error.statusCode >= 400 && error.statusCode < 500 && error.statusCode !== 401;
+        const status = error.statusCode === 401 ? 401 : rejected ? 422 : 502;
         log.error('BSale API error', {
           path,
           statusCode: status,
           bsaleStatus: error.statusCode,
-          message: error.message
+          message: error.message,
+          body: error.body
         });
-        res.status(status).json({
-          error: status === 401 ? 'Invalid BSale credentials' : 'BSale API unavailable',
-          message: error.message
-        });
+        res.status(status).json(
+          rejected
+            ? { error: error.message, code: 'BSALE_REJECTED', bsaleStatus: error.statusCode }
+            : {
+                error: status === 401 ? 'Invalid BSale credentials' : 'BSale API unavailable',
+                message: error.message
+              }
+        );
         return;
       }
 

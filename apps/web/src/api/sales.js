@@ -14,10 +14,18 @@ function toUserMessage(status, body) {
   const message = parseErrorMessage(status, body);
 
   if (status === 400) {
+    const details = Array.isArray(body?.details) ? body.details : [];
+    if (details.some((issue) => issue.path === 'customer.rut')) {
+      return 'El RUT ingresado no es válido. Revísalo e inténtalo de nuevo.';
+    }
     return 'Revisa los datos del formulario e inténtalo de nuevo.';
   }
   if (status === 404) {
     return 'Este producto no está disponible para cotización.';
+  }
+  if (status === 422 && body?.code === 'BSALE_REJECTED') {
+    // BSale validated and rejected the client or quote: its message says why.
+    return `BSale rechazó la solicitud: ${message}`;
   }
   if (status === 502 || status === 401) {
     return 'No pudimos conectar con BSale. Intenta más tarde.';

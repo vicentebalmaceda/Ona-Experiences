@@ -10,6 +10,16 @@ const RETRY_BASE_DELAY_MS = 250;
 
 type QueryParams = Record<string, string | number | undefined>;
 
+/** BSale error bodies use `error` or `message` (string or array); keep whichever is present. */
+function extractErrorMessage(parsed: unknown): string | undefined {
+  if (typeof parsed !== 'object' || parsed === null) return undefined;
+  const body = parsed as { error?: unknown; message?: unknown };
+  const raw = body.error ?? body.message;
+  if (raw == null) return undefined;
+  if (Array.isArray(raw)) return raw.map(String).join('; ');
+  return typeof raw === 'string' ? raw : JSON.stringify(raw);
+}
+
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -133,10 +143,7 @@ export class BsaleClient {
       }
 
       if (!response.ok) {
-        const message =
-          typeof parsed === 'object' && parsed !== null && 'error' in parsed
-            ? String((parsed as { error: string }).error)
-            : `BSale API error: ${response.status}`;
+        const message = extractErrorMessage(parsed) ?? `BSale API error: ${response.status}`;
         log.warn('BSale request failed', { url, status: response.status, message });
         throw new BsaleApiError(message, response.status, parsed);
       }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createQuoteSale } from '../api/sales.js';
+import { formatRut, isValidRut } from '../utils/rut.js';
 import { loadUserProfile, saveUserProfile } from '../utils/userProfile.js';
 
 function todayIsoDate() {
@@ -12,11 +13,15 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  const [documentType, setDocumentType] = useState('rut');
+  const [documentNumber, setDocumentNumber] = useState('');
+  const [phone, setPhone] = useState('');
   const [reservationDate, setReservationDate] = useState('');
   const [reservationEndDate, setReservationEndDate] = useState('');
   const [explanation, setExplanation] = useState('');
   const [status, setStatus] = useState('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [rutError, setRutError] = useState('');
   const [quoteResult, setQuoteResult] = useState(null);
 
   useEffect(() => {
@@ -26,22 +31,50 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
     setFirstName(profile.firstName);
     setLastName(profile.lastName);
     setEmail(profile.email);
+    setDocumentType(profile.documentType);
+    setDocumentNumber(profile.documentNumber);
+    setPhone(profile.phone);
   }, []);
+
+  const isRut = documentType === 'rut';
+
+  function handleDocumentNumberBlur() {
+    if (!isRut || !documentNumber.trim()) return;
+    if (isValidRut(documentNumber)) {
+      setDocumentNumber(formatRut(documentNumber));
+      setRutError('');
+    } else {
+      setRutError(t('quote.rut_invalid'));
+    }
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
+
+    if (isRut && !isValidRut(documentNumber)) {
+      setRutError(t('quote.rut_invalid'));
+      return;
+    }
+
     setStatus('submitting');
     setErrorMessage('');
+    setRutError('');
     setQuoteResult(null);
 
-    saveUserProfile({ email, firstName, lastName });
+    saveUserProfile({ email, firstName, lastName, documentType, documentNumber, phone });
+
+    const identity = isRut
+      ? { documentType: 'rut', rut: documentNumber.trim() }
+      : { documentType: 'passport', passport: documentNumber.trim() || undefined };
 
     try {
       const result = await createQuoteSale(catalogType, productId, {
         customer: {
           email: email.trim(),
           firstName: firstName.trim(),
-          lastName: lastName.trim()
+          lastName: lastName.trim(),
+          ...identity,
+          phone: phone.trim() || undefined
         },
         reservationDate,
         reservationEndDate,
@@ -141,6 +174,71 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
               className="quote-input"
               placeholder={t('quote.email_placeholder')}
               required
+            />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="quoteDocumentType" className="mb-2 block text-sm font-medium text-slate-700">
+                {t('quote.document_type')}
+              </label>
+              <select
+                id="quoteDocumentType"
+                value={documentType}
+                onChange={(event) => {
+                  setDocumentType(event.target.value);
+                  setDocumentNumber('');
+                  setRutError('');
+                }}
+                className="quote-input"
+              >
+                <option value="rut">{t('quote.document_type_rut')}</option>
+                <option value="passport">{t('quote.document_type_passport')}</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="quoteDocumentNumber" className="mb-2 block text-sm font-medium text-slate-700">
+                {isRut ? t('quote.rut') : t('quote.passport')}
+              </label>
+              <input
+                id="quoteDocumentNumber"
+                type="text"
+                value={documentNumber}
+                onChange={(event) => {
+                  setDocumentNumber(event.target.value);
+                  if (rutError) setRutError('');
+                }}
+                onBlur={handleDocumentNumberBlur}
+                className="quote-input"
+                placeholder={isRut ? t('quote.rut_placeholder') : t('quote.passport_placeholder')}
+                autoComplete="off"
+                inputMode={isRut ? 'numeric' : 'text'}
+                aria-invalid={rutError ? 'true' : undefined}
+                aria-describedby={rutError ? 'quoteDocumentNumberError' : undefined}
+                required={isRut}
+              />
+              {rutError ? (
+                <p id="quoteDocumentNumberError" className="mt-2 text-xs text-red-600">
+                  {rutError}
+                </p>
+              ) : !isRut ? (
+                <p className="mt-2 text-xs text-slate-500">{t('quote.passport_hint')}</p>
+              ) : null}
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="quotePhone" className="mb-2 block text-sm font-medium text-slate-700">
+              {t('quote.phone')}
+            </label>
+            <input
+              id="quotePhone"
+              type="tel"
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
+              className="quote-input"
+              placeholder={t('quote.phone_placeholder')}
+              autoComplete="tel"
             />
           </div>
 

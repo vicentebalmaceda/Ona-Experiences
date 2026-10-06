@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { formatRutForBsale, isValidRut } from '../utils/rut.js';
 
 export const paginationQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(50).default(25),
@@ -15,18 +16,54 @@ export type ProductIdParams = z.infer<typeof productIdParamSchema>;
 
 const isoDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected ISO date YYYY-MM-DD');
 
-export const customerSchema = z.object({
-  email: z.string().email(),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  phone: z.string().optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  municipality: z.string().optional(),
-  activity: z.string().optional(),
-  companyOrPerson: z.union([z.literal(0), z.literal(1)]).optional(),
-  isForeigner: z.union([z.literal(0), z.literal(1)]).optional()
-});
+const optionalTrimmed = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .optional()
+    .transform((value) => (value ? value : undefined));
+
+/**
+ * Customer identity on a quote request. BSale needs a valid Chilean RUT in
+ * `code`, or `isForeigner: 1` for foreign guests, so the visitor must choose
+ * one of the two; everything else (phone, address, city…) stays optional and
+ * the BSale payload mapper fills account defaults (activity, companyOrPerson).
+ */
+export const customerSchema = z
+  .object({
+    email: z.string().trim().email(),
+    firstName: z.string().trim().min(1),
+    lastName: z.string().trim().min(1),
+    documentType: z.enum(['rut', 'passport']).default('rut'),
+    rut: optionalTrimmed(20),
+    passport: optionalTrimmed(30),
+    phone: optionalTrimmed(30),
+    address: optionalTrimmed(200),
+    city: optionalTrimmed(100),
+    municipality: optionalTrimmed(100),
+    activity: optionalTrimmed(100),
+    companyOrPerson: z.union([z.literal(0), z.literal(1)]).optional(),
+    isForeigner: z.union([z.literal(0), z.literal(1)]).optional()
+  })
+  .superRefine((customer, ctx) => {
+    if (customer.documentType !== 'rut') return;
+    if (!customer.rut) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['rut'], message: 'RUT is required' });
+      return;
+    }
+    if (!isValidRut(customer.rut)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['rut'], message: 'Invalid RUT' });
+    }
+  })
+  .transform((customer) => {
+    if (customer.documentType === 'passport') {
+      return { ...customer, rut: undefined, isForeigner: 1 as const };
+    }
+    return { ...customer, rut: formatRutForBsale(customer.rut!)!, passport: undefined };
+  });
+
+export type CustomerInput = z.infer<typeof customerSchema>;
 
 export const saleRequestSchema = z
   .object({

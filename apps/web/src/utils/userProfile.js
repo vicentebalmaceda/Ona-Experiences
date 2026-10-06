@@ -1,7 +1,13 @@
 const STORAGE_KEY = 'ona-user-profile';
 
+const DOCUMENT_TYPES = ['rut', 'passport'];
+
 function normalizeEmail(email) {
   return String(email || '').trim().toLowerCase();
+}
+
+function cleanText(value) {
+  return String(value || '').trim();
 }
 
 export function loadUserProfile() {
@@ -17,23 +23,33 @@ export function loadUserProfile() {
     return {
       email: profile.email,
       firstName: profile.firstName,
-      lastName: profile.lastName
+      lastName: profile.lastName,
+      documentType: DOCUMENT_TYPES.includes(profile.documentType) ? profile.documentType : 'rut',
+      documentNumber: cleanText(profile.documentNumber),
+      phone: cleanText(profile.phone)
     };
   } catch {
     return null;
   }
 }
 
-export function saveUserProfile({ email, firstName, lastName }) {
+export function saveUserProfile({ email, firstName, lastName, documentType, documentNumber, phone }) {
   const profile = {
     email: normalizeEmail(email),
-    firstName: String(firstName || '').trim(),
-    lastName: String(lastName || '').trim()
+    firstName: cleanText(firstName),
+    lastName: cleanText(lastName),
+    documentType: DOCUMENT_TYPES.includes(documentType) ? documentType : 'rut',
+    documentNumber: cleanText(documentNumber),
+    phone: cleanText(phone)
   };
 
   if (!profile.email || !profile.firstName || !profile.lastName) {
     return;
   }
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+  } catch {
+    // Storage may be unavailable (private mode); the quote still goes through.
+  }
 }
