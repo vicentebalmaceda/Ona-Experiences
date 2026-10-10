@@ -73,6 +73,16 @@ export const adminReviewsHandler = createApiHandler(async (req, res) => {
   res.status(200).json({ items: reviews });
 });
 
+export const adminProductSyncHandler = createApiHandler(async (req, res) => {
+  if (req.method !== 'POST') {
+    methodNotAllowed(res, ['POST']);
+    return;
+  }
+  requireAdminSession(req);
+  const result = await getServices().productSyncService.syncFromBsale();
+  res.status(200).json(result);
+});
+
 export const adminReviewByIdHandler = createApiHandler(async (req, res) => {
   if (req.method !== 'PATCH') {
     methodNotAllowed(res, ['PATCH']);

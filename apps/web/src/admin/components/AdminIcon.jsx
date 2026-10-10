@@ -7,7 +7,9 @@ const paths = {
   logout: 'M10 17l5-5-5-5m5 5H3m10-8h6a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6',
   arrow: 'M5 12h14m-5-5 5 5-5 5',
   menu: 'M4 7h16M4 12h16M4 17h16',
-  close: 'M6 6l12 12M18 6 6 18'
+  close: 'M6 6l12 12M18 6 6 18',
+  settings: 'M4 6h16M4 12h16M4 18h16M9 4v4m6 2v4m-8 2v4',
+  sync: 'M20 11a8 8 0 0 0-14.9-3M4 4v4h4m-4 5a8 8 0 0 0 14.9 3M20 20v-4h-4'
 };
 
 export default function AdminIcon({ name, className = 'h-5 w-5' }) {

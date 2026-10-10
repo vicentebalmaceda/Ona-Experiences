@@ -164,6 +164,25 @@ export class BsaleCatalogRepository {
     };
   }
 
+  /** Every product under the catalog's product type, regardless of state or classification. */
+  async listAllProducts(type: CatalogType): Promise<BsaleProduct[]> {
+    const typeName = this.productTypeResolver.getProductTypeName(type);
+    const productTypeId = await this.productTypeResolver.resolveIdByName(typeName);
+    const pageSize = 50;
+    const products: BsaleProduct[] = [];
+
+    for (let offset = 0; ; offset += pageSize) {
+      const page = await this.client.get<BsaleListResponse<BsaleProduct>>(
+        `/product_types/${productTypeId}/products.json`,
+        { limit: pageSize, offset }
+      );
+      products.push(...page.items);
+      if (page.items.length === 0 || offset + pageSize >= page.count) break;
+    }
+
+    return products;
+  }
+
   async getVariantByProductId(productId: number, type: ServiceType): Promise<CatalogVariant> {
     if (type !== 'lodge' && type !== 'guide') {
       throw new DomainError('Invalid service type', 400, 'INVALID_SERVICE_TYPE');

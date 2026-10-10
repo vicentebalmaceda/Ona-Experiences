@@ -4,7 +4,8 @@ const pageTitles = {
   summary: 'Resumen',
   quotes: 'Cotizaciones',
   invites: 'Invitaciones',
-  reviews: 'Reseñas'
+  reviews: 'Reseñas',
+  configs: 'Configuración'
 };
 
 export default function AdminTopbar({ page, onMenu, email }) {

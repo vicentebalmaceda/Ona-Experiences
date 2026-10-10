@@ -16,6 +16,7 @@ import { BsaleQuoteCapture, type QuoteCapture } from './bsaleQuoteCapture.js';
 import { BsaleQuoteInviteResolver } from './bsaleQuoteInviteResolver.js';
 import { CatalogService } from './catalogService.js';
 import { LocalFirstQuoteInviteResolver } from './localFirstQuoteInviteResolver.js';
+import { ProductSyncService } from './productSyncService.js';
 import { ReviewService } from './reviewService.js';
 import { AdminService } from './adminService.js';
 import { SalesService } from './salesService.js';
@@ -25,6 +26,7 @@ export interface Services {
   salesService: SalesService;
   reviewService: ReviewService;
   adminService: AdminService;
+  productSyncService: ProductSyncService;
   mailer: Mailer;
   salesRepository: BsaleSalesRepository;
   clientRepository: BsaleClientRepository;
@@ -97,6 +99,10 @@ export function getServices(): Services {
       quoteStore,
       reviewStore,
       reviewService
+    }),
+    productSyncService: new ProductSyncService({
+      source: catalogRepository,
+      store: reviewStore
     }),
     mailer,
     salesRepository,

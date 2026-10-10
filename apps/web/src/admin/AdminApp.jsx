@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { adminApi } from './api';
 import AdminSidebar from './components/AdminSidebar';
 import AdminTopbar from './components/AdminTopbar';
+import AdminConfigsPage from './pages/AdminConfigsPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminInvitesPage from './pages/AdminInvitesPage';
 import AdminLoginPage from './pages/AdminLoginPage';
@@ -80,6 +81,12 @@ export default function AdminApp() {
     await refresh();
   };
 
+  const syncProducts = async () => {
+    const result = await adminApi.syncProducts();
+    await refresh();
+    return result;
+  };
+
   if (booting) {
     return (
       <div className="grid min-h-screen place-items-center bg-[#f7f5ef] text-sm text-forest-500">
@@ -120,6 +127,7 @@ export default function AdminApp() {
           {page === 'reviews' && (
             <AdminReviewsPage reviews={reviews} onToggleVisibility={toggleVisibility} />
           )}
+          {page === 'configs' && <AdminConfigsPage onSyncProducts={syncProducts} />}
         </div>
       </main>
     </div>

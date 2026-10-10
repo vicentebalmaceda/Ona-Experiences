@@ -5,7 +5,8 @@ const items = [
   { id: 'summary', label: 'Resumen', icon: 'summary' },
   { id: 'quotes', label: 'Cotizaciones', icon: 'quotes' },
   { id: 'invites', label: 'Invitaciones', icon: 'mail' },
-  { id: 'reviews', label: 'Reseñas', icon: 'star' }
+  { id: 'reviews', label: 'Reseñas', icon: 'star' },
+  { id: 'configs', label: 'Configuración', icon: 'settings' }
 ];
 
 export default function AdminSidebar({ page, setPage, open, onClose, onLogout, email }) {

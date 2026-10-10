@@ -74,5 +74,8 @@ export const adminApi = {
       method: 'PATCH',
       body: JSON.stringify({ hidden })
     });
+  },
+  syncProducts() {
+    return request('/api/v1/admin/products/sync', { method: 'POST', body: '{}' });
   }
 };
