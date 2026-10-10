@@ -73,6 +73,15 @@ export class PostgresReviewStore implements ReviewStore {
     return toProduct(rows[0] as ProductRow);
   }
 
+  async listProducts(): Promise<ProductRecord[]> {
+    const rows = await this.sql`
+      SELECT id, catalog_type, bsale_product_id, name, active
+      FROM products
+      ORDER BY catalog_type, name
+    `;
+    return (rows as ProductRow[]).map(toProduct);
+  }
+
   async getProductById(id: string): Promise<ProductRecord | null> {
     const rows = await this.sql`
       SELECT id, catalog_type, bsale_product_id, name, active

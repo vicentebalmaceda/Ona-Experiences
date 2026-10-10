@@ -36,6 +36,7 @@ export interface CreateReviewInput {
 
 export interface ReviewStore {
   upsertProduct(input: UpsertProductInput): Promise<ProductRecord>;
+  listProducts(): Promise<ProductRecord[]>;
   getProductById(id: string): Promise<ProductRecord | null>;
   getProductByExternalKey(
     catalogType: CatalogType,

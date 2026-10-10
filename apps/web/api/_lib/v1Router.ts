@@ -1,6 +1,7 @@
 import type { VercelRequest } from '@vercel/node';
 import { adminLoginHandler, adminLogoutHandler, adminMeHandler } from './handlers/adminAuth.js';
 import {
+  adminProductSyncHandler,
   adminQuoteResendInviteHandler,
   adminQuoteSendInviteHandler,
   adminQuotesHandler,
@@ -103,6 +104,11 @@ const routes: Route[] = [
     pattern: /^\/api\/v1\/admin\/quotes\/([^/]+)\/invite$/,
     paramNames: ['bsaleDocumentId'],
     handler: adminQuoteSendInviteHandler
+  },
+  {
+    pattern: /^\/api\/v1\/admin\/products\/sync$/,
+    paramNames: [],
+    handler: adminProductSyncHandler
   },
   {
     pattern: /^\/api\/v1\/admin\/review-invites$/,

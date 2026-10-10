@@ -44,6 +44,10 @@ export class MemoryReviewStore implements ReviewStore {
     return created;
   }
 
+  async listProducts(): Promise<ProductRecord[]> {
+    return [...this.products.values()];
+  }
+
   async getProductById(id: string): Promise<ProductRecord | null> {
     return this.products.get(id) ?? null;
   }
