@@ -8,6 +8,7 @@ import AdminInvitesPage from './pages/AdminInvitesPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminQuotesPage from './pages/AdminQuotesPage';
 import AdminReviewsPage from './pages/AdminReviewsPage';
+import AdminSiteAssetsPage from './pages/AdminSiteAssetsPage';
 
 export default function AdminApp() {
   const [session, setSession] = useState(null);
@@ -17,6 +18,9 @@ export default function AdminApp() {
   const [quotes, setQuotes] = useState([]);
   const [invites, setInvites] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [siteAssets, setSiteAssets] = useState(null);
+  const [siteAssetsLoading, setSiteAssetsLoading] = useState(false);
+  const [siteAssetsError, setSiteAssetsError] = useState('');
 
   const refresh = useCallback(async () => {
     const [quoteData, inviteData, reviewData] = await Promise.all([
@@ -28,6 +32,27 @@ export default function AdminApp() {
     setInvites(inviteData.items || []);
     setReviews(reviewData.items || []);
   }, []);
+
+  const loadSiteAssets = useCallback(async () => {
+    setSiteAssetsLoading(true);
+    setSiteAssetsError('');
+    try {
+      setSiteAssets(await adminApi.listSiteAssets());
+    } catch (err) {
+      setSiteAssetsError(
+        err?.data?.error || err?.message || 'No se pudieron cargar los archivos del sitio.'
+      );
+    } finally {
+      setSiteAssetsLoading(false);
+    }
+  }, []);
+
+  // The assets list is loaded lazily the first time the "Sitio" page opens.
+  useEffect(() => {
+    if (session && page === 'site' && !siteAssets && !siteAssetsLoading && !siteAssetsError) {
+      loadSiteAssets();
+    }
+  }, [session, page, siteAssets, siteAssetsLoading, siteAssetsError, loadSiteAssets]);
 
   useEffect(() => {
     let cancelled = false;
@@ -63,6 +88,8 @@ export default function AdminApp() {
       setQuotes([]);
       setInvites([]);
       setReviews([]);
+      setSiteAssets(null);
+      setSiteAssetsError('');
     }
   };
 
@@ -79,6 +106,16 @@ export default function AdminApp() {
   const toggleVisibility = async (reviewId, currentlyVisible) => {
     await adminApi.setReviewHidden(reviewId, currentlyVisible);
     await refresh();
+  };
+
+  const publishSiteAsset = async (slot, body) => {
+    await adminApi.publishSiteAsset(slot, body);
+    await loadSiteAssets();
+  };
+
+  const restoreSiteAsset = async (slot) => {
+    await adminApi.restoreSiteAsset(slot);
+    await loadSiteAssets();
   };
 
   const syncProducts = async () => {
@@ -126,6 +163,16 @@ export default function AdminApp() {
           {page === 'invites' && <AdminInvitesPage invites={invites} />}
           {page === 'reviews' && (
             <AdminReviewsPage reviews={reviews} onToggleVisibility={toggleVisibility} />
+          )}
+          {page === 'site' && (
+            <AdminSiteAssetsPage
+              assets={siteAssets}
+              loading={siteAssetsLoading}
+              error={siteAssetsError}
+              onReload={loadSiteAssets}
+              onPublish={publishSiteAsset}
+              onRestore={restoreSiteAsset}
+            />
           )}
           {page === 'configs' && <AdminConfigsPage onSyncProducts={syncProducts} />}
         </div>

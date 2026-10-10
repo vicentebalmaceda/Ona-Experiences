@@ -4,10 +4,11 @@ import LandingPage from './pages/LandingPage.jsx';
 import ProductDetailPage from './pages/ProductDetailPage.jsx';
 import ReviewPage from './pages/ReviewPage.jsx';
 import AdminApp from './admin/AdminApp.jsx';
+import { SiteAssetsProvider } from './site/SiteAssetsProvider.jsx';
 
 function App() {
   return (
-    <>
+    <SiteAssetsProvider>
       <DocumentMeta />
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -16,7 +17,7 @@ function App() {
         <Route path="/review" element={<ReviewPage />} />
         <Route path="/admin/*" element={<AdminApp />} />
       </Routes>
-    </>
+    </SiteAssetsProvider>
   );
 }
 

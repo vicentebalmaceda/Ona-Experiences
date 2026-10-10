@@ -6,6 +6,7 @@ const items = [
   { id: 'quotes', label: 'Cotizaciones', icon: 'quotes' },
   { id: 'invites', label: 'Invitaciones', icon: 'mail' },
   { id: 'reviews', label: 'Reseñas', icon: 'star' },
+  { id: 'site', label: 'Sitio', icon: 'image' },
   { id: 'configs', label: 'Configuración', icon: 'settings' }
 ];
 

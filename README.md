@@ -337,6 +337,18 @@ curl -X POST http://localhost:3003/api/webhooks/bsale \
 
 Quote admin email is **not** sent from the frontend sales endpoints; it is triggered asynchronously by this webhook after BSale creates the cotización.
 
+## Site assets (hero, logo) from /admin
+
+Admins can replace the landing hero (image or muted looping video, with an optional poster) and the logo from `/admin` → **Sitio**. Files are uploaded from the browser straight to a public **Vercel Blob** store; the BFF only issues upload tokens and records what is published in the `site_assets` table. See [docs/adr/0006-site-assets-vercel-blob.md](docs/adr/0006-site-assets-vercel-blob.md).
+
+Setup:
+
+1. In the Vercel project: **Storage → Create → Blob**, access **Public**, connect it to Production, Preview and Development. This adds `BLOB_READ_WRITE_TOKEN` to the project env; copy it into `apps/web/.env` for local work (or `vercel env pull`).
+2. Run the `site_assets` block of `apps/web/api/_lib/db/schema.sql` against the Postgres database.
+3. Deploy. Until both are done the site keeps serving the bundled defaults and the admin page shows a "no configurado" notice.
+
+Endpoints: `GET /api/v1/site/assets` (public, cached 60 s), `GET /api/v1/admin/assets`, `POST /api/v1/admin/assets/upload-token`, `PUT|DELETE /api/v1/admin/assets/:slot`.
+
 ## Environment variables
 
 See [apps/web/.env.example](apps/web/.env.example). Required:

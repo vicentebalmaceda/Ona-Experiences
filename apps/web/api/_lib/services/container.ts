@@ -1,5 +1,8 @@
 import { getEnv } from '../config/env.js';
+import { getCache } from '../cache/cache.js';
 import { getSql } from '../db/postgres.js';
+import { UnconfiguredBlobStorage, VercelBlobStorage } from '../lib/blob/blobStorage.js';
+import { PostgresSiteAssetStore } from '../lib/siteAssets/postgresSiteAssetStore.js';
 import { BsaleClient } from '../lib/bsale/client.js';
 import { BsaleClientRepository } from '../lib/bsale/clients.js';
 import { BsaleSalesRepository } from '../lib/bsale/documents.js';
@@ -20,6 +23,7 @@ import { ProductSyncService } from './productSyncService.js';
 import { ReviewService } from './reviewService.js';
 import { AdminService } from './adminService.js';
 import { SalesService } from './salesService.js';
+import { SiteAssetService } from './siteAssetService.js';
 
 export interface Services {
   catalogService: CatalogService;
@@ -27,6 +31,7 @@ export interface Services {
   reviewService: ReviewService;
   adminService: AdminService;
   productSyncService: ProductSyncService;
+  siteAssetService: SiteAssetService;
   mailer: Mailer;
   salesRepository: BsaleSalesRepository;
   clientRepository: BsaleClientRepository;
@@ -103,6 +108,13 @@ export function getServices(): Services {
     productSyncService: new ProductSyncService({
       source: catalogRepository,
       store: reviewStore
+    }),
+    siteAssetService: new SiteAssetService({
+      store: new PostgresSiteAssetStore(sql),
+      blob: env.BLOB_READ_WRITE_TOKEN
+        ? new VercelBlobStorage(env.BLOB_READ_WRITE_TOKEN)
+        : new UnconfiguredBlobStorage(),
+      cache: getCache()
     }),
     mailer,
     salesRepository,

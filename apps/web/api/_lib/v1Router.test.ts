@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { adminLoginHandler, adminLogoutHandler, adminMeHandler } from './handlers/adminAuth.js';
 import {
+  adminSiteAssetBySlotHandler,
+  adminSiteAssetsHandler,
+  adminSiteAssetUploadTokenHandler
+} from './handlers/adminSiteAssets.js';
+import {
   adminQuoteResendInviteHandler,
   adminQuoteSendInviteHandler,
   adminQuotesHandler,
@@ -15,6 +20,7 @@ import { guideSalesHandler, lodgeSalesHandler } from './handlers/catalogSales.js
 import { contactHandler } from './handlers/contact.js';
 import { reviewInviteByTokenHandler } from './handlers/reviewInviteByToken.js';
 import { reviewsHandler } from './handlers/reviews.js';
+import { siteAssetsHandler } from './handlers/siteAssets.js';
 import { matchV1Route, mergeV1Query, pathnameFromV1Request } from './v1Router.js';
 
 describe('matchV1Route', () => {
@@ -58,6 +64,10 @@ describe('matchV1Route', () => {
       bsaleDocumentId: '6634'
     }],
     ['/api/v1/admin/review-invites', adminReviewInvitesHandler, {}],
+    ['/api/v1/admin/assets', adminSiteAssetsHandler, {}],
+    ['/api/v1/admin/assets/upload-token', adminSiteAssetUploadTokenHandler, {}],
+    ['/api/v1/admin/assets/hero', adminSiteAssetBySlotHandler, { slot: 'hero' }],
+    ['/api/v1/site/assets', siteAssetsHandler, {}],
     ['/api/v1/admin/reviews', adminReviewsHandler, {}],
     ['/api/v1/admin/reviews/11111111-1111-1111-1111-111111111111', adminReviewByIdHandler, {
       reviewId: '11111111-1111-1111-1111-111111111111'

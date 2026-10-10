@@ -63,3 +63,19 @@ CREATE TABLE IF NOT EXISTS quotes (
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
+
+-- Admin-managed site assets (docs/proposals/admin-site-assets.md). One row per
+-- Asset Slot that has a published file; a missing row means the bundled default.
+CREATE TABLE IF NOT EXISTS site_assets (
+  slot text PRIMARY KEY CHECK (slot IN ('hero', 'hero_poster', 'logo')),
+  kind text NOT NULL CHECK (kind IN ('image', 'video')),
+  url text NOT NULL,
+  pathname text NOT NULL,
+  content_type text NOT NULL,
+  size_bytes integer NOT NULL,
+  width integer,
+  height integer,
+  alt text,
+  published_by text NOT NULL,
+  published_at timestamptz NOT NULL DEFAULT now()
+);

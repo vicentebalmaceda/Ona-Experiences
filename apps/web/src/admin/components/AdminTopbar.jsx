@@ -5,6 +5,7 @@ const pageTitles = {
   quotes: 'Cotizaciones',
   invites: 'Invitaciones',
   reviews: 'Reseñas',
+  site: 'Sitio',
   configs: 'Configuración'
 };
 

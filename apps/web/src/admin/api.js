@@ -77,5 +77,17 @@ export const adminApi = {
   },
   syncProducts() {
     return request('/api/v1/admin/products/sync', { method: 'POST', body: '{}' });
+  },
+  listSiteAssets() {
+    return request('/api/v1/admin/assets', { cache: 'no-store' });
+  },
+  publishSiteAsset(slot, body) {
+    return request(`/api/v1/admin/assets/${slot}`, {
+      method: 'PUT',
+      body: JSON.stringify(body)
+    });
+  },
+  restoreSiteAsset(slot) {
+    return request(`/api/v1/admin/assets/${slot}`, { method: 'DELETE' });
   }
 };

@@ -9,7 +9,8 @@ const paths = {
   menu: 'M4 7h16M4 12h16M4 17h16',
   close: 'M6 6l12 12M18 6 6 18',
   settings: 'M4 6h16M4 12h16M4 18h16M9 4v4m6 2v4m-8 2v4',
-  sync: 'M20 11a8 8 0 0 0-14.9-3M4 4v4h4m-4 5a8 8 0 0 0 14.9 3M20 20v-4h-4'
+  sync: 'M20 11a8 8 0 0 0-14.9-3M4 4v4h4m-4 5a8 8 0 0 0 14.9 3M20 20v-4h-4',
+  image: 'M4 5h16v14H4V5Zm0 10 4.5-4.5 3.5 3.5 2.5-2.5L20 16M15.5 9.5h.01'
 };
 
 export default function AdminIcon({ name, className = 'h-5 w-5' }) {

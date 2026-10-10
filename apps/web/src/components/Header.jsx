@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useSiteAsset } from '../site/SiteAssetsProvider.jsx';
 
 const ONA_FLYFISHING_URL = 'https://www.onaflyfishing.cl';
 
 function Header({ onNavigate }) {
   const { t, i18n } = useTranslation();
+  const logo = useSiteAsset('logo');
   const [open, setOpen] = useState(false);
   const language = (i18n.resolvedLanguage || i18n.language || 'es').split('-')[0];
 
@@ -104,7 +106,12 @@ function Header({ onNavigate }) {
       </div>
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <LogoWrapper {...logoProps}>
-          <img src="/assets/logo-ona.png" alt="ONA Experiences" className="h-12 w-12 rounded-full bg-white/90 object-contain p-1.5 shadow-soft" />
+          <img
+            src={logo.url}
+            alt={logo.alt || 'ONA Experiences'}
+            onError={logo.onError}
+            className="h-12 w-12 rounded-full bg-white/90 object-contain p-1.5 shadow-soft"
+          />
           <div>
             <p className="font-display text-lg text-white">{t('nav.brand')}</p>
             <p className="text-[11px] uppercase tracking-[0.28em] text-slate-300">{t('nav.tagline')}</p>

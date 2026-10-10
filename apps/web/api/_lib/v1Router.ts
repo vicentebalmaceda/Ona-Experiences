@@ -1,6 +1,11 @@
 import type { VercelRequest } from '@vercel/node';
 import { adminLoginHandler, adminLogoutHandler, adminMeHandler } from './handlers/adminAuth.js';
 import {
+  adminSiteAssetBySlotHandler,
+  adminSiteAssetsHandler,
+  adminSiteAssetUploadTokenHandler
+} from './handlers/adminSiteAssets.js';
+import {
   adminProductSyncHandler,
   adminQuoteResendInviteHandler,
   adminQuoteSendInviteHandler,
@@ -16,6 +21,7 @@ import { guideSalesHandler, lodgeSalesHandler } from './handlers/catalogSales.js
 import { contactHandler } from './handlers/contact.js';
 import { reviewInviteByTokenHandler } from './handlers/reviewInviteByToken.js';
 import { reviewsHandler } from './handlers/reviews.js';
+import { siteAssetsHandler } from './handlers/siteAssets.js';
 import type { ApiHandler } from './middleware/withErrorHandler.js';
 
 export interface V1Match {
@@ -116,6 +122,22 @@ const routes: Route[] = [
     handler: adminReviewInvitesHandler
   },
   {
+    pattern: /^\/api\/v1\/admin\/assets$/,
+    paramNames: [],
+    handler: adminSiteAssetsHandler
+  },
+  {
+    // Must precede the :slot route so "upload-token" is never read as a slot.
+    pattern: /^\/api\/v1\/admin\/assets\/upload-token$/,
+    paramNames: [],
+    handler: adminSiteAssetUploadTokenHandler
+  },
+  {
+    pattern: /^\/api\/v1\/admin\/assets\/([^/]+)$/,
+    paramNames: ['slot'],
+    handler: adminSiteAssetBySlotHandler
+  },
+  {
     pattern: /^\/api\/v1\/admin\/reviews$/,
     paramNames: [],
     handler: adminReviewsHandler
@@ -134,6 +156,11 @@ const routes: Route[] = [
     pattern: /^\/api\/v1\/reviews$/,
     paramNames: [],
     handler: reviewsHandler
+  },
+  {
+    pattern: /^\/api\/v1\/site\/assets$/,
+    paramNames: [],
+    handler: siteAssetsHandler
   }
 ];
 

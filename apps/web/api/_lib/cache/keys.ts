@@ -5,7 +5,8 @@ export const CACHE_PREFIX = {
   catalog: 'catalog:',
   pricing: 'pricing:',
   marketInfo: 'bsale:marketInfo:',
-  quoteNotification: 'quote-notification:'
+  quoteNotification: 'quote-notification:',
+  siteAssets: 'site-assets:'
 } as const;
 
 export const CACHE_TTL_SECONDS = {
@@ -15,7 +16,9 @@ export const CACHE_TTL_SECONDS = {
   pricing: 5 * 60,
   marketInfo: 3 * 60,
   /** Keep duplicate webhook suppression for ~30 days. */
-  quoteNotification: 30 * 24 * 60 * 60
+  quoteNotification: 30 * 24 * 60 * 60,
+  /** Published site assets JSON; cleared on every publish/restore. */
+  siteAssets: 60
 } as const;
 
 export const cacheKeys = {
@@ -27,5 +30,6 @@ export const cacheKeys = {
   pricing: (variantId: number) => `${CACHE_PREFIX.pricing}${variantId}`,
   marketInfoByCode: (code: string) => `${CACHE_PREFIX.marketInfo}code:v2:${code}`,
   quoteNotification: (documentId: number | string) =>
-    `${CACHE_PREFIX.quoteNotification}${documentId}`
+    `${CACHE_PREFIX.quoteNotification}${documentId}`,
+  siteAssets: () => `${CACHE_PREFIX.siteAssets}published`
 };

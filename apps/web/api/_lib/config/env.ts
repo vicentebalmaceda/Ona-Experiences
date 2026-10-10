@@ -13,6 +13,8 @@ const envSchema = z.object({
   BSALE_PRICE_LIST_ID: z.coerce.number().int().positive(),
   KV_REST_API_URL: z.string().url().optional(),
   KV_REST_API_TOKEN: z.string().optional(),
+  /** Vercel Blob read-write token; needed to mint client upload tokens for site assets. Optional: without it /admin "Sitio" is read-only. */
+  BLOB_READ_WRITE_TOKEN: z.string().min(1).optional(),
   RESEND_API_KEY: z.string().min(1, 'RESEND_API_KEY is required'),
   MAIL_FROM: z.string().min(1, 'MAIL_FROM is required'),
   ADMIN_EMAIL: z.string().email('ADMIN_EMAIL must be a valid email'),

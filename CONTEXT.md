@@ -32,6 +32,14 @@ _Avoid_: Client (BSale’s `/clients` record), User (no end-user accounts in v1)
 A person authorized to issue Review Invites and control which Reviews are Visible. Not a Customer and not an end-user account.
 _Avoid_: User, staff account
 
+**Asset Slot**:
+A fixed, named place on the public site an Admin can fill with an uploaded file: `hero` (landing background, image or muted looping video), `hero_poster` (image shown while a video hero loads) and `logo` (header logo and favicon). Slots are defined in code (`siteAssetSlots.ts`), each with its allowed types, size cap and bundled default; Admins do not create slots.
+_Avoid_: Media library, gallery, upload (that is the action, not the thing)
+
+**Site Asset**:
+The file currently published in an Asset Slot: a public Vercel Blob URL plus kind, content type, size, optional dimensions and alt text, and who published it when. A slot with no Site Asset renders its bundled default from `public/assets`. Publishing replaces the previous Site Asset and deletes its blob; "restore default" removes it.
+_Avoid_: Product image (those come from BSale), attachment
+
 **Quote**:
 ONA's durable record of a pre-sale BSale cotización for a Customer against a Product variant. BSale's document id is the external key. It is written when the Quote webhook successfully captures an invite-ready cotización (exactly one line with product and variant, Customer email present): Customer fields are embedded, the Product is upserted, and the booked Variant is remembered. Incomplete Quotes are not stored; the admin Quote email may still send. At most one Review can exist for a given Quote.
 _Avoid_: Sale (API path name only today), Order, Booking (not modeled yet), treating the live BSale document alone as the Quote ONA acts on, persisting incomplete cotizaciones

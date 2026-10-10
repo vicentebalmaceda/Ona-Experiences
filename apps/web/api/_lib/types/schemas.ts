@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SITE_ASSET_SLOTS } from '../../../shared/siteAssetSlots.js';
 import { formatRutForBsale, isValidRut } from '../utils/rut.js';
 
 export const paginationQuerySchema = z.object({
@@ -135,3 +136,16 @@ export const adminDocumentIdParamSchema = z.object({
 export const adminInviteNoteSchema = z.object({
   adminNote: z.string().trim().max(500).optional()
 });
+
+export const siteAssetSlotParamSchema = z.object({
+  slot: z.enum(SITE_ASSET_SLOTS)
+});
+
+export const publishSiteAssetSchema = z.object({
+  pathname: z.string().trim().min(1).max(300),
+  alt: z.string().trim().max(200).optional().transform((value) => (value ? value : undefined)),
+  width: z.coerce.number().int().positive().optional(),
+  height: z.coerce.number().int().positive().optional()
+});
+
+export type PublishSiteAssetBody = z.infer<typeof publishSiteAssetSchema>;
