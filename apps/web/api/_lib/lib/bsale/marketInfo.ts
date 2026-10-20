@@ -34,18 +34,58 @@ export function extractPictureHrefs(info: BsaleMarketInfo): string[] {
     .filter((href): href is string => Boolean(href));
 }
 
+/**
+ * Named entities BSale's rich-text editor emits for Spanish text (e.g. `Futaleuf&uacute;`).
+ * Case-sensitive: `&Aacute;` and `&aacute;` are different characters.
+ */
+const NAMED_ENTITIES: Record<string, string> = {
+  nbsp: ' ',
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  aacute: 'á',
+  eacute: 'é',
+  iacute: 'í',
+  oacute: 'ó',
+  uacute: 'ú',
+  Aacute: 'Á',
+  Eacute: 'É',
+  Iacute: 'Í',
+  Oacute: 'Ó',
+  Uacute: 'Ú',
+  ntilde: 'ñ',
+  Ntilde: 'Ñ',
+  uuml: 'ü',
+  Uuml: 'Ü',
+  iexcl: '¡',
+  iquest: '¿',
+  ordm: 'º',
+  ordf: 'ª',
+  deg: '°',
+  laquo: '«',
+  raquo: '»',
+  ndash: '–',
+  mdash: '—',
+  lsquo: '‘',
+  rsquo: '’',
+  ldquo: '“',
+  rdquo: '”',
+  hellip: '…',
+  middot: '·',
+  bull: '•'
+};
+
 function decodeBasicEntities(value: string): string {
   return value
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
-    .replace(/&quot;/gi, '"')
-    .replace(/&#0*39;/g, "'")
     .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) =>
       String.fromCodePoint(Number.parseInt(hex, 16))
     )
-    .replace(/&#(\d+);/g, (_, dec: string) => String.fromCodePoint(Number.parseInt(dec, 10)));
+    .replace(/&#(\d+);/g, (_, dec: string) => String.fromCodePoint(Number.parseInt(dec, 10)))
+    .replace(/&([a-z]+);/gi, (match, name: string) =>
+      NAMED_ENTITIES[name] ?? NAMED_ENTITIES[name.toLowerCase()] ?? match
+    );
 }
 
 function stripHtml(html: string): string {
