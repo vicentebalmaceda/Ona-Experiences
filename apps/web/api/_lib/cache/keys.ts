@@ -6,7 +6,8 @@ export const CACHE_PREFIX = {
   pricing: 'pricing:',
   marketInfo: 'bsale:marketInfo:',
   quoteNotification: 'quote-notification:',
-  siteAssets: 'site-assets:'
+  siteAssets: 'site-assets:',
+  setting: 'setting:'
 } as const;
 
 export const CACHE_TTL_SECONDS = {
@@ -18,7 +19,11 @@ export const CACHE_TTL_SECONDS = {
   /** Keep duplicate webhook suppression for ~30 days. */
   quoteNotification: 30 * 24 * 60 * 60,
   /** Published site assets JSON; cleared on every publish/restore. */
-  siteAssets: 60
+  siteAssets: 60,
+  /** One site setting value; cleared on every save/reset. */
+  setting: 60,
+  /** Admin test-email throttle window per flow. */
+  settingTestSend: 60
 } as const;
 
 export const cacheKeys = {
@@ -31,5 +36,7 @@ export const cacheKeys = {
   marketInfoByCode: (code: string) => `${CACHE_PREFIX.marketInfo}code:v2:${code}`,
   quoteNotification: (documentId: number | string) =>
     `${CACHE_PREFIX.quoteNotification}${documentId}`,
-  siteAssets: () => `${CACHE_PREFIX.siteAssets}published`
+  siteAssets: () => `${CACHE_PREFIX.siteAssets}published`,
+  setting: (key: string) => `${CACHE_PREFIX.setting}${key}`,
+  settingTestSend: (key: string) => `${CACHE_PREFIX.setting}test-send:${key}`
 };

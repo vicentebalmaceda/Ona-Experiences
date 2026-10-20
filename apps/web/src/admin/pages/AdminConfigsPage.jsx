@@ -1,4 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { validateMailRecipients } from '../../../shared/siteSettings.ts';
+import AdminEmailListInput from '../components/AdminEmailListInput';
 import AdminIcon from '../components/AdminIcon';
 
 const statusLabels = {
@@ -41,7 +43,221 @@ function SummaryStat({ label, value }) {
   );
 }
 
-export default function AdminConfigsPage({ onSyncProducts }) {
+
+function formatDate(value) {
+  if (!value) return '';
+  return new Date(value).toLocaleString('es-CL');
+}
+
+function sameList(a, b) {
+  return a.length === b.length && a.every((item, index) => item === b[index]);
+}
+
+const STORE_NOTICE =
+  'La tabla site_settings todavía no existe en la base de datos. Ejecuta el bloque site_settings de schema.sql para poder guardar; mientras tanto se usa ADMIN_EMAIL.';
+
+function MailSettingCard({ item, canSave, onSave, onReset, onTest }) {
+  const [to, setTo] = useState(item.value.to);
+  const [cc, setCc] = useState(item.value.cc);
+  const [busy, setBusy] = useState(null); // 'saving' | 'testing' | 'resetting' | null
+  const [error, setError] = useState('');
+  const [feedback, setFeedback] = useState('');
+  const feedbackTimer = useRef(null);
+
+  // Resync the form when the server value changes (after save/reset/reload).
+  useEffect(() => {
+    setTo(item.value.to);
+    setCc(item.value.cc);
+  }, [item.value.to, item.value.cc]);
+
+  useEffect(() => () => clearTimeout(feedbackTimer.current), []);
+
+  const dirty = !sameList(to, item.value.to) || !sameList(cc, item.value.cc);
+
+  const flash = (message) => {
+    setFeedback(message);
+    clearTimeout(feedbackTimer.current);
+    feedbackTimer.current = setTimeout(() => setFeedback(''), 2800);
+  };
+
+  const run = async (kind, action, successMessage) => {
+    const check = validateMailRecipients({ to, cc });
+    if (kind !== 'resetting' && !check.ok) {
+      setError(check.reason);
+      return;
+    }
+    setBusy(kind);
+    setError('');
+    setFeedback('');
+    try {
+      await action(check.value);
+      flash(successMessage);
+    } catch (err) {
+      setError(err?.data?.error || err?.message || 'No se pudo completar la acción.');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const save = () => run('saving', (value) => onSave(item.key, value), 'Destinatarios guardados.');
+  const test = () =>
+    run(
+      'testing',
+      (value) => onTest(item.key, value),
+      `Correo de prueba enviado a ${to.join(', ')}${cc.length ? ` (cc: ${cc.join(', ')})` : ''}.`
+    );
+  const reset = () => {
+    const ok = window.confirm(
+      `¿Volver al destinatario por defecto (ADMIN_EMAIL) para "${item.label}"? Se borrarán las listas guardadas.`
+    );
+    if (!ok) return;
+    run('resetting', () => onReset(item.key), 'Restaurado al valor por defecto.');
+  };
+
+  return (
+    <article className="rounded-2xl border border-forest-100 bg-white p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h3 className="text-base font-semibold text-forest-950">{item.label}</h3>
+          <p className="mt-1 text-sm text-forest-500">{item.description}</p>
+        </div>
+        {item.source === 'env' ? (
+          <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800 ring-1 ring-inset ring-amber-600/10">
+            Por defecto (ADMIN_EMAIL)
+          </span>
+        ) : (
+          <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/10">
+            Personalizado
+          </span>
+        )}
+      </div>
+
+      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+        <AdminEmailListInput
+          id={`${item.key}-to`}
+          label="Para"
+          value={to}
+          onChange={setTo}
+          disabled={Boolean(busy)}
+          hint="Al menos una dirección. Enter o coma para agregar."
+        />
+        <AdminEmailListInput
+          id={`${item.key}-cc`}
+          label="CC"
+          value={cc}
+          onChange={setCc}
+          disabled={Boolean(busy)}
+          hint="Opcional. Reciben copia visible."
+        />
+      </div>
+
+      {error && (
+        <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
+          {error}
+        </p>
+      )}
+      {feedback && (
+        <p className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+          {feedback}
+        </p>
+      )}
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={save}
+          disabled={Boolean(busy) || !dirty || !canSave}
+          className="admin-button-primary disabled:cursor-not-allowed disabled:opacity-50"
+          title={canSave ? undefined : STORE_NOTICE}
+        >
+          {busy === 'saving' ? 'Guardando…' : 'Guardar'}
+        </button>
+        <button
+          type="button"
+          onClick={test}
+          disabled={Boolean(busy) || to.length === 0}
+          className="admin-button-secondary disabled:cursor-not-allowed disabled:opacity-50"
+          title="Envía un correo de ejemplo de este flujo a las direcciones indicadas (sin guardar)"
+        >
+          {busy === 'testing' ? 'Enviando…' : 'Enviar prueba'}
+        </button>
+        {item.source === 'db' && (
+          <button
+            type="button"
+            onClick={reset}
+            disabled={Boolean(busy)}
+            className="rounded-xl px-3 py-2 text-xs font-semibold text-forest-500 hover:bg-forest-100 disabled:opacity-50"
+          >
+            {busy === 'resetting' ? 'Restaurando…' : 'Restaurar por defecto'}
+          </button>
+        )}
+        {item.updatedBy && (
+          <span className="ml-auto text-xs text-forest-400">
+            Actualizado por {item.updatedBy} el {formatDate(item.updatedAt)}
+          </span>
+        )}
+      </div>
+    </article>
+  );
+}
+
+function MailSettingsSection({ settings, loading, error, onReload, onSave, onReset, onTest }) {
+  const items = settings?.items ?? null;
+  const storeAvailable = settings ? settings.storeAvailable !== false : true;
+  return (
+    <section className="admin-surface p-5 sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="max-w-2xl">
+          <p className="admin-eyebrow">Correos</p>
+          <h2 className="mt-1 text-lg font-semibold text-forest-950">Destinatarios de las notificaciones</h2>
+          <p className="mt-2 text-sm text-forest-500">
+            Quién recibe cada correo interno del servicio. Los correos a clientes (invitación y
+            agradecimiento de reseña) van siempre al cliente y no se configuran aquí. "Enviar
+            prueba" manda un ejemplo real del correo a las direcciones indicadas sin guardarlas.
+          </p>
+        </div>
+        <button type="button" onClick={onReload} disabled={loading} className="admin-button-secondary shrink-0">
+          <AdminIcon name="sync" className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          {loading ? 'Cargando…' : 'Actualizar'}
+        </button>
+      </div>
+
+      {error && (
+        <p className="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">{error}</p>
+      )}
+      {!storeAvailable && (
+        <p className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+          {STORE_NOTICE}
+        </p>
+      )}
+
+      <div className="mt-5 space-y-4">
+        {!items && !error && <p className="text-sm text-forest-400">Cargando destinatarios…</p>}
+        {items?.map((item) => (
+          <MailSettingCard
+            key={item.key}
+            item={item}
+            canSave={storeAvailable}
+            onSave={onSave}
+            onReset={onReset}
+            onTest={onTest}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export default function AdminConfigsPage({
+  onSyncProducts,
+  mailSettings,
+  mailSettingsLoading,
+  mailSettingsError,
+  onReloadMailSettings,
+  onSaveMailSetting,
+  onResetMailSetting,
+  onTestMailSetting
+}) {
   const [syncing, setSyncing] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
@@ -66,6 +282,16 @@ export default function AdminConfigsPage({ onSyncProducts }) {
 
   return (
     <div className="space-y-5">
+      <MailSettingsSection
+        settings={mailSettings}
+        loading={mailSettingsLoading}
+        error={mailSettingsError}
+        onReload={onReloadMailSettings}
+        onSave={onSaveMailSetting}
+        onReset={onResetMailSetting}
+        onTest={onTestMailSetting}
+      />
+
       <section className="admin-surface p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="max-w-2xl">

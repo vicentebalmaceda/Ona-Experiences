@@ -21,6 +21,9 @@ export default function AdminApp() {
   const [siteAssets, setSiteAssets] = useState(null);
   const [siteAssetsLoading, setSiteAssetsLoading] = useState(false);
   const [siteAssetsError, setSiteAssetsError] = useState('');
+  const [mailSettings, setMailSettings] = useState(null);
+  const [mailSettingsLoading, setMailSettingsLoading] = useState(false);
+  const [mailSettingsError, setMailSettingsError] = useState('');
 
   const refresh = useCallback(async () => {
     const [quoteData, inviteData, reviewData] = await Promise.all([
@@ -48,6 +51,25 @@ export default function AdminApp() {
   }, []);
 
   // The assets list is loaded lazily the first time the "Sitio" page opens.
+  const loadMailSettings = useCallback(async () => {
+    setMailSettingsLoading(true);
+    setMailSettingsError('');
+    try {
+      const data = await adminApi.listMailSettings();
+      setMailSettings({ items: data.items || [], storeAvailable: data.storeAvailable !== false });
+    } catch (err) {
+      setMailSettingsError(err?.data?.error || err.message || 'No se pudo cargar la configuración.');
+    } finally {
+      setMailSettingsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (session && page === 'configs' && !mailSettings && !mailSettingsLoading && !mailSettingsError) {
+      loadMailSettings();
+    }
+  }, [session, page, mailSettings, mailSettingsLoading, mailSettingsError, loadMailSettings]);
+
   useEffect(() => {
     if (session && page === 'site' && !siteAssets && !siteAssetsLoading && !siteAssetsError) {
       loadSiteAssets();
@@ -89,6 +111,8 @@ export default function AdminApp() {
       setInvites([]);
       setReviews([]);
       setSiteAssets(null);
+      setMailSettings(null);
+      setMailSettingsError('');
       setSiteAssetsError('');
     }
   };
@@ -117,6 +141,18 @@ export default function AdminApp() {
     await adminApi.restoreSiteAsset(slot);
     await loadSiteAssets();
   };
+
+  const saveMailSetting = async (key, recipients) => {
+    await adminApi.saveMailSetting(key, recipients);
+    await loadMailSettings();
+  };
+
+  const resetMailSetting = async (key) => {
+    await adminApi.resetMailSetting(key);
+    await loadMailSettings();
+  };
+
+  const testMailSetting = (key, recipients) => adminApi.sendTestEmail(key, recipients);
 
   const syncProducts = async () => {
     const result = await adminApi.syncProducts();
@@ -174,7 +210,18 @@ export default function AdminApp() {
               onRestore={restoreSiteAsset}
             />
           )}
-          {page === 'configs' && <AdminConfigsPage onSyncProducts={syncProducts} />}
+          {page === 'configs' && (
+            <AdminConfigsPage
+              onSyncProducts={syncProducts}
+              mailSettings={mailSettings}
+              mailSettingsLoading={mailSettingsLoading}
+              mailSettingsError={mailSettingsError}
+              onReloadMailSettings={loadMailSettings}
+              onSaveMailSetting={saveMailSetting}
+              onResetMailSetting={resetMailSetting}
+              onTestMailSetting={testMailSetting}
+            />
+          )}
         </div>
       </main>
     </div>

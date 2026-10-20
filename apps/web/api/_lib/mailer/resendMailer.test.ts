@@ -202,3 +202,75 @@ describe('ResendMailer', () => {
     });
   });
 });
+
+describe('ResendMailer recipients', () => {
+  const resolver = {
+    forFlow: vi.fn().mockResolvedValue({ to: ['ventas@ona.example', 'ops@ona.example'], cc: ['jefe@ona.example'] })
+  };
+
+  it('asks the resolver per flow and sends to + cc', async () => {
+    const send = vi.fn().mockResolvedValue({ data: { id: 'msg' }, error: null });
+    const mailer = new ResendMailer(env, { emails: { send } } as never, resolver);
+
+    await mailer.sendContactMessage(contact);
+    await mailer.sendQuoteNotification(quote);
+    await mailer.sendReviewAdminNotification({
+      customerEmail: 'c@x.y',
+      firstName: 'C',
+      lastName: 'D',
+      productName: 'P',
+      catalogType: 'lodge',
+      rating: 4,
+      comment: 'ok',
+      reviewId: 'r1'
+    });
+
+    expect(resolver.forFlow.mock.calls.map((call) => call[0])).toEqual([
+      'mail.contact',
+      'mail.quote',
+      'mail.review_admin'
+    ]);
+    for (const [payload] of send.mock.calls) {
+      expect(payload.to).toEqual(['ventas@ona.example', 'ops@ona.example']);
+      expect(payload.cc).toEqual(['jefe@ona.example']);
+    }
+  });
+
+  it('omits cc entirely when the list is empty', async () => {
+    const send = vi.fn().mockResolvedValue({ data: { id: 'msg' }, error: null });
+    const mailer = new ResendMailer(env, { emails: { send } } as never, {
+      forFlow: async () => ({ to: ['solo@ona.example'], cc: [] })
+    });
+
+    await mailer.sendContactMessage(contact);
+
+    expect(send.mock.calls[0][0].to).toEqual(['solo@ona.example']);
+    expect(send.mock.calls[0][0]).not.toHaveProperty('cc');
+  });
+
+  it('sends a test email with the flow template, a [Prueba] subject and no idempotency key', async () => {
+    const send = vi.fn().mockResolvedValue({ data: { id: 'msg' }, error: null });
+    const mailer = new ResendMailer(env, { emails: { send } } as never);
+
+    await mailer.sendTestEmail('mail.quote', { to: ['a@b.co'], cc: ['c@b.co'] });
+
+    expect(send).toHaveBeenCalledTimes(1);
+    const [payload, options] = send.mock.calls[0];
+    expect(payload.to).toEqual(['a@b.co']);
+    expect(payload.cc).toEqual(['c@b.co']);
+    expect(payload.subject.startsWith('[Prueba] ')).toBe(true);
+    expect(payload.template.id).toBe('quote-notification');
+    expect(Object.keys(payload.template.variables).sort()).toEqual([...QUOTE_TEMPLATE_VARIABLE_KEYS].sort());
+    expect(options).toBeUndefined();
+  });
+
+  it('maps a Resend failure on a test send to a 502 with the provider message', async () => {
+    const send = vi.fn().mockResolvedValue({ data: null, error: { message: 'invalid to', name: 'validation_error' } });
+    const mailer = new ResendMailer(env, { emails: { send } } as never);
+
+    await expect(mailer.sendTestEmail('mail.contact', { to: ['a@b.co'], cc: [] })).rejects.toMatchObject({
+      statusCode: 502,
+      message: expect.stringContaining('invalid to')
+    });
+  });
+});

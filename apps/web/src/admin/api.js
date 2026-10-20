@@ -75,6 +75,24 @@ export const adminApi = {
       body: JSON.stringify({ hidden })
     });
   },
+  listMailSettings() {
+    return request('/api/v1/admin/settings', { cache: 'no-store' });
+  },
+  saveMailSetting(key, recipients) {
+    return request(`/api/v1/admin/settings/${encodeURIComponent(key)}`, {
+      method: 'PUT',
+      body: JSON.stringify(recipients)
+    });
+  },
+  resetMailSetting(key) {
+    return request(`/api/v1/admin/settings/${encodeURIComponent(key)}`, { method: 'DELETE' });
+  },
+  sendTestEmail(key, recipients) {
+    return request(`/api/v1/admin/settings/${encodeURIComponent(key)}/test`, {
+      method: 'POST',
+      body: JSON.stringify(recipients)
+    });
+  },
   syncProducts() {
     return request('/api/v1/admin/products/sync', { method: 'POST', body: '{}' });
   },

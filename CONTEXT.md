@@ -40,6 +40,10 @@ _Avoid_: Media library, gallery, upload (that is the action, not the thing)
 The file currently published in an Asset Slot: a public Vercel Blob URL plus kind, content type, size, optional dimensions and alt text, and who published it when. A slot with no Site Asset renders its bundled default from `public/assets`. Publishing replaces the previous Site Asset and deletes its blob; "restore default" removes it.
 _Avoid_: Product image (those come from BSale), attachment
 
+**Setting**:
+An admin-editable configuration value stored under a code-declared key in `site_settings` (`siteSettings.ts` lists the keys, labels and validators). Today the keys are the recipient lists (`to` and `cc`) of the three internal email flows: contact form, new Quote, new Review. A missing Setting means the env default (`ADMIN_EMAIL`) applies.
+_Avoid_: Env var (those need a deploy), preference (no end users), free-form config
+
 **Quote**:
 ONA's durable record of a pre-sale BSale cotización for a Customer against a Product variant. BSale's document id is the external key. It is written when the Quote webhook successfully captures an invite-ready cotización (exactly one line with product and variant, Customer email present): Customer fields are embedded, the Product is upserted, and the booked Variant is remembered. Incomplete Quotes are not stored; the admin Quote email may still send. At most one Review can exist for a given Quote.
 _Avoid_: Sale (API path name only today), Order, Booking (not modeled yet), treating the live BSale document alone as the Quote ONA acts on, persisting incomplete cotizaciones

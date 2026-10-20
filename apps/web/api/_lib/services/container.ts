@@ -2,6 +2,7 @@ import { getEnv } from '../config/env.js';
 import { getCache } from '../cache/cache.js';
 import { getSql } from '../db/postgres.js';
 import { UnconfiguredBlobStorage, VercelBlobStorage } from '../lib/blob/blobStorage.js';
+import { PostgresSettingsStore } from '../lib/settings/postgresSettingsStore.js';
 import { PostgresSiteAssetStore } from '../lib/siteAssets/postgresSiteAssetStore.js';
 import { BsaleClient } from '../lib/bsale/client.js';
 import { BsaleClientRepository } from '../lib/bsale/clients.js';
@@ -14,7 +15,7 @@ import { PostgresReviewStore } from '../lib/reviews/postgresReviewStore.js';
 import { MarketInfoEnricher } from '../lib/enrichment/marketInfoEnricher.js';
 import { SeedServiceEnricher } from '../lib/enrichment/seedEnricher.js';
 import { ResendMailer } from '../mailer/resendMailer.js';
-import type { Mailer } from '../mailer/types.js';
+import type { Mailer, TestMailer } from '../mailer/types.js';
 import { BsaleQuoteCapture, type QuoteCapture } from './bsaleQuoteCapture.js';
 import { BsaleQuoteInviteResolver } from './bsaleQuoteInviteResolver.js';
 import { CatalogService } from './catalogService.js';
@@ -23,6 +24,7 @@ import { ProductSyncService } from './productSyncService.js';
 import { ReviewService } from './reviewService.js';
 import { AdminService } from './adminService.js';
 import { SalesService } from './salesService.js';
+import { SettingsService } from './settingsService.js';
 import { SiteAssetService } from './siteAssetService.js';
 
 export interface Services {
@@ -32,7 +34,9 @@ export interface Services {
   adminService: AdminService;
   productSyncService: ProductSyncService;
   siteAssetService: SiteAssetService;
+  settingsService: SettingsService;
   mailer: Mailer;
+  testMailer: TestMailer;
   salesRepository: BsaleSalesRepository;
   clientRepository: BsaleClientRepository;
   quoteCapture: QuoteCapture;
@@ -64,7 +68,16 @@ export function getServices(): Services {
     new SeedServiceEnricher()
   ];
 
-  const mailer = new ResendMailer(env);
+  const settingsService = new SettingsService({
+    store: new PostgresSettingsStore(sql),
+    cache: getCache(),
+    defaultAdminEmail: env.ADMIN_EMAIL
+  });
+  // Internal emails go to whatever an Admin saved in Configuración → Correos,
+  // falling back to ADMIN_EMAIL.
+  const mailer = new ResendMailer(env, undefined, {
+    forFlow: (key) => settingsService.getMailRecipients(key)
+  });
   const catalogService = new CatalogService(catalogRepository, enrichers);
   const bsaleQuoteResolver = new BsaleQuoteInviteResolver({
     sales: salesRepository,
@@ -116,7 +129,9 @@ export function getServices(): Services {
         : new UnconfiguredBlobStorage(),
       cache: getCache()
     }),
+    settingsService,
     mailer,
+    testMailer: mailer,
     salesRepository,
     clientRepository,
     quoteCapture

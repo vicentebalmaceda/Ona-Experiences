@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { adminLoginHandler, adminLogoutHandler, adminMeHandler } from './handlers/adminAuth.js';
 import {
+  adminMailSettingByKeyHandler,
+  adminMailSettingsHandler,
+  adminMailSettingTestHandler
+} from './handlers/adminSettings.js';
+import {
   adminSiteAssetBySlotHandler,
   adminSiteAssetsHandler,
   adminSiteAssetUploadTokenHandler
@@ -64,6 +69,9 @@ describe('matchV1Route', () => {
       bsaleDocumentId: '6634'
     }],
     ['/api/v1/admin/review-invites', adminReviewInvitesHandler, {}],
+    ['/api/v1/admin/settings', adminMailSettingsHandler, {}],
+    ['/api/v1/admin/settings/mail.quote', adminMailSettingByKeyHandler, { key: 'mail.quote' }],
+    ['/api/v1/admin/settings/mail.quote/test', adminMailSettingTestHandler, { key: 'mail.quote' }],
     ['/api/v1/admin/assets', adminSiteAssetsHandler, {}],
     ['/api/v1/admin/assets/upload-token', adminSiteAssetUploadTokenHandler, {}],
     ['/api/v1/admin/assets/hero', adminSiteAssetBySlotHandler, { slot: 'hero' }],

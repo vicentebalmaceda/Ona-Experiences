@@ -31,14 +31,14 @@ The mapper in `templateVariables.ts` must stay aligned with this document.
 
 ## Contact form — `RESEND_CONTACT_TEMPLATE_ID`
 
-**Purpose:** Notify `ADMIN_EMAIL` when someone submits the website contact form.
+**Purpose:** Notify the configured recipients (default `ADMIN_EMAIL`) when someone submits the website contact form.
 
 **Send payload extras (not template variables):**
 
 | Field | Value |
 | --- | --- |
 | `from` | `MAIL_FROM` |
-| `to` | `ADMIN_EMAIL` |
+| `to` / `cc` | Recipients saved in `/admin` → Configuración → Correos (`site_settings`); `ADMIN_EMAIL` until something is saved |
 | `replyTo` | submitter email (`CONTACT_EMAIL`) |
 | `subject` | Form `subject` / asunto (built in code) |
 
@@ -55,7 +55,7 @@ The mapper in `templateVariables.ts` must stay aligned with this document.
 
 ## Quote notification — `RESEND_QUOTE_TEMPLATE_ID`
 
-**Purpose:** Notify `ADMIN_EMAIL` when BSale emits a quote document (webhook-driven).
+**Purpose:** Notify the configured recipients (default `ADMIN_EMAIL`) when BSale emits a quote document (webhook-driven).
 
 **Published template alias:** `quote-notification` (matches the ONA admin HTML with persona interesada, datos de contacto, información de la experiencia, detalle, Ver cotización / Responder CTAs).
 
@@ -64,7 +64,7 @@ The mapper in `templateVariables.ts` must stay aligned with this document.
 | Field | Value |
 | --- | --- |
 | `from` | `MAIL_FROM` |
-| `to` | `ADMIN_EMAIL` |
+| `to` / `cc` | Recipients saved in `/admin` → Configuración → Correos (`site_settings`); `ADMIN_EMAIL` until something is saved |
 | `replyTo` | Customer email when present (`CUSTOMER_EMAIL`) |
 | `subject` | Dynamic, e.g. `Nueva cotización #1001 — Estadía lodge` (built in code) |
 | `attachments` | Optional files from the quote pipeline |
@@ -150,12 +150,12 @@ If there are no items:
 
 ## Review admin notification — `RESEND_REVIEW_ADMIN_TEMPLATE_ID`
 
-**Purpose:** Notify `ADMIN_EMAIL` that a Review was submitted (so it can be hidden if needed).
+**Purpose:** Notify the configured recipients (default `ADMIN_EMAIL`) that a Review was submitted (so it can be hidden if needed).
 
 | Field | Value |
 | --- | --- |
 | `from` | `MAIL_FROM` |
-| `to` | `ADMIN_EMAIL` |
+| `to` / `cc` | Recipients saved in `/admin` → Configuración → Correos (`site_settings`); `ADMIN_EMAIL` until something is saved |
 | `replyTo` | Customer email |
 | `subject` | `Nueva reseña — {PRODUCT_NAME}` |
 

@@ -1,3 +1,15 @@
+import type { MailRecipients, MailSettingKey } from '../../../shared/siteSettings.js';
+
+/** Who receives the internal emails of a flow; the mailer asks per send. */
+export interface MailRecipientResolver {
+  forFlow(key: MailSettingKey): Promise<MailRecipients>;
+}
+
+/** Sends a sample of a flow's email to arbitrary recipients (admin "Enviar prueba"). */
+export interface TestMailer {
+  sendTestEmail(key: MailSettingKey, recipients: MailRecipients): Promise<void>;
+}
+
 export interface EmailAttachment {
   filename: string;
   content: Buffer | string;

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { SITE_ASSET_SLOTS } from '../../../shared/siteAssetSlots.js';
+import { MAIL_SETTING_KEYS } from '../../../shared/siteSettings.js';
 import { formatRutForBsale, isValidRut } from '../utils/rut.js';
 
 export const paginationQuerySchema = z.object({
@@ -149,3 +150,7 @@ export const publishSiteAssetSchema = z.object({
 });
 
 export type PublishSiteAssetBody = z.infer<typeof publishSiteAssetSchema>;
+
+export const mailSettingKeyParamSchema = z.object({
+  key: z.enum(MAIL_SETTING_KEYS)
+});

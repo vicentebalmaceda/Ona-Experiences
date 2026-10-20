@@ -79,3 +79,13 @@ CREATE TABLE IF NOT EXISTS site_assets (
   published_by text NOT NULL,
   published_at timestamptz NOT NULL DEFAULT now()
 );
+
+-- Admin-editable site settings (docs/adr/0007-site-settings-table.md). One JSON
+-- value per code-declared key, e.g. mail.contact → {"to": [...], "cc": [...]}.
+-- A missing key means the env default applies.
+CREATE TABLE IF NOT EXISTS site_settings (
+  key text PRIMARY KEY,
+  value jsonb NOT NULL,
+  updated_by text NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now()
+);

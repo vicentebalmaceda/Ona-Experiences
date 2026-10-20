@@ -349,6 +349,12 @@ Setup:
 
 Endpoints: `GET /api/v1/site/assets` (public, cached 60 s), `GET /api/v1/admin/assets`, `POST /api/v1/admin/assets/upload-token`, `PUT|DELETE /api/v1/admin/assets/:slot`.
 
+## Email recipients from /admin
+
+Who receives the internal emails (contact form, new cotización, new review) is editable from `/admin` → **Configuración** → **Correos**, with a `Para` and a `CC` list per flow and a "Enviar prueba" button. Until an admin saves a list, `ADMIN_EMAIL` is used. See [docs/adr/0007-site-settings-table.md](docs/adr/0007-site-settings-table.md).
+
+Setup: run the `site_settings` block of `apps/web/api/_lib/db/schema.sql` against the Postgres database. No new env vars.
+
 ## Environment variables
 
 See [apps/web/.env.example](apps/web/.env.example). Required:

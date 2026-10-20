@@ -1,6 +1,11 @@
 import type { VercelRequest } from '@vercel/node';
 import { adminLoginHandler, adminLogoutHandler, adminMeHandler } from './handlers/adminAuth.js';
 import {
+  adminMailSettingByKeyHandler,
+  adminMailSettingsHandler,
+  adminMailSettingTestHandler
+} from './handlers/adminSettings.js';
+import {
   adminSiteAssetBySlotHandler,
   adminSiteAssetsHandler,
   adminSiteAssetUploadTokenHandler
@@ -120,6 +125,22 @@ const routes: Route[] = [
     pattern: /^\/api\/v1\/admin\/review-invites$/,
     paramNames: [],
     handler: adminReviewInvitesHandler
+  },
+  {
+    pattern: /^\/api\/v1\/admin\/settings$/,
+    paramNames: [],
+    handler: adminMailSettingsHandler
+  },
+  {
+    // Must precede the :key route.
+    pattern: /^\/api\/v1\/admin\/settings\/([^/]+)\/test$/,
+    paramNames: ['key'],
+    handler: adminMailSettingTestHandler
+  },
+  {
+    pattern: /^\/api\/v1\/admin\/settings\/([^/]+)$/,
+    paramNames: ['key'],
+    handler: adminMailSettingByKeyHandler
   },
   {
     pattern: /^\/api\/v1\/admin\/assets$/,
