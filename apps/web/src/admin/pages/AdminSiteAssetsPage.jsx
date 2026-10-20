@@ -132,6 +132,8 @@ function SlotCard({ slot, asset, posterUrl, showPosterHint, uploadsEnabled, onPu
         handleUploadUrl: '/api/v1/admin/assets/upload-token',
         clientPayload: JSON.stringify({ slot }),
         contentType: file.type,
+        // Large hero videos go up in chunks so a flaky connection doesn't restart the whole file.
+        multipart: file.size > 20 * 1024 * 1024,
         onUploadProgress: ({ percentage }) => setProgress(Math.round(percentage))
       });
       setBusy('publishing');
