@@ -224,7 +224,7 @@ body {
 
 .gallery-strip {
   display: grid;
-  grid-template-columns: 1.6fr repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 6px;
   padding: 6px;
   background: #f8fafc;
@@ -232,15 +232,11 @@ body {
 }
 
 .gallery-thumb {
-  min-height: 58px;
+  aspect-ratio: 1 / 1;
   border-radius: 14px;
   background-size: cover;
   background-position: center;
   border: 1px solid rgba(15,23,42,.08);
-}
-
-.gallery-thumb-main {
-  min-height: 68px;
 }
 
 .popup-image {
@@ -268,12 +264,6 @@ body {
 .popup-rating strong {
   color: #0f172a;
   font-size: 13px;
-}
-
-@media (max-width: 640px) {
-  .gallery-strip {
-    grid-template-columns: repeat(4, 1fr);
-  }
 }
 
 
@@ -591,57 +581,65 @@ body {
   box-shadow: 0 12px 28px rgba(15,23,42,.06);
 }
 
+/* Square (1:1) photo tiles. The first photo spans a 2x2 block so every
+   layout stays a filled rectangle at any photo count. */
 .detail-gallery {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
   overflow: hidden;
   border-radius: 34px;
 }
 
+.detail-gallery-main {
+  grid-column: 1 / -1;
+}
+
 .detail-gallery[data-count="1"] {
   grid-template-columns: 1fr;
+  max-width: 640px;
+}
+
+.detail-gallery[data-count="2"] {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.detail-gallery[data-count="2"] .detail-gallery-main {
+  grid-column: auto;
+}
+
+.detail-gallery[data-count="3"] {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.detail-gallery[data-count="4"] {
+  grid-template-columns: repeat(3, 1fr);
 }
 
 @media (min-width: 900px) {
-  .detail-gallery {
-    grid-template-columns: 2fr 1fr 1fr;
-    grid-template-rows: 220px 220px;
-  }
-
-  .detail-gallery[data-count="1"] {
-    grid-template-columns: 1fr;
-    grid-template-rows: 450px;
-  }
-
-  .detail-gallery[data-count="1"] .detail-gallery-main {
-    grid-row: auto;
-    min-height: 450px;
-  }
-
-  .detail-gallery[data-count="2"] {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 360px;
-  }
-
-  .detail-gallery[data-count="2"] .detail-gallery-main {
-    grid-row: auto;
-    min-height: 360px;
-  }
-
-  .detail-gallery[data-count="2"] .detail-gallery-thumb {
-    min-height: 360px;
+  .detail-gallery[data-count="3"] .detail-gallery-main,
+  .detail-gallery[data-count="5"] .detail-gallery-main {
+    grid-column: span 2;
+    grid-row: span 2;
   }
 
   .detail-gallery[data-count="3"] {
-    grid-template-columns: 2fr 1fr;
-    grid-template-rows: 220px 220px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .detail-gallery[data-count="4"] {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .detail-gallery[data-count="4"] .detail-gallery-main {
+    grid-column: auto;
   }
 }
 
 .detail-gallery-main,
 .detail-gallery-thumb {
-  min-height: 210px;
+  aspect-ratio: 1 / 1;
+  min-width: 0;
   background-size: cover;
   background-position: center;
   background-color: #cbd5e1;
@@ -661,16 +659,6 @@ body {
   outline: 3px solid #0f766e;
   outline-offset: -3px;
   z-index: 1;
-}
-
-@media (min-width: 900px) {
-  .detail-gallery-main {
-    grid-row: span 2;
-    min-height: 450px;
-  }
-  .detail-gallery-thumb {
-    min-height: 220px;
-  }
 }
 
 .detail-content-card {
@@ -998,11 +986,6 @@ body {
 
   .detail-gallery {
     border-radius: 24px;
-  }
-
-  .detail-gallery-main,
-  .detail-gallery-thumb {
-    min-height: 180px;
   }
 
   .map-panel-footer {
