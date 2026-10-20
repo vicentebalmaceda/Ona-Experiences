@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import DOMPurify from 'dompurify';
 import { useTranslation } from 'react-i18next';
 import CompactMap from './CompactMap.jsx';
@@ -8,6 +8,7 @@ import QuoteRequestForm from './QuoteRequestForm.jsx';
 import ReviewsCarousel from './ReviewsCarousel.jsx';
 import { formatRating, getRatingStats, renderStars } from '../utils/rating.js';
 import { getReferencePrice } from '../utils/referencePrice.js';
+import useSmartSticky from '../hooks/useSmartSticky.js';
 
 const DESCRIPTION_ALLOWED_TAGS = [
   'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
@@ -73,6 +74,8 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
   );
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const bookingPanelRef = useRef(null);
+  useSmartSticky(bookingPanelRef, { topOffset: 104, bottomGap: 24, minWidth: 1024 });
 
   function openLightbox(src) {
     const index = uniqueGallery.indexOf(imageUrl(src));
@@ -228,7 +231,7 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
           </div>
 
           <aside className="booking-panel">
-            <div className="booking-panel__inner">
+            <div ref={bookingPanelRef} className="booking-panel__inner">
               <div className="rounded-3xl bg-slate-950 p-5 text-white">
                 <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-300">{t('detail.agenda')}</p>
                 <h2 className="mt-2 text-2xl font-black">{t('detail.request_availability')}</h2>
