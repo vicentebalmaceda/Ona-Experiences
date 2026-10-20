@@ -36,9 +36,9 @@ export const SLOT_RULES: Record<SiteAssetSlot, SlotRules> = {
     label: 'Hero de portada',
     description: 'Imagen o video de fondo de la portada.',
     allowedContentTypes: ['image/jpeg', 'image/webp', 'video/mp4', 'video/webm'],
-    maxSizeBytes: 25 * MB,
+    maxSizeBytes: 100 * MB,
     recommended:
-      'Imagen JPG/WebP de 1920×1080 o mayor (máx. 6 MB), o video MP4/WebM 1080p de 10 a 20 s, sin audio (máx. 25 MB).',
+      'Imagen JPG/WebP de 1920×1080 o mayor (máx. 6 MB), o video MP4/WebM 1080p, sin audio (máx. 100 MB).',
     defaultUrl: '/assets/hero-default.jpg',
     defaultKind: 'image'
   },
