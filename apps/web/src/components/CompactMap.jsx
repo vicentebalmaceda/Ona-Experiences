@@ -87,7 +87,12 @@ function CompactMap({ items, ratingVersion, onSelect, ariaLabel }) {
       map.setView([-45.5, -72.5], 5);
     }
 
-    setTimeout(() => map.invalidateSize(), 80);
+    // The map may be removed (StrictMode remount, unmount, effect re-run) before
+    // this fires; clear it on cleanup and only act on the map that is still live.
+    const timer = setTimeout(() => {
+      if (mapRef.current === map) map.invalidateSize();
+    }, 80);
+    return () => clearTimeout(timer);
   }, [items, ratingVersion, onSelect, t]);
 
   return <div ref={mapElementRef} className="interactive-map" role="region" aria-label={resolvedAriaLabel}></div>;
