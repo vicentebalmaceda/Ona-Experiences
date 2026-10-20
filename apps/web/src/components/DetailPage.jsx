@@ -7,7 +7,6 @@ import PhotoLightbox from './PhotoLightbox.jsx';
 import QuoteRequestForm from './QuoteRequestForm.jsx';
 import ReviewsCarousel from './ReviewsCarousel.jsx';
 import { formatRating, getRatingStats, renderStars } from '../utils/rating.js';
-import { getReferencePrice } from '../utils/referencePrice.js';
 import useSmartSticky from '../hooks/useSmartSticky.js';
 
 const DESCRIPTION_ALLOWED_TAGS = [
@@ -61,7 +60,6 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
     reviews: reviews?.count ?? catalogStats.reviews
   };
   const visibleReviews = reviews?.items ?? [];
-  const referencePrice = getReferencePrice(item);
   const gallery = item.gallery?.length ? item.gallery : [item.image];
   const uniqueGallery = useMemo(
     () => uniqueImageUrls([...(gallery || []), item.image]),
@@ -156,12 +154,9 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
                 <p className="text-xs font-black uppercase tracking-[0.2em] text-deep">{t('detail.summary')}</p>
                 <h2 className="mt-2 text-2xl font-black text-slate-950">{t('detail.profile_review')}</h2>
               </div>
-              <div className="mt-6 grid gap-5 md:grid-cols-3">
+              <div className="mt-6 grid gap-5 md:grid-cols-2">
                 <div className="detail-fact"><span>{t('detail.type')}</span><strong>{typeLabel}</strong></div>
                 <div className="detail-fact"><span>{t('detail.zone')}</span><strong>{item.zone}</strong></div>
-                {referencePrice ? (
-                  <div className="detail-fact"><span>{t('detail.reference_price')}</span><strong>{referencePrice}</strong></div>
-                ) : null}
               </div>
               {descriptionHtml ? (
                 <div
@@ -237,13 +232,6 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
                 <h2 className="mt-2 text-2xl font-black">{t('detail.request_availability')}</h2>
                 <p className="mt-2 text-sm leading-6 text-slate-300">{t('detail.quote_via_bsale')}</p>
               </div>
-
-              {referencePrice ? (
-                <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                  <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">{t('detail.reference_price')}</p>
-                  <p className="mt-2 text-lg font-black text-slate-950">{referencePrice}</p>
-                </div>
-              ) : null}
 
               <QuoteRequestForm
                 catalogType={catalogType}
