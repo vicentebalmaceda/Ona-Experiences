@@ -13,16 +13,24 @@ function withDescriptions(entries: Record<string, string>): BsaleMarketInfo {
 
 describe('extractPresentationFromDescriptions', () => {
   it('reads the zone id from the html wrapper, ignoring whitespace', () => {
-    expect(extractPresentationFromDescriptions(withDescriptions({ Zone: '<p>3</p>' })).zone).toBe(3);
+    expect(extractPresentationFromDescriptions(withDescriptions({ Zone: '<p>3</p>' })).zone).toEqual([3]);
     expect(
       extractPresentationFromDescriptions(withDescriptions({ Zone: '<p> &nbsp;5&nbsp; </p>\n' })).zone
-    ).toBe(5);
+    ).toEqual([5]);
     expect(
       extractPresentationFromDescriptions(withDescriptions({ Zone: '<div><span>1</span></div>' })).zone
-    ).toBe(1);
+    ).toEqual([1]);
   });
 
-  it.each(['Coyhaique', '0', '6', '3a', '3.0', '2 4', '', '<p></p>'])(
+  it('reads comma-separated zone ids for services spanning several zones', () => {
+    expect(extractPresentationFromDescriptions(withDescriptions({ Zone: '<p>3,4</p>' })).zone).toEqual([3, 4]);
+    expect(
+      extractPresentationFromDescriptions(withDescriptions({ Zone: '<p> 4 ,&nbsp;5 </p>' })).zone
+    ).toEqual([4, 5]);
+    expect(extractPresentationFromDescriptions(withDescriptions({ Zone: '3,3' })).zone).toEqual([3]);
+  });
+
+  it.each(['Coyhaique', '0', '6', '3a', '3.0', '2 4', '', '<p></p>', '3,', ',3', '3,6', '3;4'])(
     'omits invalid zone %j',
     (zone) => {
       expect(extractPresentationFromDescriptions(withDescriptions({ Zone: zone }))).not.toHaveProperty(

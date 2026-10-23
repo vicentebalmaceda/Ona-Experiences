@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import CompactMap from './CompactMap.jsx';
 import { formatRating, getRatingStats, renderStars, sortItemsByRating } from '../utils/rating.js';
-import { zoneLabel } from '../utils/zones.js';
+import { inZone, zoneIds, zoneLabel } from '../utils/zones.js';
 
 function imageUrl(src) {
   if (!src) return '';
@@ -53,14 +53,14 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
 
   // Zone ids run north to south, so numeric order is geographic order.
   const zones = useMemo(() => {
-    const zoneIds = new Set(items.map(item => item.zone).filter(itemZone => itemZone != null && itemZone !== '').map(String));
-    return ['all', ...[...zoneIds].sort((a, b) => Number(a) - Number(b) || a.localeCompare(b, i18n.language))];
+    const ids = new Set(items.flatMap(item => zoneIds(item.zone)));
+    return ['all', ...[...ids].sort((a, b) => Number(a) - Number(b) || a.localeCompare(b, i18n.language))];
   }, [items, i18n.language]);
 
   const filteredItems = useMemo(() => {
     const normalizedQuery = normalizeText(query.trim());
     return items.filter(item => {
-      const zoneMatch = zone === 'all' || String(item.zone) === zone;
+      const zoneMatch = zone === 'all' || inZone(item.zone, zone);
       const textMatch = !normalizedQuery || normalizeText(`${item.name} ${zoneLabel(item.zone, t)} ${item.email} ${item.representative || ''}`).includes(normalizedQuery);
       return zoneMatch && textMatch;
     });

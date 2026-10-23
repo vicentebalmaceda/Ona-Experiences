@@ -3,7 +3,7 @@ import { EMPTY_SERVICE_PRESENTATION } from '../../types/catalog.js';
 
 export interface CatalogSeedRecord {
   productId?: number;
-  zone?: ZoneId | null;
+  zone?: ZoneId | ZoneId[] | null;
   phone?: string | null;
   email?: string | null;
   representative?: string | null;
@@ -50,7 +50,7 @@ export function mergeSeedPresentation(
   }
 
   for (const field of fields) {
-    const seedValue = seed[field];
+    const seedValue = field === 'zone' && typeof seed.zone === 'number' ? [seed.zone] : seed[field];
     if (seedValue === undefined) continue;
     if (isMissing(merged[field])) {
       merged[field] = seedValue as never;
