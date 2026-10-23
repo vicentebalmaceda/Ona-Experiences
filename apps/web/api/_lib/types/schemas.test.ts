@@ -7,7 +7,13 @@ const postal = {
   municipality: 'Las Condes',
   region: 'Región Metropolitana de Santiago'
 };
-const base = { email: 'maria@example.com', firstName: 'María', lastName: 'González', ...postal };
+const base = {
+  email: 'maria@example.com',
+  firstName: 'María',
+  lastName: 'González',
+  phone: '+56 9 1234 5678',
+  ...postal
+};
 
 describe('customerSchema', () => {
   it('defaults to a Chilean RUT and normalizes it', () => {
@@ -49,9 +55,14 @@ describe('customerSchema', () => {
     expect(parsed.rut).toBeUndefined();
   });
 
-  it('drops a blank phone', () => {
-    const parsed = customerSchema.parse({ ...base, rut: '12345678-5', phone: '  ' });
-    expect(parsed.phone).toBeUndefined();
+  it('requires a phone', () => {
+    for (const phone of [undefined, '  ']) {
+      const result = customerSchema.safeParse({ ...base, rut: '12345678-5', phone });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues.map((issue) => issue.path[0])).toContain('phone');
+      }
+    }
   });
 
   it('requires address, city, municipality and region (BSale cli_004)', () => {

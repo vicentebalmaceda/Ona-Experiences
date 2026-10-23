@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { createMarkerIcon, popupTemplate } from '../utils/map.js';
 import { getRatingStats } from '../utils/rating.js';
 
-function CompactMap({ items, ratingVersion, onSelect, ariaLabel }) {
+function CompactMap({ items, ratingVersion, onSelect, ariaLabel, showContact = true }) {
   const { t } = useTranslation();
   const mapElementRef = useRef(null);
   const mapRef = useRef(null);
@@ -72,7 +72,7 @@ function CompactMap({ items, ratingVersion, onSelect, ariaLabel }) {
 
       const marker = L.marker([item.lat, item.lng], {
         icon: createMarkerIcon(item.type)
-      }).bindPopup(popupTemplate(item, ratingVersion, labels), { className: 'custom-popup' });
+      }).bindPopup(popupTemplate(item, ratingVersion, labels, { showContact }), { className: 'custom-popup' });
 
       marker.on('click', () => onSelect?.(item));
       marker.addTo(markerLayer);
@@ -93,7 +93,7 @@ function CompactMap({ items, ratingVersion, onSelect, ariaLabel }) {
       if (mapRef.current === map) map.invalidateSize();
     }, 80);
     return () => clearTimeout(timer);
-  }, [items, ratingVersion, onSelect, t]);
+  }, [items, ratingVersion, onSelect, t, showContact]);
 
   return <div ref={mapElementRef} className="interactive-map" role="region" aria-label={resolvedAriaLabel}></div>;
 }

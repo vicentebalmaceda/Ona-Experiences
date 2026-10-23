@@ -33,8 +33,8 @@ const requiredTrimmed = (max: number) => z.string().trim().min(1).max(max);
  * `code`, or `isForeigner: 1` for foreign guests, so the visitor must choose
  * one of the two. The cotización document type also requires address, city,
  * municipality and region on the client (BSale error cli_004), so those are
- * mandatory too; phone stays optional and the BSale payload mapper fills
- * account defaults (activity, companyOrPerson).
+ * mandatory too. Phone is required so ONA can follow up on the request; the
+ * BSale payload mapper fills account defaults (activity, companyOrPerson).
  */
 export const customerSchema = z
   .object({
@@ -44,7 +44,7 @@ export const customerSchema = z
     documentType: z.enum(['rut', 'passport']).default('rut'),
     rut: optionalTrimmed(20),
     passport: optionalTrimmed(30),
-    phone: optionalTrimmed(30),
+    phone: requiredTrimmed(30),
     address: requiredTrimmed(200),
     city: requiredTrimmed(100),
     municipality: requiredTrimmed(100),

@@ -20,7 +20,7 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
-export function popupTemplate(item, ratingVersion, labels = {}) {
+export function popupTemplate(item, ratingVersion, labels = {}, { showContact = true } = {}) {
   const stats = getRatingStats(item);
   const detailPath = item.productId
     ? item.type === 'Lodge'
@@ -51,8 +51,8 @@ export function popupTemplate(item, ratingVersion, labels = {}) {
       }</div>
       <p style="margin:0 0 8px;color:#475569;font-size:13px;"><strong>${zoneLabel}</strong> ${escapeHtml(item.zone)}</p>
       ${item.representative ? `<p style="margin:0 0 8px;color:#475569;font-size:13px;"><strong>${representativeLabel}</strong> ${escapeHtml(item.representative)}</p>` : ''}
-      <p style="margin:0 0 5px;color:#475569;font-size:13px;"><strong>${phoneLabel}</strong> ${escapeHtml(item.phone || notInformed)}</p>
-      <p style="margin:0;color:#475569;font-size:13px;word-break:break-word;"><strong>${emailLabel}</strong> ${escapeHtml(item.email || notInformed)}</p>
+      ${showContact ? `<p style="margin:0 0 5px;color:#475569;font-size:13px;"><strong>${phoneLabel}</strong> ${escapeHtml(item.phone || notInformed)}</p>
+      <p style="margin:0;color:#475569;font-size:13px;word-break:break-word;"><strong>${emailLabel}</strong> ${escapeHtml(item.email || notInformed)}</p>` : ''}
       ${detailLink}
     </div>
   `;
