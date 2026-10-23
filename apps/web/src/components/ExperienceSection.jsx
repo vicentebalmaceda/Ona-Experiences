@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import CompactMap from './CompactMap.jsx';
 import { formatRating, getRatingStats, renderStars, sortItemsByRating } from '../utils/rating.js';
-import { getReferencePrice } from '../utils/referencePrice.js';
 import { zoneLabel } from '../utils/zones.js';
 
 function imageUrl(src) {
@@ -17,7 +16,6 @@ function normalizeText(value) {
 function ExperienceListItem({ item, ratingVersion, onSelect }) {
   const { t } = useTranslation();
   const stats = getRatingStats(item);
-  const referencePrice = getReferencePrice(item);
 
   return (
     <button type="button" onClick={() => onSelect(item)} className="experience-list-item group">
@@ -39,7 +37,6 @@ function ExperienceListItem({ item, ratingVersion, onSelect }) {
           ) : (
             <span>{t('rating.none')}</span>
           )}
-          {referencePrice ? <span className="truncate font-semibold text-slate-700">{referencePrice}</span> : null}
         </div>
         <div className="shrink-0 rounded-full bg-slate-950 px-3 py-1 text-xs font-extrabold text-white">
           {stats.average != null ? formatRating(stats.average) : t('rating.none_short')}

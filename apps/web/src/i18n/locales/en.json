@@ -103,7 +103,6 @@
     "highly_recommended": "Highly recommended",
     "type": "Type",
     "zone": "Zone",
-    "reference_price": "Reference price",
     "fallback_description": "{{name}} is listed in the {{zone}} area. This profile keeps the information currently available and is ready for the backend to add availability, more reviews, and included services.",
     "representative_label": "Listed representative:",
     "map": "Map",
@@ -215,7 +214,6 @@
     "zone": "Zone:",
     "representative": "Representative:",
     "not_informed": "Not provided",
-    "reference_price": "Reference price",
     "view_detail": "View details",
     "view_detail_arrow": "View details →"
   },

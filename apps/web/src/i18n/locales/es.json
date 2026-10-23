@@ -103,7 +103,6 @@
     "highly_recommended": "Muy recomendado",
     "type": "Tipo",
     "zone": "Zona",
-    "reference_price": "Precio de referencia",
     "fallback_description": "{{name}} aparece registrado en la zona de {{zone}}. La ficha mantiene la información disponible actualmente y deja el espacio listo para que el backend agregue disponibilidad, más reseñas y servicios incluidos.",
     "representative_label": "Representante informado:",
     "map": "Mapa",
@@ -215,7 +214,6 @@
     "zone": "Zona:",
     "representative": "Representante:",
     "not_informed": "No informado",
-    "reference_price": "Precio de referencia",
     "view_detail": "Ver detalle",
     "view_detail_arrow": "Ver detalle →"
   },
