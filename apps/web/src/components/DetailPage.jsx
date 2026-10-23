@@ -34,10 +34,6 @@ function uniqueImageUrls(sources) {
   return urls;
 }
 
-function normalizedPhone(phone) {
-  return String(phone || '').replace(/[^0-9]/g, '');
-}
-
 /** Sanitize BSale market_info HTML so tags and Spanish entities render safely. */
 function sanitizeMarketDescription(html) {
   if (!html || typeof html !== 'string') return '';
@@ -65,7 +61,6 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
     () => uniqueImageUrls([...(gallery || []), item.image]),
     [item.gallery, item.image]
   );
-  const phone = normalizedPhone(item.phone);
   const descriptionHtml = useMemo(
     () => sanitizeMarketDescription(item.description),
     [item.description]
@@ -180,16 +175,14 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
                   <p className="text-xs font-black uppercase tracking-[0.2em] text-deep">{t('detail.map')}</p>
                   <h2 className="mt-2 text-2xl font-black text-slate-950">{t('detail.location')}</h2>
                   <p className="mt-3 text-sm leading-6 text-slate-600">{t('detail.map_hint')}</p>
-                  <div className="mt-5 rounded-3xl bg-slate-50 p-5 text-sm text-slate-700">
-                    <p><span className="font-bold text-slate-950">{t('detail.phone')}</span> {item.phone || t('detail.not_informed')}</p>
-                    <p className="mt-2 break-words"><span className="font-bold text-slate-950">{t('detail.email')}</span> {item.email || t('detail.not_informed')}</p>
-                    {typeof item.lat === 'number' && typeof item.lng === 'number' ? (
-                      <p className="mt-2"><span className="font-bold text-slate-950">{t('detail.coordinates')}</span> {item.lat}, {item.lng}</p>
-                    ) : null}
-                  </div>
+                  {typeof item.lat === 'number' && typeof item.lng === 'number' ? (
+                    <div className="mt-5 rounded-3xl bg-slate-50 p-5 text-sm text-slate-700">
+                      <p><span className="font-bold text-slate-950">{t('detail.coordinates')}</span> {item.lat}, {item.lng}</p>
+                    </div>
+                  ) : null}
                 </div>
                 <div className="detail-map-shell">
-                  <CompactMap items={[item]} onSelect={() => {}} ariaLabel={t('detail.map_aria', { name: item.name })} />
+                  <CompactMap items={[item]} onSelect={() => {}} ariaLabel={t('detail.map_aria', { name: item.name })} showContact={false} />
                 </div>
               </div>
             </section>
@@ -239,11 +232,6 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
                 productName={item.name}
               />
 
-              {phone ? (
-                <a href={`tel:${phone}`} className="mt-3 block rounded-2xl border border-slate-200 bg-white px-5 py-4 text-center font-black text-slate-900 transition hover:bg-slate-50">
-                  {t('detail.call_contact')}
-                </a>
-              ) : null}
               <p className="mt-4 text-center text-xs leading-5 text-slate-500">{t('detail.quote_no_confirm')}</p>
             </div>
           </aside>

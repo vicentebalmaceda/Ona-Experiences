@@ -102,7 +102,7 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
           lastName: lastName.trim(),
           ...identity,
           ...postal,
-          phone: phone.trim() || undefined
+          phone: phone.trim()
         },
         reservationDate,
         reservationEndDate,
@@ -268,6 +268,7 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
               className="quote-input"
               placeholder={t('quote.phone_placeholder')}
               autoComplete="tel"
+              required
             />
           </div>
 
