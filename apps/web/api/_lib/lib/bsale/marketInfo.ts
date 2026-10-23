@@ -13,7 +13,7 @@ import type { BsaleClient } from './client.js';
 const log = createLogger('bsale-market-info');
 
 export type DescriptionsPresentation = {
-  zone?: ZoneId;
+  zone?: ZoneId[];
   phone?: string;
   email?: string;
   lat?: number;
@@ -101,11 +101,24 @@ function extractMailto(html: string): string | null {
   return decodeBasicEntities(match[1].trim());
 }
 
-/** Zone is entered as a bare id (e.g. `<p> 3 </p>`); anything else is rejected. */
 function parseZoneId(raw: string): ZoneId | undefined {
   if (!/^\d+$/.test(raw)) return undefined;
   const value = Number(raw);
   return (ZONE_IDS as readonly number[]).includes(value) ? (value as ZoneId) : undefined;
+}
+
+/**
+ * Zone is entered as a bare id or a comma-separated list of ids (e.g. `<p> 3 </p>`, `3, 4`).
+ * Duplicates are dropped; any invalid entry rejects the whole value.
+ */
+function parseZoneIds(raw: string): ZoneId[] | undefined {
+  const ids: ZoneId[] = [];
+  for (const part of raw.split(',')) {
+    const id = parseZoneId(part.trim());
+    if (id === undefined) return undefined;
+    if (!ids.includes(id)) ids.push(id);
+  }
+  return ids;
 }
 
 function parseCoordinate(raw: string): number | undefined {
@@ -147,11 +160,11 @@ export function extractPresentationFromDescriptions(
   const zoneHtml = byName.get('zone')?.html;
   if (typeof zoneHtml === 'string') {
     const rawZone = stripHtml(zoneHtml);
-    const zone = parseZoneId(rawZone);
+    const zone = parseZoneIds(rawZone);
     if (zone !== undefined) {
       result.zone = zone;
     } else if (rawZone) {
-      log.warn('Ignoring invalid zone id in market_info; expected 1-5', {
+      log.warn('Ignoring invalid zone in market_info; expected ids 1-5, comma-separated', {
         webProductId: info.id,
         productId: info.productId,
         zone: rawZone

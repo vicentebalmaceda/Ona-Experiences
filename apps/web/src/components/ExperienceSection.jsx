@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import CompactMap from './CompactMap.jsx';
 import { formatRating, getRatingStats, renderStars, sortItemsByRating } from '../utils/rating.js';
-import { zoneLabel } from '../utils/zones.js';
+import { inZone, zoneIds, zoneLabel } from '../utils/zones.js';
 
 function imageUrl(src) {
   if (!src) return '';
@@ -13,7 +13,8 @@ function normalizeText(value) {
   return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
-function ExperienceListItem({ item, ratingVersion, onSelect }) {
+// Square thumbnail on the left, details stacked on the right.
+function ExperienceListItem({ item, onSelect }) {
   const { t } = useTranslation();
   const stats = getRatingStats(item);
 
@@ -21,25 +22,24 @@ function ExperienceListItem({ item, ratingVersion, onSelect }) {
     <button type="button" onClick={() => onSelect(item)} className="experience-list-item group">
       <div className="experience-list-cover">
         <img src={imageUrl(item.image)} alt={item.name} className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/25 to-transparent"></div>
-        <div className="absolute inset-x-0 bottom-0 px-4 pb-3 text-left text-white">
-          <h3 className="truncate text-lg font-extrabold leading-tight drop-shadow">{item.name}</h3>
-          <p className="mt-0.5 truncate text-sm font-medium text-white/85">{zoneLabel(item.zone, t)}</p>
-        </div>
       </div>
-      <div className="flex items-center justify-between gap-3 px-4 py-2.5">
-        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+      <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 py-1 pr-1 text-left">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="line-clamp-2 text-base font-extrabold leading-tight text-slate-950">{item.name}</h3>
+          <div className="shrink-0 rounded-full bg-slate-950 px-2.5 py-1 text-xs font-extrabold text-white">
+            {stats.average != null ? formatRating(stats.average) : t('rating.none_short')}
+          </div>
+        </div>
+        <p className="truncate text-sm font-medium text-slate-500">{zoneLabel(item.zone, t)}</p>
+        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
           {stats.reviews > 0 ? (
             <>
-              <span className="rating-stars text-base leading-none">{renderStars(stats.average)}</span>
+              <span className="rating-stars text-sm leading-none">{renderStars(stats.average)}</span>
               <span>{t('experience.reviews_count', { count: stats.reviews })}</span>
             </>
           ) : (
             <span>{t('rating.none')}</span>
           )}
-        </div>
-        <div className="shrink-0 rounded-full bg-slate-950 px-3 py-1 text-xs font-extrabold text-white">
-          {stats.average != null ? formatRating(stats.average) : t('rating.none_short')}
         </div>
       </div>
     </button>
@@ -53,14 +53,14 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
 
   // Zone ids run north to south, so numeric order is geographic order.
   const zones = useMemo(() => {
-    const zoneIds = new Set(items.map(item => item.zone).filter(itemZone => itemZone != null && itemZone !== '').map(String));
-    return ['all', ...[...zoneIds].sort((a, b) => Number(a) - Number(b) || a.localeCompare(b, i18n.language))];
+    const ids = new Set(items.flatMap(item => zoneIds(item.zone)));
+    return ['all', ...[...ids].sort((a, b) => Number(a) - Number(b) || a.localeCompare(b, i18n.language))];
   }, [items, i18n.language]);
 
   const filteredItems = useMemo(() => {
     const normalizedQuery = normalizeText(query.trim());
     return items.filter(item => {
-      const zoneMatch = zone === 'all' || String(item.zone) === zone;
+      const zoneMatch = zone === 'all' || inZone(item.zone, zone);
       const textMatch = !normalizedQuery || normalizeText(`${item.name} ${zoneLabel(item.zone, t)} ${item.email} ${item.representative || ''}`).includes(normalizedQuery);
       return zoneMatch && textMatch;
     });
@@ -130,7 +130,6 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
                 <ExperienceListItem
                   key={item.productId ?? `${item.type}-${item.name}`}
                   item={item}
-                  ratingVersion={ratingVersion}
                   onSelect={onSelect}
                 />
               )) : (
