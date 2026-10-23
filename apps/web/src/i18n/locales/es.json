@@ -17,7 +17,6 @@
     "lang_en": "EN"
   },
   "hero": {
-    "eyebrow": "Patagonia · Chile",
     "title": "Tu próxima aventura de pesca comienza aquí.",
     "subtitle": "Encuentra lodges y guías seleccionados en la Patagonia chilena."
   },
@@ -56,7 +55,6 @@
     "photo_title": "Compara, elige y planifica con confianza.",
     "options": "Opciones",
     "zones": "zonas",
-    "directory": "Directorio",
     "visible": "{{count}} visibles",
     "search": "Buscar",
     "search_placeholder": "Buscar por nombre o zona",
@@ -73,7 +71,6 @@
     "guides_legend": "Guías"
   },
   "contact": {
-    "brand": "ONA Experiences",
     "title": "Contáctate con nosotros",
     "subtitle": "Estamos disponibles para ayudarte en todo lo que necesites",
     "welcome": "¡Te esperamos!",
@@ -83,7 +80,6 @@
     "tip_3": "Cuéntanos qué tipo de experiencia buscas: por el día, varios días, lodge o guía privado.",
     "tip_4": "Señala tus fechas aproximadas, destino preferido y duración del viaje.",
     "tip_5": "Indica cuántas personas viajarán y cuántas participarán en la pesca.",
-    "form_eyebrow": "Formulario de contacto",
     "form_title": "Envíanos tu consulta",
     "name": "Nombre",
     "name_placeholder": "Tu nombre",

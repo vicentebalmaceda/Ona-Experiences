@@ -47,8 +47,7 @@ function ContactSection() {
     <section id="contacto" className="bg-slate-950 py-20 text-white">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:items-start">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-white/70">{t('contact.brand')}</p>
-          <h2 className="mt-3 font-display text-4xl leading-tight">{t('contact.title')}</h2>
+          <h2 className="font-display text-4xl leading-tight">{t('contact.title')}</h2>
           <p className="mt-5 max-w-2xl text-lg text-slate-300">{t('contact.subtitle')}</p>
           <p className="mt-5 max-w-2xl text-lg text-slate-300"><span className="font-semibold text-white">{t('contact.welcome')}</span></p>
           <div className="mt-8 rounded-[28px] border border-white/10 bg-white/5 p-6 backdrop-blur">
@@ -66,8 +65,7 @@ function ContactSection() {
         <div className="rounded-[30px] border border-white/10 bg-white/5 p-6 shadow-soft backdrop-blur">
           <div className="mb-6 flex items-center justify-between gap-4 border-b border-white/10 pb-4">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/60">{t('contact.form_eyebrow')}</p>
-              <h3 className="mt-1 text-2xl font-bold text-white">{t('contact.form_title')}</h3>
+              <h3 className="text-2xl font-bold text-white">{t('contact.form_title')}</h3>
             </div>
           </div>
           <form onSubmit={handleContactSubmit} className="space-y-4">
