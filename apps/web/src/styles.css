@@ -449,10 +449,11 @@ body {
   min-height: 560px;
 }
 
+/* Three cards fill the visible list: two 10px gaps split across three rows. */
 .experience-list-scroll {
-  display: flex;
+  display: grid;
   flex: 1;
-  flex-direction: column;
+  grid-auto-rows: calc((100% - 20px) / 3);
   gap: 10px;
   overflow-y: auto;
   padding: 12px;
@@ -471,22 +472,25 @@ body {
 
 .experience-list-item {
   display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
+  align-items: stretch;
+  gap: 16px;
   width: 100%;
   overflow: hidden;
   border: 1px solid rgba(226,232,240,.9);
   border-radius: 18px;
   background: #fff;
+  padding: 10px;
   box-shadow: 0 8px 22px rgba(15,23,42,.04);
   transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
 }
 
 .experience-list-cover {
   position: relative;
-  height: 132px;
+  flex-shrink: 0;
+  height: 100%;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
-  border-radius: 17px 17px 14px 14px;
+  border-radius: 12px;
   background: #e2e8f0;
 }
 
@@ -982,7 +986,8 @@ body {
   }
 
   .experience-list-scroll {
-    max-height: 480px;
+    flex: none;
+    height: 480px;
   }
 }
 
