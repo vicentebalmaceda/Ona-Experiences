@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import CompactMap from './CompactMap.jsx';
 import { formatRating, getRatingStats, renderStars, sortItemsByRating } from '../utils/rating.js';
 import { getReferencePrice } from '../utils/referencePrice.js';
+import { zoneLabel } from '../utils/zones.js';
 
 function imageUrl(src) {
   if (!src) return '';
@@ -27,7 +28,7 @@ function ExperienceListItem({ item, ratingVersion, onSelect }) {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h3 className="truncate text-base font-extrabold text-slate-950">{item.name}</h3>
-            <p className="mt-1 truncate text-sm text-slate-500">{item.zone}</p>
+            <p className="mt-1 truncate text-sm text-slate-500">{zoneLabel(item.zone, t)}</p>
           </div>
           <div className="rounded-xl bg-slate-950 px-2.5 py-1 text-xs font-extrabold text-white">
             {stats.average != null ? formatRating(stats.average) : t('rating.none_short')}
@@ -59,20 +60,20 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
   const [query, setQuery] = useState('');
   const [zone, setZone] = useState('all');
 
-  const zones = useMemo(() => ['all', ...new Set(items.map(item => item.zone).filter(Boolean))].sort((a, b) => {
-    if (a === 'all') return -1;
-    if (b === 'all') return 1;
-    return a.localeCompare(b, i18n.language);
-  }), [items, i18n.language]);
+  // Zone ids run north to south, so numeric order is geographic order.
+  const zones = useMemo(() => {
+    const zoneIds = new Set(items.map(item => item.zone).filter(itemZone => itemZone != null && itemZone !== '').map(String));
+    return ['all', ...[...zoneIds].sort((a, b) => Number(a) - Number(b) || a.localeCompare(b, i18n.language))];
+  }, [items, i18n.language]);
 
   const filteredItems = useMemo(() => {
     const normalizedQuery = normalizeText(query.trim());
     return items.filter(item => {
-      const zoneMatch = zone === 'all' || item.zone === zone;
-      const textMatch = !normalizedQuery || normalizeText(`${item.name} ${item.zone} ${item.email} ${item.representative || ''}`).includes(normalizedQuery);
+      const zoneMatch = zone === 'all' || String(item.zone) === zone;
+      const textMatch = !normalizedQuery || normalizeText(`${item.name} ${zoneLabel(item.zone, t)} ${item.email} ${item.representative || ''}`).includes(normalizedQuery);
       return zoneMatch && textMatch;
     });
-  }, [items, query, zone]);
+  }, [items, query, zone, t]);
 
   const sortedItems = useMemo(() => sortItemsByRating(filteredItems), [filteredItems]);
 
@@ -128,7 +129,7 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
                 <input id={`${id}-search`} value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t('experience.search_placeholder')} className="directory-input" />
                 <label className="sr-only" htmlFor={`${id}-zone`}>{t('experience.zone')}</label>
                 <select id={`${id}-zone`} value={zone} onChange={(event) => setZone(event.target.value)} className="directory-input">
-                  {zones.map(itemZone => <option key={itemZone} value={itemZone}>{itemZone === 'all' ? t('experience.all_zones') : itemZone}</option>)}
+                  {zones.map(itemZone => <option key={itemZone} value={itemZone}>{itemZone === 'all' ? t('experience.all_zones') : zoneLabel(itemZone, t)}</option>)}
                 </select>
               </div>
             </div>

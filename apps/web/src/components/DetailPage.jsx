@@ -7,6 +7,7 @@ import PhotoLightbox from './PhotoLightbox.jsx';
 import QuoteRequestForm from './QuoteRequestForm.jsx';
 import ReviewsCarousel from './ReviewsCarousel.jsx';
 import { formatRating, getRatingStats, renderStars } from '../utils/rating.js';
+import { zoneLabel } from '../utils/zones.js';
 import useSmartSticky from '../hooks/useSmartSticky.js';
 
 const DESCRIPTION_ALLOWED_TAGS = [
@@ -97,7 +98,7 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
           <div>
             <div className="mb-4 flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-deep/10 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-deep">{typeLabel}</span>
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-slate-600">{item.zone}</span>
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-slate-600">{zoneLabel(item.zone, t)}</span>
             </div>
             <h1 className="font-display text-4xl leading-tight text-slate-950 sm:text-6xl">{item.name}</h1>
             <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-600">{t('detail.intro')}</p>
@@ -151,7 +152,7 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
               </div>
               <div className="mt-6 grid gap-5 md:grid-cols-2">
                 <div className="detail-fact"><span>{t('detail.type')}</span><strong>{typeLabel}</strong></div>
-                <div className="detail-fact"><span>{t('detail.zone')}</span><strong>{item.zone}</strong></div>
+                <div className="detail-fact"><span>{t('detail.zone')}</span><strong>{zoneLabel(item.zone, t)}</strong></div>
               </div>
               {descriptionHtml ? (
                 <div
@@ -159,7 +160,7 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
                   dangerouslySetInnerHTML={{ __html: descriptionHtml }}
                 />
               ) : (
-                <p className="mt-6 text-base leading-8 text-slate-600">{t('detail.fallback_description', { name: item.name, zone: item.zone })}</p>
+                <p className="mt-6 text-base leading-8 text-slate-600">{t('detail.fallback_description', { name: item.name, zone: zoneLabel(item.zone, t) })}</p>
               )}
               {item.representative ? (
                 <p className="mt-4 text-base leading-8 text-slate-600">

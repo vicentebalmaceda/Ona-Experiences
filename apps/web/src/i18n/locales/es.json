@@ -254,5 +254,12 @@
   "types": {
     "lodge": "Lodge",
     "guide": "Guía"
+  },
+  "zones": {
+    "1": "Zona Central",
+    "2": "Araucanía",
+    "3": "Sur (Región de Los Lagos)",
+    "4": "Patagonia norte",
+    "5": "Patagonia sur"
   }
 }
