@@ -79,8 +79,7 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
       <div id={id} className="mx-auto max-w-7xl scroll-mt-28 px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-deep">{eyebrow}</p>
-            <h2 className="mt-3 font-display text-4xl leading-tight text-slate-950 sm:text-5xl">{title}</h2>
+            <h2 className="font-display text-4xl leading-tight text-slate-950 sm:text-5xl">{title}</h2>
           </div>
           <p className="max-w-2xl text-base leading-7 text-slate-600">{description}</p>
         </div>
@@ -109,8 +108,7 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
             <div className="border-b border-slate-200 p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.2em] text-deep">{t('experience.directory')}</p>
-                  <h3 className="mt-1 text-2xl font-extrabold text-slate-950">{eyebrow}</h3>
+                  <h3 className="text-2xl font-extrabold text-slate-950">{eyebrow}</h3>
                 </div>
                 <span className="rounded-full bg-mist px-3 py-1.5 text-xs font-black text-deep">{t('experience.visible', { count: sortedItems.length })}</span>
               </div>
