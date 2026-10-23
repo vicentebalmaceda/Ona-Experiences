@@ -9,6 +9,7 @@
     "ona_flyfishing": "ONA Fly Fishing",
     "lodges": "Lodges",
     "guides": "Guides",
+    "about": "About us",
     "contact": "Contact",
     "open_menu": "Open menu",
     "language": "Language",
@@ -19,6 +20,20 @@
     "eyebrow": "Patagonia · Chile",
     "title": "Your next fishing adventure starts here.",
     "subtitle": "Find selected lodges and guides in Chilean Patagonia."
+  },
+  "about": {
+    "eyebrow": "Our story",
+    "title": "About us",
+    "kicker": "Fly fishing in Chilean Patagonia",
+    "founders": "Marcos and Vicente Balmaceda",
+    "founders_role": "Founders of ONA Experiences",
+    "photo_alt": "Marcos and Vicente Balmaceda each hold a trout on a boat, with a lake and the mountains of Chilean Patagonia behind them.",
+    "photo_caption": "Marcos and Vicente Balmaceda, father and son, in Chilean Patagonia.",
+    "p1": "<brand>ONA Experiences</brand> was born from a <b>passion shared by a father and son, Marcos and Vicente Balmaceda</b>: fly fishing, nature and the extraordinary landscapes of southern Chile.",
+    "p2": "From that passion came the idea of creating a place that <b>connects anglers from Chile and around the world with local lodges and guides in Chilean Patagonia</b>, helping them discover unique places and find the experience that best fits their interests and expectations.",
+    "p3": "We know that <b>a great day of fishing is much more than landing a beautiful trout</b>. It is the thrill of discovering a new river, the calm of being surrounded by nature, the knowledge of a good guide and those <b>unforgettable moments</b> that make every trip special.",
+    "p4": "That is why we created <brand>ONA Experiences</brand>: to <b>bring you closer to the people who know these waters best</b>, make it easier to find your next destination and share our passion for fly fishing in one of the most extraordinary places on earth.",
+    "p5": "Because beyond finding where to fish, we want to help you <b>discover where to live your next great experience</b>."
   },
   "lodges": {
     "eyebrow": "Lodges",
