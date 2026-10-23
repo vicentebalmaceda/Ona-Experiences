@@ -1144,3 +1144,114 @@ body {
     @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-forest-200 bg-white px-4 py-3 text-sm font-semibold text-forest-900 transition hover:border-forest-300 hover:bg-forest-50 focus:outline-none focus:ring-4 focus:ring-forest-100;
   }
 }
+
+/* Decorative jumping brown trout (TroutJump.jsx). The viewport's bottom edge acts
+   as the water line: the box clips the fish while it is "underwater". */
+.trout-jump {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  z-index: 900;
+  width: 240px;
+  height: 230px;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  transform-origin: bottom right;
+  --trout-cycle: 7s;
+  --trout-delay: 1.5s;
+}
+
+.trout-jump__x,
+.trout-jump__y,
+.trout-jump__fish,
+.trout-jump__splash {
+  animation-duration: var(--trout-cycle);
+  animation-delay: var(--trout-delay);
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+
+.trout-jump__x {
+  position: absolute;
+  left: 40px;
+  bottom: 0;
+  animation-name: trout-jump-x;
+  animation-timing-function: linear;
+}
+
+.trout-jump__y {
+  animation-name: trout-jump-y;
+}
+
+.trout-jump__fish {
+  display: block;
+  width: 120px;
+  height: auto;
+  animation-name: trout-jump-rotate;
+  animation-timing-function: linear;
+  filter: drop-shadow(0 6px 8px rgba(15, 23, 42, .25));
+}
+
+.trout-jump__splash {
+  position: absolute;
+  bottom: -10px;
+  width: 64px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid rgba(186, 222, 240, .9);
+  background: radial-gradient(ellipse at center, rgba(224, 242, 250, .7), rgba(224, 242, 250, 0) 70%);
+  opacity: 0;
+  animation-timing-function: ease-out;
+}
+
+.trout-jump__splash--in {
+  left: 178px;
+  animation-name: trout-splash-in;
+}
+
+.trout-jump__splash--out {
+  left: 78px;
+  animation-name: trout-splash-out;
+}
+
+@keyframes trout-jump-x {
+  0% { transform: translateX(110px); }
+  28%, 100% { transform: translateX(10px); }
+}
+
+@keyframes trout-jump-y {
+  0% { transform: translateY(110px); animation-timing-function: cubic-bezier(.2, .7, .4, 1); }
+  14% { transform: translateY(-150px); animation-timing-function: cubic-bezier(.6, 0, .8, .3); }
+  28%, 100% { transform: translateY(110px); }
+}
+
+@keyframes trout-jump-rotate {
+  0% { transform: rotate(55deg); }
+  14% { transform: rotate(0deg); }
+  28%, 100% { transform: rotate(-65deg); }
+}
+
+@keyframes trout-splash-in {
+  0% { opacity: 0; transform: scale(.2); }
+  3% { opacity: .95; }
+  11%, 100% { opacity: 0; transform: scale(1.5); }
+}
+
+@keyframes trout-splash-out {
+  0%, 24% { opacity: 0; transform: scale(.2); }
+  27% { opacity: .95; }
+  36%, 100% { opacity: 0; transform: scale(1.5); }
+}
+
+@media (max-width: 640px) {
+  .trout-jump {
+    transform: scale(.55);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trout-jump {
+    display: none;
+  }
+}
