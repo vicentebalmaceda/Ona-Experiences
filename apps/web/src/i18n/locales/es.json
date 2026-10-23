@@ -9,6 +9,7 @@
     "ona_flyfishing": "ONA Fly Fishing",
     "lodges": "Lodges",
     "guides": "Guías",
+    "about": "Quiénes somos",
     "contact": "Contacto",
     "open_menu": "Abrir menú",
     "language": "Idioma",
@@ -19,6 +20,20 @@
     "eyebrow": "Patagonia · Chile",
     "title": "Tu próxima aventura de pesca comienza aquí.",
     "subtitle": "Encuentra lodges y guías seleccionados en la Patagonia chilena."
+  },
+  "about": {
+    "eyebrow": "Nuestra historia",
+    "title": "Quiénes somos",
+    "kicker": "Pesca con mosca en la Patagonia chilena",
+    "founders": "Marcos y Vicente Balmaceda",
+    "founders_role": "Fundadores de ONA Experiences",
+    "photo_alt": "Marcos y Vicente Balmaceda sostienen una trucha cada uno sobre un bote, con un lago y montañas de la Patagonia chilena de fondo.",
+    "photo_caption": "Marcos y Vicente Balmaceda, padre e hijo, en la Patagonia chilena.",
+    "p1": "<brand>ONA Experiences</brand> nace de una <b>pasión compartida entre padre e hijo, Marcos y Vicente Balmaceda</b>: la pesca con mosca, la naturaleza y los extraordinarios paisajes del sur de Chile.",
+    "p2": "De esa pasión surge la idea de crear un espacio que <b>conecte a pescadores de Chile y del mundo con lodges y guías locales de la Patagonia chilena</b>, ayudándolos a descubrir lugares únicos y encontrar la experiencia que mejor se adapte a sus intereses y expectativas.",
+    "p3": "Sabemos que <b>una gran jornada de pesca es mucho más que capturar una linda trucha</b>. Es la emoción de descubrir un nuevo río, la tranquilidad de estar rodeado de naturaleza, el conocimiento de un buen guía y esos <b>momentos inolvidables</b> que hacen que cada viaje sea especial.",
+    "p4": "Por eso creamos <brand>ONA Experiences</brand>: para <b>acercarte a quienes mejor conocen estos territorios</b>, facilitar la búsqueda de tu próximo destino y compartir nuestra pasión por la pesca con mosca en uno de los lugares más extraordinarios del mundo.",
+    "p5": "Porque más que encontrar dónde pescar, queremos ayudarte a <b>descubrir dónde vivir tu próxima gran experiencia</b>."
   },
   "lodges": {
     "eyebrow": "Lodges",

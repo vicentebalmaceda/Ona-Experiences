@@ -1145,6 +1145,48 @@ body {
   }
 }
 
+/* ---------------------------------------------------------------------------
+   Quiénes somos — hand-drawn gold underline on "ONA Experiences"
+   (components/about/BrandMark). Hidden until `.is-drawn` is added on scroll,
+   then revealed left to right. Sizes are in em so it scales with the text.
+   --------------------------------------------------------------------------- */
+.brand-mark {
+  position: relative;
+  white-space: nowrap;
+}
+
+.brand-mark__stroke {
+  position: absolute;
+  left: -1%;
+  bottom: -0.34em;
+  width: 102%;
+  height: 0.42em;
+  overflow: visible;
+  pointer-events: none;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 0.9s cubic-bezier(0.65, 0, 0.35, 1) 0.15s;
+}
+
+.brand-mark__stroke path {
+  fill: none;
+  stroke: #c8963e;
+  stroke-width: 2.75px;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.brand-mark.is-drawn .brand-mark__stroke {
+  clip-path: inset(0 0 0 0);
+}
+
+/* Reduced motion: show the underline straight away, no drawing animation. */
+@media (prefers-reduced-motion: reduce) {
+  .brand-mark__stroke {
+    clip-path: none;
+    transition: none;
+  }
+}
+
 /* Decorative jumping brown trout (TroutJump.jsx). The viewport's bottom edge acts
    as the water line: the box clips the fish while it is "underwater". */
 .trout-jump {

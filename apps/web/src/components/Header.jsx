@@ -14,7 +14,8 @@ function Header({ onNavigate }) {
   const links = [
     { label: t('nav.ona_flyfishing'), href: ONA_FLYFISHING_URL },
     { label: t('nav.lodges'), section: 'lodges-section' },
-    { label: t('nav.guides'), section: 'guias-section' }
+    { label: t('nav.guides'), section: 'guias-section' },
+    { label: t('nav.about'), to: '/quienes-somos' }
   ];
 
   function goTo(section) {
@@ -36,7 +37,20 @@ function Header({ onNavigate }) {
     : { to: '/#inicio', className: 'flex items-center gap-3' };
 
   function renderNavLink(link, { mobile = false } = {}) {
-    const key = link.href || link.section;
+    const key = link.href || link.section || link.to;
+    // Internal page (its own route), not a section of the landing.
+    if (link.to) {
+      return (
+        <Link
+          key={key}
+          to={link.to}
+          onClick={() => setOpen(false)}
+          className={mobile ? 'block rounded-lg px-3 py-2 hover:bg-white/5' : 'transition hover:text-white'}
+        >
+          {link.label}
+        </Link>
+      );
+    }
     if (link.href) {
       return (
         <a

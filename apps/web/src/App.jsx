@@ -4,6 +4,7 @@ import TroutJump from './components/TroutJump.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import ProductDetailPage from './pages/ProductDetailPage.jsx';
 import ReviewPage from './pages/ReviewPage.jsx';
+import AboutPage from './pages/AboutPage.jsx';
 import AdminApp from './admin/AdminApp.jsx';
 import { SiteAssetsProvider } from './site/SiteAssetsProvider.jsx';
 
@@ -17,6 +18,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/lodges/:productId" element={<ProductDetailPage catalogType="lodges" />} />
         <Route path="/guides/:productId" element={<ProductDetailPage catalogType="guides" />} />
+        <Route path="/quienes-somos" element={<AboutPage />} />
         <Route path="/review" element={<ReviewPage />} />
         <Route path="/admin/*" element={<AdminApp />} />
       </Routes>
