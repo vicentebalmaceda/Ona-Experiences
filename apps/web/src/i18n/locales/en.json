@@ -138,7 +138,6 @@
     "before_booking_text": "Include the availability you are looking for, season, required services, and transfers in your request to get a more accurate quote.",
     "agenda": "Quote",
     "request_availability": "Request availability",
-    "quote_via_bsale": "Send a quote linked to your email through BSale.",
     "quote_no_confirm": "A quote does not automatically confirm a reservation.",
     "loading": "Loading details…",
     "load_error_title": "Could not load this product",

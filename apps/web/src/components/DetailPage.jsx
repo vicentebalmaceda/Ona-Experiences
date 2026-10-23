@@ -224,7 +224,6 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
               <div className="rounded-3xl bg-slate-950 p-5 text-white">
                 <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-300">{t('detail.agenda')}</p>
                 <h2 className="mt-2 text-2xl font-black">{t('detail.request_availability')}</h2>
-                <p className="mt-2 text-sm leading-6 text-slate-300">{t('detail.quote_via_bsale')}</p>
               </div>
 
               <QuoteRequestForm

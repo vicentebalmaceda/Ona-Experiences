@@ -138,7 +138,6 @@
     "before_booking_text": "Indica en tu solicitud la disponibilidad que buscas, temporada, servicios requeridos y traslados para recibir una cotización más precisa.",
     "agenda": "Cotización",
     "request_availability": "Solicitar disponibilidad",
-    "quote_via_bsale": "Envía una cotización vinculada a tu correo a través de BSale.",
     "quote_no_confirm": "La cotización no confirma reserva automáticamente.",
     "loading": "Cargando detalle…",
     "load_error_title": "No se pudo cargar este producto",
