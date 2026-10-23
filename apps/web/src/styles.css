@@ -1158,7 +1158,7 @@ body {
   pointer-events: none;
   user-select: none;
   transform-origin: bottom right;
-  --trout-cycle: 7s;
+  --trout-cycle: 62s;
   --trout-delay: 1.5s;
 }
 
@@ -1215,33 +1215,105 @@ body {
   animation-name: trout-splash-out;
 }
 
+/* CSS has no randomness, so one 62s cycle holds five ~2s jumps that start 12s,
+   10s, 15s, 11s and 14s apart; the uneven gaps read as a random rhythm. Between
+   jumps the fish stays underwater and snaps back to its start position. */
 @keyframes trout-jump-x {
   0% { transform: translateX(110px); }
-  28%, 100% { transform: translateX(10px); }
+  3.161% { transform: translateX(10px); }
+  19.339% { transform: translateX(10px); }
+  19.355% { transform: translateX(110px); }
+  22.516% { transform: translateX(10px); }
+  35.468% { transform: translateX(10px); }
+  35.484% { transform: translateX(110px); }
+  38.645% { transform: translateX(10px); }
+  59.661% { transform: translateX(10px); }
+  59.677% { transform: translateX(110px); }
+  62.839% { transform: translateX(10px); }
+  77.403% { transform: translateX(10px); }
+  77.419% { transform: translateX(110px); }
+  80.581% { transform: translateX(10px); }
+  100% { transform: translateX(10px); }
 }
 
 @keyframes trout-jump-y {
   0% { transform: translateY(110px); animation-timing-function: cubic-bezier(.2, .7, .4, 1); }
-  14% { transform: translateY(-150px); animation-timing-function: cubic-bezier(.6, 0, .8, .3); }
-  28%, 100% { transform: translateY(110px); }
+  1.581% { transform: translateY(-150px); animation-timing-function: cubic-bezier(.6, 0, .8, .3); }
+  3.161% { transform: translateY(110px); }
+  19.355% { transform: translateY(110px); animation-timing-function: cubic-bezier(.2, .7, .4, 1); }
+  20.935% { transform: translateY(-150px); animation-timing-function: cubic-bezier(.6, 0, .8, .3); }
+  22.516% { transform: translateY(110px); }
+  35.484% { transform: translateY(110px); animation-timing-function: cubic-bezier(.2, .7, .4, 1); }
+  37.065% { transform: translateY(-150px); animation-timing-function: cubic-bezier(.6, 0, .8, .3); }
+  38.645% { transform: translateY(110px); }
+  59.677% { transform: translateY(110px); animation-timing-function: cubic-bezier(.2, .7, .4, 1); }
+  61.258% { transform: translateY(-150px); animation-timing-function: cubic-bezier(.6, 0, .8, .3); }
+  62.839% { transform: translateY(110px); }
+  77.419% { transform: translateY(110px); animation-timing-function: cubic-bezier(.2, .7, .4, 1); }
+  79% { transform: translateY(-150px); animation-timing-function: cubic-bezier(.6, 0, .8, .3); }
+  80.581% { transform: translateY(110px); }
+  100% { transform: translateY(110px); }
 }
 
 @keyframes trout-jump-rotate {
   0% { transform: rotate(55deg); }
-  14% { transform: rotate(0deg); }
-  28%, 100% { transform: rotate(-65deg); }
+  1.581% { transform: rotate(0deg); }
+  3.161% { transform: rotate(-65deg); }
+  19.339% { transform: rotate(-65deg); }
+  19.355% { transform: rotate(55deg); }
+  20.935% { transform: rotate(0deg); }
+  22.516% { transform: rotate(-65deg); }
+  35.468% { transform: rotate(-65deg); }
+  35.484% { transform: rotate(55deg); }
+  37.065% { transform: rotate(0deg); }
+  38.645% { transform: rotate(-65deg); }
+  59.661% { transform: rotate(-65deg); }
+  59.677% { transform: rotate(55deg); }
+  61.258% { transform: rotate(0deg); }
+  62.839% { transform: rotate(-65deg); }
+  77.403% { transform: rotate(-65deg); }
+  77.419% { transform: rotate(55deg); }
+  79% { transform: rotate(0deg); }
+  80.581% { transform: rotate(-65deg); }
+  100% { transform: rotate(-65deg); }
 }
 
 @keyframes trout-splash-in {
   0% { opacity: 0; transform: scale(.2); }
-  3% { opacity: .95; }
-  11%, 100% { opacity: 0; transform: scale(1.5); }
+  0.339% { opacity: .95; }
+  1.242% { opacity: 0; transform: scale(1.5); }
+  19.355% { opacity: 0; transform: scale(.2); }
+  19.694% { opacity: .95; }
+  20.597% { opacity: 0; transform: scale(1.5); }
+  35.484% { opacity: 0; transform: scale(.2); }
+  35.823% { opacity: .95; }
+  36.726% { opacity: 0; transform: scale(1.5); }
+  59.677% { opacity: 0; transform: scale(.2); }
+  60.016% { opacity: .95; }
+  60.919% { opacity: 0; transform: scale(1.5); }
+  77.419% { opacity: 0; transform: scale(.2); }
+  77.758% { opacity: .95; }
+  78.661% { opacity: 0; transform: scale(1.5); }
+  100% { opacity: 0; }
 }
 
 @keyframes trout-splash-out {
-  0%, 24% { opacity: 0; transform: scale(.2); }
-  27% { opacity: .95; }
-  36%, 100% { opacity: 0; transform: scale(1.5); }
+  2.71% { opacity: 0; transform: scale(.2); }
+  3.048% { opacity: .95; }
+  4.065% { opacity: 0; transform: scale(1.5); }
+  22.065% { opacity: 0; transform: scale(.2); }
+  22.403% { opacity: .95; }
+  23.419% { opacity: 0; transform: scale(1.5); }
+  38.194% { opacity: 0; transform: scale(.2); }
+  38.532% { opacity: .95; }
+  39.548% { opacity: 0; transform: scale(1.5); }
+  62.387% { opacity: 0; transform: scale(.2); }
+  62.726% { opacity: .95; }
+  63.742% { opacity: 0; transform: scale(1.5); }
+  80.129% { opacity: 0; transform: scale(.2); }
+  80.468% { opacity: .95; }
+  81.484% { opacity: 0; transform: scale(1.5); }
+  100% { opacity: 0; }
 }
 
 @media (max-width: 640px) {
