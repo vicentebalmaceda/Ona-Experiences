@@ -471,14 +471,23 @@ body {
 
 .experience-list-item {
   display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
   width: 100%;
-  gap: 14px;
+  overflow: hidden;
   border: 1px solid rgba(226,232,240,.9);
-  border-radius: 26px;
-  background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
-  padding: 12px;
+  border-radius: 18px;
+  background: #fff;
   box-shadow: 0 8px 22px rgba(15,23,42,.04);
   transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.experience-list-cover {
+  position: relative;
+  height: 132px;
+  overflow: hidden;
+  border-radius: 17px 17px 14px 14px;
+  background: #e2e8f0;
 }
 
 .experience-list-item:hover {

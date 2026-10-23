@@ -19,28 +19,27 @@ function ExperienceListItem({ item, ratingVersion, onSelect }) {
 
   return (
     <button type="button" onClick={() => onSelect(item)} className="experience-list-item group">
-      <div className="h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-slate-200">
-        <img src={imageUrl(item.image)} alt={item.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
-      </div>
-      <div className="min-w-0 flex-1 text-left">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h3 className="truncate text-base font-extrabold text-slate-950">{item.name}</h3>
-            <p className="mt-1 truncate text-sm text-slate-500">{zoneLabel(item.zone, t)}</p>
-          </div>
-          <div className="rounded-xl bg-slate-950 px-2.5 py-1 text-xs font-extrabold text-white">
-            {stats.average != null ? formatRating(stats.average) : t('rating.none_short')}
-          </div>
+      <div className="experience-list-cover">
+        <img src={imageUrl(item.image)} alt={item.name} className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/25 to-transparent"></div>
+        <div className="absolute inset-x-0 bottom-0 px-4 pb-3 text-left text-white">
+          <h3 className="truncate text-lg font-extrabold leading-tight drop-shadow">{item.name}</h3>
+          <p className="mt-0.5 truncate text-sm font-medium text-white/85">{zoneLabel(item.zone, t)}</p>
         </div>
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+      </div>
+      <div className="flex items-center justify-between gap-3 px-4 py-2.5">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
           {stats.reviews > 0 ? (
             <>
-              <span className="rating-stars leading-none">{renderStars(stats.average)}</span>
+              <span className="rating-stars text-base leading-none">{renderStars(stats.average)}</span>
               <span>{t('experience.reviews_count', { count: stats.reviews })}</span>
             </>
           ) : (
             <span>{t('rating.none')}</span>
           )}
+        </div>
+        <div className="shrink-0 rounded-full bg-slate-950 px-3 py-1 text-xs font-extrabold text-white">
+          {stats.average != null ? formatRating(stats.average) : t('rating.none_short')}
         </div>
       </div>
     </button>
