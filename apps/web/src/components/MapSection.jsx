@@ -3,6 +3,7 @@ import L from 'leaflet';
 import { useTranslation } from 'react-i18next';
 import { createMarkerIcon, popupTemplate } from '../utils/map.js';
 import { getRatingStats } from '../utils/rating.js';
+import { zoneLabel } from '../utils/zones.js';
 
 function MapSection({ zones, allItems, filteredItems, filters, setFilters, resetFilters, ratingVersion }) {
   const { t } = useTranslation();
@@ -57,6 +58,7 @@ function MapSection({ zones, allItems, filteredItems, filters, setFilters, reset
         typeLabel: item.type === 'Lodge' ? t('types.lodge') : t('types.guide'),
         notInformed: t('map.not_informed'),
         zone: t('map.zone'),
+        zoneName: zoneLabel(item.zone, t),
         representative: t('map.representative'),
         phone: t('map.phone'),
         email: t('map.email'),
@@ -108,10 +110,10 @@ function MapSection({ zones, allItems, filteredItems, filters, setFilters, reset
             <div className="mt-5 rounded-[24px] border border-slate-200 bg-slate-50/70 p-3">
               <div className="zone-grid">
                 {zones.filter(zone => zone !== 'all').map(zone => {
-                  const count = allItems.filter(item => item.zone === zone).length;
+                  const count = allItems.filter(item => String(item.zone) === String(zone)).length;
                   return (
                     <button key={zone} className={`zone-chip ${filters.zone === zone ? 'active' : ''}`} onClick={() => setFilters(prev => ({ ...prev, zone }))}>
-                      <span className="zone-chip__label">{zone}</span>
+                      <span className="zone-chip__label">{zoneLabel(zone, t)}</span>
                       <span className="zone-chip__count">{count}</span>
                     </button>
                   );

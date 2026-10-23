@@ -49,7 +49,7 @@ export function popupTemplate(item, ratingVersion, labels = {}, { showContact = 
           ? `<span>${renderStars(stats.average)}</span><strong>${escapeHtml(formatRating(stats.average))}</strong><small>${reviewsLabel}</small>`
           : `<small>${escapeHtml(labels.noReviews || 'Sin reseñas')}</small>`
       }</div>
-      <p style="margin:0 0 8px;color:#475569;font-size:13px;"><strong>${zoneLabel}</strong> ${escapeHtml(item.zone)}</p>
+      <p style="margin:0 0 8px;color:#475569;font-size:13px;"><strong>${zoneLabel}</strong> ${escapeHtml(labels.zoneName ?? item.zone)}</p>
       ${item.representative ? `<p style="margin:0 0 8px;color:#475569;font-size:13px;"><strong>${representativeLabel}</strong> ${escapeHtml(item.representative)}</p>` : ''}
       ${showContact ? `<p style="margin:0 0 5px;color:#475569;font-size:13px;"><strong>${phoneLabel}</strong> ${escapeHtml(item.phone || notInformed)}</p>
       <p style="margin:0;color:#475569;font-size:13px;word-break:break-word;"><strong>${emailLabel}</strong> ${escapeHtml(item.email || notInformed)}</p>` : ''}

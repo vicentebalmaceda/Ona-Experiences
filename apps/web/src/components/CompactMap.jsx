@@ -3,6 +3,7 @@ import L from 'leaflet';
 import { useTranslation } from 'react-i18next';
 import { createMarkerIcon, popupTemplate } from '../utils/map.js';
 import { getRatingStats } from '../utils/rating.js';
+import { zoneLabel } from '../utils/zones.js';
 
 function CompactMap({ items, ratingVersion, onSelect, ariaLabel, showContact = true }) {
   const { t } = useTranslation();
@@ -62,6 +63,7 @@ function CompactMap({ items, ratingVersion, onSelect, ariaLabel, showContact = t
         typeLabel: item.type === 'Lodge' ? t('types.lodge') : t('types.guide'),
         notInformed: t('map.not_informed'),
         zone: t('map.zone'),
+        zoneName: zoneLabel(item.zone, t),
         representative: t('map.representative'),
         phone: t('map.phone'),
         email: t('map.email'),

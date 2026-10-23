@@ -2,7 +2,7 @@ export const lodges = [
   {
     "productId": 65561,
     "name": "Bio Bio Lodge",
-    "zone": "Longquimay",
+    "zone": 2,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -21,7 +21,7 @@ export const lodges = [
   },
   {
     "name": "Matapiojo Lodge",
-    "zone": "Futaleufú",
+    "zone": 3,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -41,7 +41,7 @@ export const lodges = [
   },
   {
     "name": "Las Ardillas Lodge",
-    "zone": "Cerro Castillo",
+    "zone": 4,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -60,7 +60,7 @@ export const lodges = [
   },
   {
     "name": "Green Backer Lodge",
-    "zone": "Puerto Bertrand / Cochrane",
+    "zone": 4,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -80,7 +80,7 @@ export const lodges = [
   },
   {
     "name": "Mañihuales Eco Lodge",
-    "zone": "Mañihuales",
+    "zone": 4,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -100,7 +100,7 @@ export const lodges = [
   },
   {
     "name": "Cameron Lodge",
-    "zone": "Tierra del Fuego",
+    "zone": 5,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -120,7 +120,7 @@ export const lodges = [
   },
   {
     "name": "Puelo Lodge",
-    "zone": "Puelo",
+    "zone": 3,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -136,7 +136,7 @@ export const lodges = [
   },
   {
     "name": "El Remanso Lodge",
-    "zone": "Puelo",
+    "zone": 3,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -156,7 +156,7 @@ export const lodges = [
   },
   {
     "name": "Lodge Monte Rio Spa",
-    "zone": "Puerto Aysén",
+    "zone": 4,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -172,7 +172,7 @@ export const lodges = [
   },
   {
     "name": "Magallanes Fly Fishing",
-    "zone": "Magallanes",
+    "zone": 5,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -192,7 +192,7 @@ export const lodges = [
   },
   {
     "name": "Baker Domo Lodge",
-    "zone": "Cochrane",
+    "zone": 4,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -212,7 +212,7 @@ export const lodges = [
   },
   {
     "name": "El Pangue Lodge",
-    "zone": "Coyhaique / Aysén",
+    "zone": 4,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -232,7 +232,7 @@ export const lodges = [
   },
   {
     "name": "Mítico Puelo Lodge",
-    "zone": "Lago Tagua Tagua / Cochamó",
+    "zone": 3,
     "phone": "569",
     "email": "r ail@gmail.com",
     "representative": "Sebastián Concha",
@@ -252,7 +252,7 @@ export const lodges = [
   },
   {
     "name": "Hotel Yelcho en la Patagonia",
-    "zone": "Lago Yelcho",
+    "zone": 3,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -272,7 +272,7 @@ export const lodges = [
   },
   {
     "name": "Cinco Ríos Lodge Coyhaique",
-    "zone": "Coyhaique",
+    "zone": 4,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -288,7 +288,7 @@ export const lodges = [
   },
   {
     "name": "Hotel El Barranco Lodge Futaleufú",
-    "zone": "Futaleufú",
+    "zone": 3,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -307,7 +307,7 @@ export const lodges = [
   },
   {
     "name": "Hotel Espacio y Tiempo La Junta",
-    "zone": "La Junta",
+    "zone": 4,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -323,7 +323,7 @@ export const lodges = [
   },
   {
     "name": "Salmo Patagonia Lodge Coyhaique",
-    "zone": "Coyhaique",
+    "zone": 4,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -343,7 +343,7 @@ export const lodges = [
   },
   {
     "name": "Coyhaique River Lodge Coyhaique",
-    "zone": "Coyhaique",
+    "zone": 4,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -363,7 +363,7 @@ export const lodges = [
   },
   {
     "name": "Mallin Colorado Ecolode",
-    "zone": "Lago General Carrera",
+    "zone": 4,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -382,7 +382,7 @@ export const lodges = [
   },
   {
     "name": "Hotel Hacienda Tres Lagos",
-    "zone": "Lago General Carrera",
+    "zone": 4,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -398,7 +398,7 @@ export const lodges = [
   },
   {
     "name": "Terra Luna Lodge",
-    "zone": "Lago General Carrera",
+    "zone": 4,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -414,7 +414,7 @@ export const lodges = [
   },
   {
     "name": "Mincho's Lodge",
-    "zone": "Coyhaique",
+    "zone": 4,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -430,7 +430,7 @@ export const lodges = [
   },
   {
     "name": "Isla Monita Flyfishing Lodge",
-    "zone": "Lago Yelcho",
+    "zone": 3,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -448,7 +448,7 @@ export const lodges = [
   },
   {
     "name": "Cabañas El Mirador de Playa Guadal",
-    "zone": "Lago General Carrera",
+    "zone": 4,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -464,7 +464,7 @@ export const lodges = [
   },
   {
     "name": "La Cabaña Lodge",
-    "zone": "Lago Yelcho / Ruta CH-235",
+    "zone": 3,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -480,7 +480,7 @@ export const lodges = [
   },
   {
     "name": "Tolten Lodge",
-    "zone": "Toltén",
+    "zone": 2,
     "phone": "569",
     "email": "mail@gmail.com",
     "representative": "Sebastián Concha",
@@ -503,7 +503,7 @@ export const guides = [
   {
     "productId": 65562,
     "name": "Francisco Mozó R",
-    "zone": "Zona Central",
+    "zone": 1,
     "phone": "56 9",
     "email": "email@gmail.com",
     "lat": -33.4489,
@@ -518,7 +518,7 @@ export const guides = [
   },
   {
     "name": "Alfredo Garcia",
-    "zone": "Pucón",
+    "zone": 2,
     "phone": "56 9",
     "email": "email@gmail.com",
     "lat": -39.2797,
@@ -534,7 +534,7 @@ export const guides = [
   },
   {
     "name": "Luciano Hinostroza",
-    "zone": "Coyhaique",
+    "zone": 4,
     "phone": "56 9",
     "email": "email@gmail.com",
     "lat": -45.575,
@@ -550,7 +550,7 @@ export const guides = [
   },
   {
     "name": "Feña Cassanello",
-    "zone": "Puerto Natales",
+    "zone": 5,
     "phone": "56 9",
     "email": "email@gmail.com",
     "lat": -51.726,
@@ -565,7 +565,7 @@ export const guides = [
   },
   {
     "name": "Roberto Cachete Salas",
-    "zone": "Puerto Natales",
+    "zone": 5,
     "phone": "56 9",
     "email": "email@gmail.com",
     "lat": -51.724,
@@ -580,7 +580,7 @@ export const guides = [
   },
   {
     "name": "Jose Tomas Achondo",
-    "zone": "Puerto Varas",
+    "zone": 3,
     "phone": "56 9",
     "email": "email@gmail.com",
     "lat": -41.318,
@@ -595,7 +595,7 @@ export const guides = [
   },
   {
     "name": "Gonzalo Bruna",
-    "zone": "Puerto Natales",
+    "zone": 5,
     "phone": "56 9",
     "email": "email@gmail.com",
     "lat": -51.731,
@@ -610,7 +610,7 @@ export const guides = [
   },
   {
     "name": "Mauricio Guía del Bio Bio, Ex Mañihuales",
-    "zone": "Bio Bio",
+    "zone": 2,
     "phone": "56 9",
     "email": "email@gmail.com",
     "lat": -37.47,
@@ -625,7 +625,7 @@ export const guides = [
   },
   {
     "name": "Camila Benoit Guía de Excursiones y Pájaros Aysen",
-    "zone": "Aysén",
+    "zone": 4,
     "phone": "56 9",
     "email": "email@gmail.com",
     "lat": -45.401,
@@ -640,7 +640,7 @@ export const guides = [
   },
   {
     "name": "Felipe Ross",
-    "zone": "Puerto Natales",
+    "zone": 5,
     "phone": "56 9",
     "email": "email@gmail.com",
     "lat": -51.729,
@@ -655,7 +655,7 @@ export const guides = [
   },
   {
     "name": "Ronald Moldenhavr",
-    "zone": "Coyhaique",
+    "zone": 4,
     "phone": "56 9",
     "email": "email@gmail.com",
     "lat": -45.577,
@@ -670,7 +670,7 @@ export const guides = [
   },
   {
     "name": "Marcos Quiroz Gray",
-    "zone": "Puerto Varas",
+    "zone": 3,
     "phone": "56 9",
     "email": "email@gmail.com",
     "lat": -41.321,
@@ -685,7 +685,7 @@ export const guides = [
   },
   {
     "name": "Nestor Bertrand",
-    "zone": "Futaleufú",
+    "zone": 3,
     "phone": "56 9",
     "email": "email@gmail.com",
     "lat": -43.186,
@@ -700,7 +700,7 @@ export const guides = [
   },
   {
     "name": "Alex Prior",
-    "zone": "Coyhaique",
+    "zone": 4,
     "phone": "56 9",
     "email": "email@gmail.com",
     "lat": -45.574,
@@ -715,7 +715,7 @@ export const guides = [
   },
   {
     "name": "Cristian Effa Miranda",
-    "zone": "Coyhaique",
+    "zone": 4,
     "phone": "56 9",
     "email": "email@gmail.com",
     "lat": -45.571,
@@ -730,7 +730,7 @@ export const guides = [
   },
   {
     "name": "Hector “Chele” Tagle",
-    "zone": "Tierra del Fuego",
+    "zone": 5,
     "phone": "56 9",
     "email": "email@gmail.com",
     "lat": -53.745,
@@ -745,7 +745,7 @@ export const guides = [
   },
   {
     "name": "Daniel Silva",
-    "zone": "Coyhaique",
+    "zone": 4,
     "phone": "56 9",
     "email": "email@gmail.com",
     "lat": -45.58,

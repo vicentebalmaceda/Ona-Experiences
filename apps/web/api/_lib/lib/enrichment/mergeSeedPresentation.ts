@@ -1,9 +1,9 @@
-import type { ServicePresentation } from '../../types/catalog.js';
+import type { ServicePresentation, ZoneId } from '../../types/catalog.js';
 import { EMPTY_SERVICE_PRESENTATION } from '../../types/catalog.js';
 
 export interface CatalogSeedRecord {
   productId?: number;
-  zone?: string | null;
+  zone?: ZoneId | null;
   phone?: string | null;
   email?: string | null;
   representative?: string | null;

@@ -4,6 +4,7 @@ import GalleryStrip from './GalleryStrip.jsx';
 import RatingPanel from './RatingPanel.jsx';
 import { formatRating, getRatingStats, renderStars } from '../utils/rating.js';
 import { getReferencePrice } from '../utils/referencePrice.js';
+import { zoneLabel } from '../utils/zones.js';
 
 function displayTypeLabel(type, t) {
   return type === 'Lodge' ? t('types.lodge') : t('types.guide');
@@ -26,7 +27,7 @@ function DirectoryCard({ item, ratingVersion, onRate }) {
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/75 to-transparent"></div>
         <div className="absolute left-4 top-4 flex flex-wrap gap-2">
           <span className="rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-slate-900 shadow-sm">{displayTypeLabel(item.type, t)}</span>
-          <span className="rounded-full bg-slate-950/70 px-3 py-1 text-xs font-semibold text-white backdrop-blur">{item.zone}</span>
+          <span className="rounded-full bg-slate-950/70 px-3 py-1 text-xs font-semibold text-white backdrop-blur">{zoneLabel(item.zone, t)}</span>
         </div>
         <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3 rounded-2xl border border-white/15 bg-white/95 px-4 py-3 shadow-soft backdrop-blur">
           <div>
@@ -46,7 +47,7 @@ function DirectoryCard({ item, ratingVersion, onRate }) {
         <div className="mt-5 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
           <p><span className="font-semibold text-slate-900">{t('common.phone')}</span> {item.phone || t('common.not_informed')}</p>
           <p className="mt-2 contact-link"><span className="font-semibold text-slate-900">{t('common.email')}</span> {item.email || t('common.not_informed')}</p>
-          <p className="mt-2"><span className="font-semibold text-slate-900">{t('common.zone')}</span> {item.zone}</p>
+          <p className="mt-2"><span className="font-semibold text-slate-900">{t('common.zone')}</span> {zoneLabel(item.zone, t)}</p>
         </div>
         {referencePrice ? (
           <div className="mt-5 border-t border-slate-200 pt-4">

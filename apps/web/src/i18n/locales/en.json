@@ -254,5 +254,12 @@
   "types": {
     "lodge": "Lodge",
     "guide": "Guide"
+  },
+  "zones": {
+    "1": "Central Chile",
+    "2": "Araucanía",
+    "3": "South (Los Lagos Region)",
+    "4": "Northern Patagonia",
+    "5": "Southern Patagonia"
   }
 }
