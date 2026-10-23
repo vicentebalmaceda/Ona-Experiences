@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import GalleryStrip from './GalleryStrip.jsx';
 import RatingPanel from './RatingPanel.jsx';
 import { formatRating, getRatingStats, renderStars } from '../utils/rating.js';
-import { getReferencePrice } from '../utils/referencePrice.js';
 import { zoneLabel } from '../utils/zones.js';
 
 function displayTypeLabel(type, t) {
@@ -12,7 +11,6 @@ function displayTypeLabel(type, t) {
 
 function DirectoryCard({ item, ratingVersion, onRate }) {
   const { t } = useTranslation();
-  const referencePrice = getReferencePrice(item);
   const stats = getRatingStats(item, ratingVersion);
   const detailPath = item.productId
     ? item.type === 'Lodge'
@@ -49,12 +47,6 @@ function DirectoryCard({ item, ratingVersion, onRate }) {
           <p className="mt-2 contact-link"><span className="font-semibold text-slate-900">{t('common.email')}</span> {item.email || t('common.not_informed')}</p>
           <p className="mt-2"><span className="font-semibold text-slate-900">{t('common.zone')}</span> {zoneLabel(item.zone, t)}</p>
         </div>
-        {referencePrice ? (
-          <div className="mt-5 border-t border-slate-200 pt-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{t('common.reference_price')}</p>
-            <p className="mt-2 text-base font-bold text-slate-900">{referencePrice}</p>
-          </div>
-        ) : null}
         <RatingPanel item={item} ratingVersion={ratingVersion} onRate={onRate} />
         {detailPath ? (
           <Link
