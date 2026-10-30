@@ -6,10 +6,14 @@ import { buildHead, excerptFromHtml, renderHeadTags } from './buildHead.js';
 const SITE = 'https://www.onaexperiences.com';
 
 /** buildHead the way a server render would: from the request path. */
-function headFor(pathname, item) {
+function headFor(pathname, item, extra = {}) {
   const { pageId, lang, params } = matchRoute(pathname);
   const i18n = createI18n(lang);
-  return buildHead({ pageId, lang, params, item, t: i18n.getFixedT(lang) });
+  return buildHead({ pageId, lang, params, item, t: i18n.getFixedT(lang), ...extra });
+}
+
+function metaContent(head, key) {
+  return head.meta.find(entry => entry.property === key || entry.name === key)?.content;
 }
 
 const lodge = {
@@ -24,7 +28,7 @@ const lodge = {
 describe('buildHead', () => {
   it('es home: indexable, canonical /, full es/en/x-default alternates', () => {
     const head = headFor('/');
-    expect(head).toEqual({
+    expect(head).toMatchObject({
       title: 'Lodges y guías de pesca con mosca en Chile y la Patagonia | ONA Experiences',
       description: expect.stringContaining('Encuentra lodges y guías'),
       canonical: `${SITE}/`,
@@ -106,6 +110,110 @@ describe('buildHead', () => {
     expect(notFound.robots).toBe('noindex, follow');
     expect(notFound.htmlLang).toBe('en');
     expect(notFound.alternates).toEqual([]);
+  });
+});
+
+describe('buildHead social tags and structured data', () => {
+  const detailed = {
+    ...lodge,
+    lat: -38.4,
+    lng: -71.2,
+    image: 'assets/lodges/a.jpg',
+    gallery: ['assets/lodges/a.jpg', 'https://cdn.example.com/b.jpg'],
+    rating: null,
+    reviews: 0
+  };
+
+  it('home: Open Graph / Twitter tags with the hero image, preload, Organization + WebSite + ItemList', () => {
+    const head = headFor('/', undefined, {
+      heroImage: 'https://blob.example.com/poster.jpg',
+      logoUrl: '/assets/logo-ona.png',
+      lodges: [{ ...lodge, type: 'Lodge' }, { name: 'Sin id', type: 'Lodge' }]
+    });
+    expect(metaContent(head, 'og:type')).toBe('website');
+    expect(metaContent(head, 'og:site_name')).toBe('ONA Experiences');
+    expect(metaContent(head, 'og:url')).toBe(`${SITE}/`);
+    expect(metaContent(head, 'og:image')).toBe('https://blob.example.com/poster.jpg');
+    expect(metaContent(head, 'og:locale')).toBe('es_CL');
+    expect(metaContent(head, 'og:locale:alternate')).toBe('en_US');
+    expect(metaContent(head, 'twitter:card')).toBe('summary_large_image');
+    expect(head.preloads).toEqual([{ href: 'https://blob.example.com/poster.jpg', as: 'image', fetchpriority: 'high' }]);
+
+    const [organization, website, itemList] = head.jsonLd;
+    expect(organization).toMatchObject({
+      '@type': 'Organization',
+      url: `${SITE}/`,
+      logo: `${SITE}/assets/logo-ona.png`,
+      sameAs: expect.arrayContaining(['https://www.onaflyfishing.cl'])
+    });
+    expect(website).toMatchObject({ '@type': 'WebSite', alternateName: 'ONA', inLanguage: 'es' });
+    expect(itemList.itemListElement).toEqual([
+      { '@type': 'ListItem', position: 1, url: `${SITE}/lodges/bio-bio-river-lodge-2007`, name: 'Bio Bio River Lodge' }
+    ]);
+  });
+
+  it('home without a published hero: bundled landscape og:image and no preload', () => {
+    const head = headFor('/en');
+    expect(metaContent(head, 'og:image')).toBe(`${SITE}/assets/lodges/manihuales-eco-lodge-5.jpg`);
+    expect(metaContent(head, 'og:locale')).toBe('en_US');
+    expect(head.preloads).toEqual([]);
+    expect(head.jsonLd[1].inLanguage).toBe('en');
+  });
+
+  it('es lodge: LodgingBusiness with geo, region, images and breadcrumbs; no aggregateRating without reviews', () => {
+    const head = headFor('/lodges/bio-bio-river-lodge-2007', detailed, { reviews: { average: null, count: 0, items: [] } });
+    expect(metaContent(head, 'og:image')).toBe(`${SITE}/assets/lodges/a.jpg`);
+    expect(metaContent(head, 'og:url')).toBe(`${SITE}/lodges/bio-bio-river-lodge-2007`);
+    const [business, breadcrumbs] = head.jsonLd;
+    expect(business).toMatchObject({
+      '@type': 'LodgingBusiness',
+      name: 'Bio Bio River Lodge',
+      url: `${SITE}/lodges/bio-bio-river-lodge-2007`,
+      image: [`${SITE}/assets/lodges/a.jpg`, 'https://cdn.example.com/b.jpg'],
+      geo: { '@type': 'GeoCoordinates', latitude: -38.4, longitude: -71.2 },
+      address: { '@type': 'PostalAddress', addressRegion: 'Araucanía', addressCountry: 'CL' }
+    });
+    expect(business.description.startsWith('Ubicado a orillas del río Biobío')).toBe(true);
+    expect(business).not.toHaveProperty('aggregateRating');
+    expect(breadcrumbs['@type']).toBe('BreadcrumbList');
+    expect(breadcrumbs.itemListElement.map(entry => entry.item)).toEqual([
+      `${SITE}/`,
+      `${SITE}/lodges/bio-bio-river-lodge-2007`
+    ]);
+  });
+
+  it('es lodge with visible reviews: aggregateRating from the review view', () => {
+    const head = headFor('/lodges/bio-bio-river-lodge-2007', detailed, { reviews: { average: 4.666, count: 3, items: [] } });
+    expect(head.jsonLd[0].aggregateRating).toEqual({
+      '@type': 'AggregateRating',
+      ratingValue: 4.7,
+      reviewCount: 3,
+      bestRating: 5,
+      worstRating: 1
+    });
+  });
+
+  it('guide: LocalBusiness', () => {
+    const head = headFor('/guides/juan-perez-12', { ...detailed, type: 'Guía', name: 'Juan Pérez', productId: 12 });
+    expect(head.jsonLd.map(block => block['@type'])).toEqual(['LocalBusiness', 'BreadcrumbList']);
+  });
+
+  it('no JSON-LD on noindex pages', () => {
+    expect(headFor('/en/lodges/bio-bio-river-lodge-2007', detailed).jsonLd).toEqual([]);
+    expect(headFor('/review').jsonLd).toEqual([]);
+    expect(headFor('/nada').jsonLd).toEqual([]);
+    expect(headFor('/nada').meta).toEqual([]);
+  });
+
+  it('renders OG, preload and script-safe JSON-LD tags', () => {
+    const head = headFor('/', undefined, { heroImage: 'https://blob.example.com/p.jpg' });
+    head.jsonLd = [{ '@type': 'Thing', name: '</script><script>alert(1)</script>' }];
+    const html = renderHeadTags(head);
+    expect(html).toContain('<meta property="og:title" content="Lodges y guías de pesca con mosca en Chile y la Patagonia | ONA Experiences" />');
+    expect(html).toContain('<meta name="twitter:card" content="summary_large_image" />');
+    expect(html).toContain('<link rel="preload" as="image" href="https://blob.example.com/p.jpg" fetchpriority="high" />');
+    expect(html).toContain('<script type="application/ld+json">{"@type":"Thing","name":"\\u003c/script\\u003e');
+    expect(html).not.toContain('</script><script>');
   });
 });
 
