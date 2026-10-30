@@ -57,7 +57,7 @@ The prerender loads the catalog, reviews and site assets in-process through `api
 
 Check a build locally with `npm run serve:dist -w @ona/web` (emulates Vercel's routing for `vercel.json`) and `apps/web/scripts/verify-seo.sh http://localhost:4173`; the same script works against a Preview URL.
 
-The static HTML is rebuilt through a Vercel Deploy Hook (`VERCEL_DEPLOY_HOOK_URL`): after BSale catalog webhooks, after a Site Asset publish/restore, from `/admin` → Configuración → **Republicar sitio**, and daily from `.github/workflows/rebuild-site.yml` (repository secret `VERCEL_DEPLOY_HOOK_URL`).
+The static HTML is rebuilt through a Vercel Deploy Hook (`VERCEL_DEPLOY_HOOK_URL`): after BSale catalog webhooks, review submissions and review hide/unhide (coalesced to one rebuild per 2 minutes), after a Site Asset publish/restore, from `/admin` → Configuración → **Republicar sitio**, and daily from `.github/workflows/rebuild-site.yml` (repository secret `VERCEL_DEPLOY_HOOK_URL`).
 
 ## Deployment (Vercel)
 

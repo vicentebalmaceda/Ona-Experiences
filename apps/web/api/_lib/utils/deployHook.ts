@@ -1,4 +1,4 @@
-import type { Cache } from '../cache/cache.js';
+import { getCache, type Cache } from '../cache/cache.js';
 import { createLogger } from './logger.js';
 
 const log = createLogger('deploy-hook');
@@ -74,4 +74,19 @@ export async function triggerRebuild(reason: string, options: TriggerRebuildOpti
     log.error('Site rebuild request failed', { reason, message });
     return { triggered: false, error: message };
   }
+}
+
+/**
+ * Coalescing window for content-driven rebuilds (BSale catalog webhooks,
+ * review submissions and moderation): bursts become one deploy.
+ */
+export const CONTENT_REBUILD_DEDUPE_SECONDS = 120;
+
+/**
+ * `triggerRebuild` coalesced through the shared cache, for frequent content
+ * events. A change landing inside the window waits for the next trigger, the
+ * admin "Republicar sitio" button or the daily scheduled rebuild.
+ */
+export function triggerCoalescedRebuild(reason: string): Promise<RebuildResult> {
+  return triggerRebuild(reason, { cache: getCache(), dedupeWindowSeconds: CONTENT_REBUILD_DEDUPE_SECONDS });
 }

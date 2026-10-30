@@ -55,8 +55,8 @@ function sameList(a, b) {
 
 /**
  * "Republicar sitio": the public pages are static HTML generated at build
- * time. BSale and Sitio changes already trigger a rebuild; this is the manual
- * escape hatch (e.g. after hiding a review).
+ * time. BSale, Sitio and review changes already trigger a rebuild; this is
+ * the manual escape hatch.
  */
 function SiteRebuildSection({ onRebuildSite }) {
   const [state, setState] = useState({ status: 'idle', message: null });
@@ -94,8 +94,8 @@ function SiteRebuildSection({ onRebuildSite }) {
           <h2 className="mt-1 text-lg font-semibold text-forest-950">Republicar sitio</h2>
           <p className="mt-2 text-sm text-forest-500">
             Las páginas públicas se generan como HTML estático. Se regeneran solas cuando cambia un
-            producto en BSale o una imagen de Sitio, y una vez al día. Usa este botón si un cambio
-            todavía no aparece (por ejemplo, después de ocultar una reseña).
+            producto en BSale, una imagen de Sitio o una reseña, y una vez al día. Usa este botón si
+            un cambio todavía no aparece después de unos minutos.
           </p>
         </div>
         <button
