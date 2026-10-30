@@ -33,3 +33,12 @@ Showing `hero-default.jpg` first and then swapping to the published hero (plus a
 - The localStorage memo is gone (its key is cleared on load), so every visit shows what is published now. The trade-off is a brief skeleton on every visit while the API answers.
 - In the admin, "Restaurar por defecto" becomes "Quitar archivo" for the hero slots.
 - Orphan blobs from abandoned uploads are possible but bounded by the token size cap; cleanup is a manual `list('site/')` for now.
+
+## Amendment (2026-10-30): mobile hero video
+
+Phones downloaded the full 1080p hero video even though `object-cover` shows only the central third of it in portrait, so the hero took seconds to start on mobile data. Now:
+
+- A `hero_mobile` slot (MP4/WebM, 20 MB cap, ideally a 720×960 center crop under 3 MB) replaces the hero video on screens up to 767 px wide. It is chosen on first render, so phones never request the desktop file; if it is missing or fails to load, phones fall back to `hero`.
+- It applies only while `hero` is a video; an image hero ignores it.
+- Visitors with Data Saver or Reduce Motion on see the poster without any video, when a poster is published.
+- Databases created before this need the widened slot check from `schema.sql` (`site_assets_slot_check`); until it runs, publishing to `hero_mobile` fails and the rest of the site is unaffected.
