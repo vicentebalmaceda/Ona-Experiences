@@ -107,14 +107,25 @@ function parseZoneId(raw: string): ZoneId | undefined {
   return (ZONE_IDS as readonly number[]).includes(value) ? (value as ZoneId) : undefined;
 }
 
+const ZONE_SEPARATOR = /[\s,;/|+&\-–—]+/;
+const ZONE_CONNECTOR_WORDS = new Set(['y', 'e', 'and']);
+
 /**
- * Zone is entered as a bare id or a comma-separated list of ids (e.g. `<p> 3 </p>`, `3, 4`).
- * Duplicates are dropped; any invalid entry rejects the whole value.
+ * Zone is entered as a bare id or a list of ids (e.g. `<p> 3 </p>`, `3, 4`, `3;4`, `3 y 4`, one per line).
+ * Any run of whitespace or `, ; / | + & -` separates ids, and `y`/`e`/`and` are ignored, so stray
+ * spaces and trailing commas are fine. Duplicates are dropped; any other entry (unknown id or text)
+ * rejects the whole value so typos get logged instead of silently showing the wrong zones.
  */
 function parseZoneIds(raw: string): ZoneId[] | undefined {
+  const parts = raw
+    .toLowerCase()
+    .split(ZONE_SEPARATOR)
+    .filter((part) => part !== '' && !ZONE_CONNECTOR_WORDS.has(part));
+  if (parts.length === 0) return undefined;
+
   const ids: ZoneId[] = [];
-  for (const part of raw.split(',')) {
-    const id = parseZoneId(part.trim());
+  for (const part of parts) {
+    const id = parseZoneId(part);
     if (id === undefined) return undefined;
     if (!ids.includes(id)) ids.push(id);
   }
@@ -164,7 +175,7 @@ export function extractPresentationFromDescriptions(
     if (zone !== undefined) {
       result.zone = zone;
     } else if (rawZone) {
-      log.warn('Ignoring invalid zone in market_info; expected ids 1-5, comma-separated', {
+      log.warn('Ignoring invalid zone in market_info; expected zone ids 1-6 separated by commas or spaces', {
         webProductId: info.id,
         productId: info.productId,
         zone: rawZone
