@@ -1,6 +1,7 @@
 /**
  * Content for the build-time prerender, loaded in-process through the same
- * service code the /api/v1 functions run (api/_lib/services/container.ts),
+ * service code the /api/v1 functions run (api/_lib/services/contentServices.ts,
+ * wired like container.ts but needing only the BSale and Postgres env vars),
  * never by fetching our own deployed API.
  *
  * The shapes are exactly what the browser gets from /api/v1, so the embedded
@@ -70,17 +71,20 @@ export async function loadLiveData(): Promise<SiteData> {
   delete process.env.KV_REST_API_URL;
   delete process.env.KV_REST_API_TOKEN;
 
-  const { getServices } = await import('../api/_lib/services/container.js');
+  // Only the content env vars (BSale, Postgres) are validated: a missing Resend
+  // or admin secret must not break a deploy.
+  const { getContentEnv } = await import('../api/_lib/config/env.js');
+  const { createContentServices } = await import('../api/_lib/services/contentServices.js');
   const mappers = await import('../api/_lib/utils/responseMappers.js');
-  const services = getServices();
+  const services = createContentServices(getContentEnv());
 
   async function listPage(type: CatalogType, offset: number) {
     const result = await services.catalogService.list(type, { limit: LANDING_PAGE_SIZE, offset });
     const mapped = type === 'lodge' ? mappers.toLodgeListResponse(result) : mappers.toGuideListResponse(result);
     const items =
       type === 'lodge'
-        ? await mappers.attachLodgeReviewAggregates(mapped.items as Lodge[], services.reviewService)
-        : await mappers.attachGuideReviewAggregates(mapped.items as Guide[], services.reviewService);
+        ? await mappers.attachLodgeReviewAggregates(mapped.items as Lodge[], services.reviewReader)
+        : await mappers.attachGuideReviewAggregates(mapped.items as Guide[], services.reviewReader);
     return { items: items as ApiItem[], count: result.pagination.count };
   }
 
@@ -98,9 +102,9 @@ export async function loadLiveData(): Promise<SiteData> {
       const variant = await services.catalogService.get(type, productId);
       const [item] =
         type === 'lodge'
-          ? await mappers.attachLodgeReviewAggregates([mappers.mapCatalogVariantToLodge(variant)], services.reviewService)
-          : await mappers.attachGuideReviewAggregates([mappers.mapCatalogVariantToGuide(variant)], services.reviewService);
-      const reviews = await services.reviewService.listVisibleForProduct(type, productId);
+          ? await mappers.attachLodgeReviewAggregates([mappers.mapCatalogVariantToLodge(variant)], services.reviewReader)
+          : await mappers.attachGuideReviewAggregates([mappers.mapCatalogVariantToGuide(variant)], services.reviewReader);
+      const reviews = await services.reviewReader.listVisibleForProduct(type, productId);
       return { catalogType: API_TYPE[type], item, reviews };
     } catch (error) {
       // Listed but not fetchable (e.g. deactivated meanwhile): no page for it.
@@ -233,7 +237,7 @@ export async function loadSiteData(env: NodeJS.ProcessEnv = process.env): Promis
       throw new Error(
         `Prerender could not load live content (BSale/Postgres): ${message}\n` +
           'The build fails on purpose so Vercel keeps serving the previous deployment. ' +
-          'Check that the BSALE_*, POSTGRES_URL and other API env vars are available to the Build step.'
+          'Check that BSALE_ACCESS_TOKEN (and optional BSALE_API_BASE_URL / BSALE_*_PRODUCT_TYPE_NAME) and POSTGRES_URL are available to the Build step.'
       );
     }
     warnSeed(`Live data unavailable: ${message.split('\n')[0]}`);

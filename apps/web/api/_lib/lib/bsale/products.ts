@@ -43,7 +43,7 @@ function resolveProductTypeId(product: BsaleProduct): number | null {
 export class BsaleProductTypeResolver {
   constructor(
     private readonly client: BsaleClient,
-    private readonly env: Env
+    private readonly env: Pick<Env, 'BSALE_LODGE_PRODUCT_TYPE_NAME' | 'BSALE_GUIDE_PRODUCT_TYPE_NAME'>
   ) {}
 
   async resolveIdByName(name: string): Promise<number> {

@@ -53,7 +53,7 @@ npm run test -w @ona/web   # unit tests (Vitest; Resend mocked)
 
 `npm run build -w @ona/web` runs `vite build` (client → `dist/`), `vite build --ssr src/entry-server.jsx` (→ `dist-server/`) and `scripts/prerender.ts`, which writes static HTML for every public page: `dist/index.html`, `dist/en/index.html`, `dist/quienes-somos/index.html`, `dist/en/about/index.html`, `dist/{,en/}{lodges,guides}/<slug>/index.html`, legacy `/lodges/<productId>` redirect pages, `404.html`, the client-only `spa.html` (noindex) and `sitemap.xml`. Each page embeds `window.__ONA_DATA__`, which the React app hydrates from before revalidating against `/api/v1`.
 
-The prerender loads the catalog, reviews and site assets in-process through `api/_lib` services. On Vercel (`VERCEL=1`) it fails the build when that data can't be loaded, so the previous deployment keeps serving. Locally, without the BSale/Postgres env vars, it uses the seed catalog with a loud warning (`PRERENDER_DATA=live|seed` forces either).
+The prerender loads the catalog, reviews and site assets in-process through `api/_lib` services (`contentServices.ts`, which validates only the BSale and Postgres env vars). On Vercel (`VERCEL=1`) it fails the build when that data can't be loaded, so the previous deployment keeps serving. Locally, without the BSale/Postgres env vars, it uses the seed catalog with a loud warning (`PRERENDER_DATA=live|seed` forces either).
 
 Check a build locally with `npm run serve:dist -w @ona/web` (emulates Vercel's routing for `vercel.json`) and `apps/web/scripts/verify-seo.sh http://localhost:4173`; the same script works against a Preview URL.
 
@@ -64,7 +64,7 @@ The static HTML is rebuilt through a Vercel Deploy Hook (`VERCEL_DEPLOY_HOOK_URL
 One Vercel project with **Root Directory = `apps/web`**:
 
 - The prerendered pages are served statically (Vercel serves files before applying rewrites). `vercel.json` rewrites only `/admin`, `/review` and product URLs without a prerendered file (products added since the last build) to `spa.html`; every other unknown path gets `404.html` with a real 404. It also maps `/health` → `/api/health`.
-- The build needs the same API env vars as the functions (BSale, Postgres, …) in every environment that builds (Production and Preview).
+- The build (prerender) needs only `BSALE_ACCESS_TOKEN` and `POSTGRES_URL` (plus the optional `BSALE_API_BASE_URL` / `BSALE_LODGE_PRODUCT_TYPE_NAME` / `BSALE_GUIDE_PRODUCT_TYPE_NAME`) in every environment that builds (Production and Preview); Resend and admin secrets are runtime-only.
 - `/api/v1/*` rewrites to one serverless function (`api/v1/index.ts`). Vite/non-Next catch-all filenames only match a single segment on Vercel, so nested routes use an explicit rewrite instead. Health and the BSale webhook stay separate. Files under `api/_lib/` are not functions. `/api/v1/*` is same-origin with the frontend (leave `VITE_API_URL` empty).
 - Attach `api.<domain>` as an additional domain on the same project to expose the identical `/api/v1/*` paths on a dedicated subdomain.
 - Set the `BSALE_*` and Resend (`RESEND_API_KEY`, `MAIL_FROM`, `ADMIN_EMAIL`) variables (and optionally `KV_REST_API_URL`/`KV_REST_API_TOKEN` for the distributed cache) as project environment variables.

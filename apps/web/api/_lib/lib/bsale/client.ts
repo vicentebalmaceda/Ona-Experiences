@@ -56,7 +56,7 @@ export class BsaleClient {
   private readonly baseUrl: string;
   private readonly limiter = new ConcurrencyLimiter(MAX_CONCURRENT_REQUESTS);
 
-  constructor(private readonly env: Env) {
+  constructor(private readonly env: Pick<Env, 'BSALE_API_BASE_URL' | 'BSALE_ACCESS_TOKEN'>) {
     this.baseUrl = env.BSALE_API_BASE_URL.replace(/\/$/, '');
   }
 
