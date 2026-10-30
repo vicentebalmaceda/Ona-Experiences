@@ -83,6 +83,8 @@ function SlotCard({ slot, asset, posterUrl, showPosterHint, uploadsEnabled, onPu
   const isPublished = Boolean(asset);
   const currentKind = asset?.kind || rules.defaultKind;
   const currentUrl = asset?.url || rules.defaultUrl;
+  // Hero slots have no bundled default: unpublished means the site shows nothing there.
+  const hasDefault = Boolean(rules.defaultUrl);
   const warnings = media ? warningsForMedia(slot, media) : [];
   const showAlt = (media?.kind || (file ? null : currentKind)) !== 'video';
 
@@ -154,7 +156,9 @@ function SlotCard({ slot, asset, posterUrl, showPosterHint, uploadsEnabled, onPu
 
   const restore = async () => {
     const ok = window.confirm(
-      `¿Restaurar el valor por defecto de "${rules.label}"? El archivo publicado se eliminará.`
+      hasDefault
+        ? `¿Restaurar el valor por defecto de "${rules.label}"? El archivo publicado se eliminará.`
+        : `¿Quitar "${rules.label}"? El archivo publicado se eliminará y el sitio no mostrará nada en su lugar.`
     );
     if (!ok) return;
     setError('');
@@ -163,7 +167,7 @@ function SlotCard({ slot, asset, posterUrl, showPosterHint, uploadsEnabled, onPu
     try {
       await onRestore(slot);
       clearSelection();
-      setFeedback(`${rules.label} restaurado al valor por defecto.`);
+      setFeedback(hasDefault ? `${rules.label} restaurado al valor por defecto.` : `${rules.label} quitado.`);
       setTimeout(() => setFeedback(''), 2800);
     } catch (err) {
       setError(err?.data?.error || err?.message || 'No se pudo restaurar el valor por defecto.');
@@ -179,7 +183,7 @@ function SlotCard({ slot, asset, posterUrl, showPosterHint, uploadsEnabled, onPu
       : busy === 'publishing'
         ? 'Publicando…'
         : busy === 'restoring'
-          ? 'Restaurando…'
+          ? (hasDefault ? 'Restaurando…' : 'Quitando…')
           : null;
 
   return (
@@ -198,23 +202,29 @@ function SlotCard({ slot, asset, posterUrl, showPosterHint, uploadsEnabled, onPu
             </div>
             {!isPublished && (
               <span className="shrink-0 rounded-full bg-forest-100 px-3 py-1 text-xs font-semibold text-forest-500">
-                Por defecto
+                {hasDefault ? 'Por defecto' : 'Sin publicar'}
               </span>
             )}
           </div>
 
           <div className="mt-4 overflow-hidden rounded-2xl border border-forest-100 bg-forest-50/60">
-            <MediaPreview
-              kind={currentKind}
-              url={currentUrl}
-              alt={asset?.alt}
-              poster={currentKind === 'video' ? posterUrl : undefined}
-              className={
-                slot === 'logo'
-                  ? 'mx-auto h-40 w-40 object-contain p-4'
-                  : 'aspect-video w-full object-cover'
-              }
-            />
+            {currentUrl ? (
+              <MediaPreview
+                kind={currentKind}
+                url={currentUrl}
+                alt={asset?.alt}
+                poster={currentKind === 'video' ? posterUrl : undefined}
+                className={
+                  slot === 'logo'
+                    ? 'mx-auto h-40 w-40 object-contain p-4'
+                    : 'aspect-video w-full object-cover'
+                }
+              />
+            ) : (
+              <div className="flex aspect-video w-full items-center justify-center text-sm font-semibold text-forest-400">
+                Sin archivo publicado
+              </div>
+            )}
           </div>
 
           <p className="mt-3 text-xs text-forest-400">
@@ -222,7 +232,9 @@ function SlotCard({ slot, asset, posterUrl, showPosterHint, uploadsEnabled, onPu
               ? `Publicado por ${asset.publishedBy} el ${formatPublishedAt(asset.publishedAt)}${
                   asset.width && asset.height ? ` · ${formatDimensions(asset.width, asset.height)}` : ''
                 } · ${formatMegabytes(asset.sizeBytes)}`
-              : 'Se está mostrando el archivo por defecto del sitio.'}
+              : hasDefault
+                ? 'Se está mostrando el archivo por defecto del sitio.'
+                : 'No hay archivo publicado: el sitio muestra un fondo oscuro.'}
           </p>
 
           {showPosterHint && (
@@ -347,7 +359,7 @@ function SlotCard({ slot, asset, posterUrl, showPosterHint, uploadsEnabled, onPu
                 disabled={isBusy}
                 className="admin-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {busy === 'restoring' ? busyLabel : 'Restaurar por defecto'}
+                {busy === 'restoring' ? busyLabel : hasDefault ? 'Restaurar por defecto' : 'Quitar archivo'}
               </button>
             )}
           </div>

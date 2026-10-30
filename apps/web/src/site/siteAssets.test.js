@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { defaultSiteAssets, mergePublished } from './SiteAssetsProvider.jsx';
 
+describe('defaultSiteAssets', () => {
+  it('bundles a default only for the logo; hero slots start empty', () => {
+    const defaults = defaultSiteAssets();
+    expect(defaults.logo.url).toBe('/assets/logo-ona.png');
+    expect(defaults.hero.url).toBeNull();
+    expect(defaults.hero_poster.url).toBeNull();
+  });
+});
+
 describe('mergePublished', () => {
   it('falls back to bundled defaults when nothing is published', () => {
     expect(mergePublished(null)).toEqual(defaultSiteAssets());

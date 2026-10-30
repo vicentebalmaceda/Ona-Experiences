@@ -1369,3 +1369,29 @@ body {
     display: none;
   }
 }
+
+/* Hero loading skeleton (Hero.jsx): a soft light band sweeps across the dark
+   hero while the published image or video poster is on its way. */
+.hero-skeleton {
+  background-color: #0f172a;
+  background-image: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, .07) 50%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  background-size: 250% 100%;
+  background-repeat: no-repeat;
+  animation: hero-skeleton-sweep 1.8s ease-in-out infinite;
+}
+
+@keyframes hero-skeleton-sweep {
+  0% { background-position: 150% 0; }
+  100% { background-position: -50% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-skeleton {
+    animation: none;
+  }
+}

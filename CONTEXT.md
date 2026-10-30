@@ -33,11 +33,11 @@ A person authorized to issue Review Invites and control which Reviews are Visibl
 _Avoid_: User, staff account
 
 **Asset Slot**:
-A fixed, named place on the public site an Admin can fill with an uploaded file: `hero` (landing background, image or muted looping video), `hero_poster` (image shown while a video hero loads) and `logo` (header logo and favicon). Slots are defined in code (`siteAssetSlots.ts`), each with its allowed types, size cap and bundled default; Admins do not create slots.
+A fixed, named place on the public site an Admin can fill with an uploaded file: `hero` (landing background, image or muted looping video), `hero_poster` (image shown while a video hero loads) and `logo` (header logo and favicon). Slots are defined in code (`siteAssetSlots.ts`), each with its allowed types, size cap and, for the logo only, a bundled default; Admins do not create slots.
 _Avoid_: Media library, gallery, upload (that is the action, not the thing)
 
 **Site Asset**:
-The file currently published in an Asset Slot: a public Vercel Blob URL plus kind, content type, size, optional dimensions and alt text, and who published it when. A slot with no Site Asset renders its bundled default from `public/assets`. Publishing replaces the previous Site Asset and deletes its blob; "restore default" removes it.
+The file currently published in an Asset Slot: a public Vercel Blob URL plus kind, content type, size, optional dimensions and alt text, and who published it when. A slot with no Site Asset renders its bundled default from `public/assets` if it has one (the logo); the hero slots have none, so the hero shows a loading skeleton and then its plain dark background. Publishing replaces the previous Site Asset and deletes its blob; "restore default" ("Quitar archivo" for hero slots) removes it.
 _Avoid_: Product image (those come from BSale), attachment
 
 **Setting**:

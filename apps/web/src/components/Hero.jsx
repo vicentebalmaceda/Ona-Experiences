@@ -1,44 +1,85 @@
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSiteAsset } from '../site/SiteAssetsProvider.jsx';
 
 const lettering =
   '[-webkit-text-stroke:1.15px_rgba(15,23,42,0.55)] [paint-order:stroke_fill] [text-shadow:0_0_2px_rgba(15,23,42,0.95),0_0_7px_rgba(15,23,42,0.75),0_0_14px_rgba(15,23,42,0.45),0_1px_2px_rgba(15,23,42,0.85),0_4px_16px_rgba(15,23,42,0.55),0_12px_32px_rgba(15,23,42,0.35)]';
 
-const mediaClass = 'absolute inset-0 -z-10 h-full w-full object-cover';
+const layerClass = 'absolute inset-0 -z-10 h-full w-full object-cover transition-opacity duration-500';
 
-/** Background media for the hero: an image, or a muted looping video with a poster. */
+/** Tracks which media URLs have finished loading, so each layer fades in once ready. */
+function useLoadedUrls() {
+  const [loaded, setLoaded] = useState(() => new Set());
+  const markLoaded = useCallback((url) => {
+    setLoaded((current) => {
+      if (!url || current.has(url)) return current;
+      const next = new Set(current);
+      next.add(url);
+      return next;
+    });
+  }, []);
+  return [loaded, markLoaded];
+}
+
+/**
+ * Background media for the hero: an image, or a muted looping video over its
+ * poster. There is no bundled fallback: a skeleton shimmers until the
+ * published media is ready, and the plain dark hero stays if nothing is
+ * published or it fails to load.
+ */
 function HeroMedia() {
   const hero = useSiteAsset('hero');
   const poster = useSiteAsset('hero_poster');
+  const [loaded, markLoaded] = useLoadedUrls();
 
-  if (hero.kind === 'video') {
-    return (
-      <video
-        key={hero.url}
-        className={mediaClass}
-        src={hero.url}
-        poster={poster.url}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        aria-hidden="true"
-        onError={hero.onError}
-      />
-    );
-  }
+  const isVideo = hero.kind === 'video' && hero.url;
+  // The poster is drawn as a real <img> (high fetch priority) under the video
+  // instead of the video's `poster` attribute, which browsers fetch lazily.
+  const stillUrl = isVideo ? poster.url : hero.url;
+  const stillReady = Boolean(stillUrl) && loaded.has(stillUrl);
+  const videoReady = Boolean(isVideo) && loaded.has(hero.url);
+  const loading = hero.status === 'loading' || (Boolean(hero.url) && !stillReady && !videoReady);
+
+  // Catches images the browser already had cached, whose load event can fire
+  // before React attaches the handler.
+  const checkComplete = (url) => (element) => {
+    if (element?.complete && element.naturalWidth > 0) markLoaded(url);
+  };
 
   return (
-    <img
-      key={hero.url}
-      className={mediaClass}
-      src={hero.url}
-      alt={hero.alt || ''}
-      fetchpriority="high"
-      decoding="async"
-      onError={hero.onError}
-    />
+    <>
+      {loading && <div className="hero-skeleton absolute inset-0 -z-10" aria-hidden="true" />}
+      {stillUrl && (
+        <img
+          key={stillUrl}
+          ref={checkComplete(stillUrl)}
+          className={`${layerClass} ${stillReady ? 'opacity-100' : 'opacity-0'}`}
+          src={stillUrl}
+          alt={isVideo ? '' : hero.alt || ''}
+          aria-hidden={isVideo ? 'true' : undefined}
+          fetchpriority="high"
+          decoding="async"
+          onLoad={() => markLoaded(stillUrl)}
+          onError={isVideo ? poster.onError : hero.onError}
+        />
+      )}
+      {isVideo && (
+        <video
+          key={hero.url}
+          className={`${layerClass} ${videoReady ? 'opacity-100' : 'opacity-0'}`}
+          src={hero.url}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+          onLoadedData={() => markLoaded(hero.url)}
+          onPlaying={() => markLoaded(hero.url)}
+          onError={hero.onError}
+        />
+      )}
+    </>
   );
 }
 

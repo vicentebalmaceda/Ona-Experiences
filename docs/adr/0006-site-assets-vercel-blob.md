@@ -5,7 +5,7 @@ date: 2026-10-10
 
 # Admin-managed site assets live in Vercel Blob, pointed at from Postgres
 
-The landing hero (image or looping video) and the logo are replaceable from `/admin` → "Sitio" without a deploy. Files go straight from the admin's browser to a **public Vercel Blob store** (client uploads with a session-gated token), and a `site_assets` row per Asset Slot records what is published. The public site reads `GET /api/v1/site/assets` (CDN-cached 60 s) and falls back to the bundled defaults in `public/assets` whenever the endpoint, the table or a blob is unavailable.
+The landing hero (image or looping video) and the logo are replaceable from `/admin` → "Sitio" without a deploy. Files go straight from the admin's browser to a **public Vercel Blob store** (client uploads with a session-gated token), and a `site_assets` row per Asset Slot records what is published. The public site reads `GET /api/v1/site/assets` (CDN-cached 60 s) and falls back to the bundled defaults in `public/assets` whenever the endpoint, the table or a blob is unavailable. The hero slots have no bundled default (see the 2026-10-30 amendment below).
 
 Full rationale and alternatives (Cloudinary, S3, Git commits, Postgres bytea): [docs/proposals/admin-site-assets.md](../proposals/admin-site-assets.md).
 
@@ -21,5 +21,15 @@ Full rationale and alternatives (Cloudinary, S3, Git commits, Postgres bytea): [
 ## Consequences
 
 - One more Vercel resource (the Blob store) and one env var. Hobby plan: 1 GB storage and 10 GB transfer per month shared with the project; a video hero can exceed that and gets the store blocked for 30 days, which degrades to defaults but is still a visible regression. Pro removes the cap at about $0.05/GB.
-- The 4.4 MB `OnaExperiences.jpeg` left the repo; the bundled default is a 1920 px re-encode (`hero-default.jpg`).
+- The 4.4 MB `OnaExperiences.jpeg` left the repo; the bundled default was a 1920 px re-encode (`hero-default.jpg`), itself removed by the amendment below.
+
+## Amendment (2026-10-30): no bundled hero default
+
+Showing `hero-default.jpg` first and then swapping to the published hero (plus a localStorage memo of the last API answer) meant visitors saw a stale or wrong image before the real one, and the default competed for bandwidth with the published poster. Now:
+
+- `hero` and `hero_poster` have `defaultUrl: null`; only the logo keeps a bundled default.
+- The hero shows a shimmering skeleton until `/api/v1/site/assets` answers and the published image (or the video's poster) has loaded, then fades the media in. The poster is a high-priority `<img>` under the video rather than the `poster` attribute.
+- With nothing published, or a failing API or blob, the hero settles on its plain dark background with the text on top.
+- The localStorage memo is gone (its key is cleared on load), so every visit shows what is published now. The trade-off is a brief skeleton on every visit while the API answers.
+- In the admin, "Restaurar por defecto" becomes "Quitar archivo" for the hero slots.
 - Orphan blobs from abandoned uploads are possible but bounded by the token size cap; cleanup is a manual `list('site/')` for now.

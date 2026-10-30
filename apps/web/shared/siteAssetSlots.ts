@@ -24,8 +24,12 @@ export interface SlotRules {
   maxSizeBytes: number;
   /** Spanish hint shown next to the picker. */
   recommended: string;
-  /** Default file bundled with the SPA, served from /assets when nothing is published. */
-  defaultUrl: string;
+  /**
+   * Default file bundled with the SPA, served from /assets when nothing is
+   * published. `null` means the slot has no fallback: the site shows a
+   * skeleton while loading and nothing at all if nothing is published.
+   */
+  defaultUrl: string | null;
   defaultKind: SiteAssetKind;
 }
 
@@ -39,7 +43,7 @@ export const SLOT_RULES: Record<SiteAssetSlot, SlotRules> = {
     maxSizeBytes: 100 * MB,
     recommended:
       'Imagen JPG/WebP de 1920×1080 o mayor (máx. 6 MB), o video MP4/WebM 1080p, sin audio (máx. 100 MB).',
-    defaultUrl: '/assets/hero-default.jpg',
+    defaultUrl: null,
     defaultKind: 'image'
   },
   hero_poster: {
@@ -48,7 +52,7 @@ export const SLOT_RULES: Record<SiteAssetSlot, SlotRules> = {
     allowedContentTypes: ['image/jpeg', 'image/webp'],
     maxSizeBytes: 2 * MB,
     recommended: 'JPG/WebP con el mismo encuadre que el primer cuadro del video (máx. 2 MB).',
-    defaultUrl: '/assets/hero-default.jpg',
+    defaultUrl: null,
     defaultKind: 'image'
   },
   logo: {
