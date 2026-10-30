@@ -10,14 +10,7 @@ import { zoneLabel } from '../utils/zones.js';
 import { itemImageAlt } from '../utils/imageAlt.js';
 import useSmartSticky from '../hooks/useSmartSticky.js';
 import { imageUrl, responsiveImage } from '../utils/responsiveImage.js';
-
-const DESCRIPTION_ALLOWED_TAGS = [
-  'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-  'p', 'span', 'br', 'a',
-  'strong', 'em', 'b', 'i', 'u',
-  'ul', 'ol', 'li',
-];
-const DESCRIPTION_ALLOWED_ATTR = ['href', 'target', 'rel'];
+import { sanitizeMarketDescription } from '../utils/sanitizeDescription.js';
 
 function uniqueImageUrls(sources) {
   const seen = new Set();
@@ -61,21 +54,17 @@ function usePurify(needed) {
   return purify;
 }
 
-/** Sanitize BSale market_info HTML so tags and Spanish entities render safely. */
-function sanitizeMarketDescription(DOMPurify, html) {
-  if (!DOMPurify || !html || typeof html !== 'string') return '';
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: DESCRIPTION_ALLOWED_TAGS,
-    ALLOWED_ATTR: DESCRIPTION_ALLOWED_ATTR,
-    ALLOW_DATA_ATTR: false,
-  }).trim();
-}
-
 function displayTypeLabel(type, t) {
   return type === 'Lodge' ? t('types.lodge') : t('types.guide');
 }
 
-function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate }) {
+/**
+ * `prerenderedDescription` is `{ source, html }`: the description HTML the
+ * prerender sanitized at build time (window.__ONA_DATA__). While `item.description`
+ * is still that `source`, it is rendered as is, so the first client render
+ * matches the server HTML and DOMPurify is not downloaded at all.
+ */
+function DetailPage({ item, catalogType, productId, reviews, prerenderedDescription, onBack, onNavigate }) {
   const { t } = useTranslation();
   const catalogStats = getRatingStats(item);
   const stats = {
@@ -89,13 +78,17 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
     [item.gallery, item.image]
   );
   const hasDescription = typeof item.description === 'string' && item.description.trim() !== '';
-  const purify = usePurify(hasDescription);
+  const prerendered =
+    prerenderedDescription && prerenderedDescription.source === item.description
+      ? prerenderedDescription.html
+      : null;
+  const purify = usePurify(hasDescription && prerendered == null);
   const descriptionHtml = useMemo(
-    () => sanitizeMarketDescription(purify, item.description),
-    [purify, item.description]
+    () => prerendered ?? sanitizeMarketDescription(purify, item.description),
+    [prerendered, purify, item.description]
   );
   // While the sanitizer loads, hold the space instead of flashing the fallback copy.
-  const descriptionPending = hasDescription && !purify;
+  const descriptionPending = hasDescription && prerendered == null && !purify;
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const bookingPanelRef = useRef(null);

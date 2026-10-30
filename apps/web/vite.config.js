@@ -13,7 +13,7 @@ const responsiveImages = () => ({
   }
 });
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, isSsrBuild }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const apiProxyTarget = env.VITE_API_PROXY_TARGET || env.VITE_API_URL || 'http://localhost:3003';
 
@@ -21,6 +21,8 @@ export default defineConfig(({ mode }) => {
     root: '.',
     publicDir: 'public',
     plugins: [react(), responsiveImages()],
+    // The SSR bundle (dist-server/, used only by scripts/prerender.ts) needs no public/ copy.
+    build: { copyPublicDir: !isSsrBuild },
     server: {
       proxy: {
         '/api': {

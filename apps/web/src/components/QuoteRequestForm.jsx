@@ -27,6 +27,13 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
   const [errorMessage, setErrorMessage] = useState('');
   const [rutError, setRutError] = useState('');
   const [quoteResult, setQuoteResult] = useState(null);
+  // Set after mount: the page is prerendered at build time, so a date computed
+  // during render would be the build date in the server HTML (and mismatch).
+  const [today, setToday] = useState(null);
+
+  useEffect(() => {
+    setToday(todayIsoDate());
+  }, []);
 
   useEffect(() => {
     const profile = loadUserProfile();
@@ -351,7 +358,7 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
                 id="quoteStartDate"
                 type="date"
                 value={reservationDate}
-                min={todayIsoDate()}
+                min={today ?? undefined}
                 onChange={(event) => {
                   const startDate = event.target.value;
                   setReservationDate(startDate);
@@ -371,7 +378,7 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
                 id="quoteEndDate"
                 type="date"
                 value={reservationEndDate}
-                min={reservationDate || todayIsoDate()}
+                min={reservationDate || today || undefined}
                 onChange={(event) => setReservationEndDate(event.target.value)}
                 className="quote-input"
                 required

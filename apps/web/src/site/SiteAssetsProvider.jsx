@@ -1,16 +1,22 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { SLOT_RULES } from '../../shared/siteAssetSlots.ts';
+import { useInitialData } from './initialData.js';
+import { defaultSiteAssets, mergePublished, sameData } from './pageData.js';
+
+export { defaultSiteAssets, mergePublished };
 
 /**
  * Admin-managed site assets (hero, hero poster, logo).
  *
- * Slots with a bundled default (the logo) render it immediately and swap to
- * whatever an Admin published once `/api/v1/site/assets` answers. Slots
- * without one (the hero) have `url: null` until then, and `status` tells the
- * component whether to show a loading skeleton (`loading`) or settle on an
- * empty state (`ready` with nothing published, or `error`). A load error on a
- * published file (deleted blob, blocked store) falls back to the default for
- * that slot via `onError`, which for the hero means no media.
+ * On a prerendered page the assets published at build time come embedded
+ * (window.__ONA_DATA__.siteAssets), so the first render already shows them
+ * (and matches the server HTML). Otherwise slots with a bundled default (the
+ * logo) render it immediately, and slots without one (the hero) have
+ * `url: null` with `status: 'loading'` until `/api/v1/site/assets` answers.
+ * Either way the API is asked again after mount; an unchanged answer keeps
+ * the same state, so nothing re-renders. A load error on a published file
+ * (deleted blob, blocked store) falls back to the default for that slot via
+ * `onError`, which for the hero means no media.
  */
 
 // Former localStorage memo of the API answer. It made repeat visits show a
@@ -28,10 +34,6 @@ function defaultAsset(rules) {
   return { kind: rules.defaultKind, url: rules.defaultUrl, alt: null, width: null, height: null, isDefault: true };
 }
 
-export function defaultSiteAssets() {
-  return Object.fromEntries(Object.entries(SLOT_RULES).map(([slot, rules]) => [slot, defaultAsset(rules)]));
-}
-
 function clearLegacyMemo() {
   try {
     localStorage.removeItem(LEGACY_STORAGE_KEY);
@@ -40,32 +42,15 @@ function clearLegacyMemo() {
   }
 }
 
-/** Merge the API answer (null = default) over the bundled defaults. */
-export function mergePublished(items) {
-  const merged = defaultSiteAssets();
-  if (!items || typeof items !== 'object') return merged;
-  for (const slot of Object.keys(merged)) {
-    const published = items[slot];
-    if (published && typeof published.url === 'string' && published.url) {
-      merged[slot] = {
-        kind: published.kind === 'video' ? 'video' : 'image',
-        url: published.url,
-        alt: published.alt ?? null,
-        width: published.width ?? null,
-        height: published.height ?? null,
-        isDefault: false
-      };
-    }
-  }
-  return merged;
-}
-
 const SiteAssetsContext = createContext(null);
 
 export function SiteAssetsProvider({ children }) {
-  const [assets, setAssets] = useState(defaultSiteAssets);
+  const { data } = useInitialData();
+  const embedded = data?.siteAssets?.items;
+  const [assets, setAssets] = useState(() => (embedded ? mergePublished(embedded) : defaultSiteAssets()));
   // 'loading' until the API answers, then 'ready'; 'error' if it never does.
-  const [status, setStatus] = useState('loading');
+  // Embedded assets are already an answer.
+  const [status, setStatus] = useState(embedded ? 'ready' : 'loading');
   // Slots whose published file failed to load in this session.
   const [failed, setFailed] = useState(() => new Set());
 
@@ -74,18 +59,19 @@ export function SiteAssetsProvider({ children }) {
     clearLegacyMemo();
     fetch(`${apiBase()}${ASSETS_PATH}`)
       .then((response) => (response.ok ? response.json() : null))
-      .then((data) => {
+      .then((payload) => {
         if (cancelled) return;
-        if (!data) {
-          setStatus('error');
+        if (!payload) {
+          // Keep embedded assets; without them, slots settle on their empty state.
+          setStatus((current) => (current === 'ready' ? current : 'error'));
           return;
         }
-        setAssets(mergePublished(data.items));
+        const next = mergePublished(payload.items);
+        setAssets((current) => (sameData(current, next) ? current : next));
         setStatus('ready');
       })
       .catch(() => {
-        // Keep the defaults; slots without one settle on their empty state.
-        if (!cancelled) setStatus('error');
+        if (!cancelled) setStatus((current) => (current === 'ready' ? current : 'error'));
       });
     return () => {
       cancelled = true;

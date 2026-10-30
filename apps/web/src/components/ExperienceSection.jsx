@@ -1,22 +1,30 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import CompactMap from './CompactMap.jsx';
 import { formatRating, getRatingStats, renderStars, sortItemsByRating } from '../utils/rating.js';
 import { inZone, zoneIds, zoneLabel } from '../utils/zones.js';
 import { itemImageAlt } from '../utils/imageAlt.js';
 import { responsiveImage } from '../utils/responsiveImage.js';
+import { useLocalizedPath } from '../i18n/locale.js';
 
 function normalizeText(value) {
   return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
-// Square thumbnail on the left, details stacked on the right.
+// Square thumbnail on the left, details stacked on the right. A real link
+// when the item has a detail page, so crawlers (and the prerendered HTML)
+// reach every lodge and guide from the landing.
 function ExperienceListItem({ item, onSelect }) {
   const { t } = useTranslation();
+  const { detailPath } = useLocalizedPath();
   const stats = getRatingStats(item);
+  const href = detailPath(item);
+  const Wrapper = href ? Link : 'button';
+  const wrapperProps = href ? { to: href } : { type: 'button', onClick: () => onSelect(item) };
 
   return (
-    <button type="button" onClick={() => onSelect(item)} className="experience-list-item group">
+    <Wrapper {...wrapperProps} className="experience-list-item group">
       <div className="experience-list-cover">
         <img {...responsiveImage(item.image, '128px')} width="128" height="128" loading="lazy" decoding="async" alt={itemImageAlt(item, t)} className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
       </div>
@@ -39,7 +47,7 @@ function ExperienceListItem({ item, onSelect }) {
           )}
         </div>
       </div>
-    </button>
+    </Wrapper>
   );
 }
 
