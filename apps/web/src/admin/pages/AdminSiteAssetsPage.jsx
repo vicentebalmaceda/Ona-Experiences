@@ -194,7 +194,7 @@ function SlotCard({ slot, asset, posterUrl, showPosterHint, uploadsEnabled, onPu
             <div>
               <p className="admin-eyebrow">{rules.label}</p>
               <p className="mt-2 text-sm text-forest-600">{rules.description}</p>
-              {slot === 'hero_poster' && (
+              {(slot === 'hero_poster' || slot === 'hero_mobile') && (
                 <p className="mt-1 text-xs text-forest-400">
                   Solo se usa cuando el hero es un video.
                 </p>
@@ -217,7 +217,9 @@ function SlotCard({ slot, asset, posterUrl, showPosterHint, uploadsEnabled, onPu
                 className={
                   slot === 'logo'
                     ? 'mx-auto h-40 w-40 object-contain p-4'
-                    : 'aspect-video w-full object-cover'
+                    : slot === 'hero_mobile'
+                      ? 'mx-auto aspect-[3/4] h-72 object-cover'
+                      : 'aspect-video w-full object-cover'
                 }
               />
             ) : (
@@ -276,7 +278,9 @@ function SlotCard({ slot, asset, posterUrl, showPosterHint, uploadsEnabled, onPu
                   className={
                     slot === 'logo'
                       ? 'mx-auto h-32 w-32 object-contain p-3'
-                      : 'aspect-video w-full object-cover'
+                      : slot === 'hero_mobile'
+                        ? 'mx-auto aspect-[3/4] h-56 object-cover'
+                        : 'aspect-video w-full object-cover'
                   }
                 />
               </div>
@@ -407,7 +411,7 @@ export default function AdminSiteAssetsPage({ assets, loading, error, onReload, 
             key={slot}
             slot={slot}
             asset={items[slot] || null}
-            posterUrl={slot === 'hero' ? items.hero_poster?.url : undefined}
+            posterUrl={slot === 'hero' || slot === 'hero_mobile' ? items.hero_poster?.url : undefined}
             showPosterHint={slot === 'hero' && posterHint}
             uploadsEnabled={blobConfigured}
             onPublish={onPublish}

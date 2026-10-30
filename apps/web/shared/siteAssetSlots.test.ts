@@ -40,6 +40,8 @@ describe('site asset slot rules', () => {
   it('rejects content types a slot does not allow', () => {
     expect(checkFileForSlot('logo', 'image/jpeg').ok).toBe(false);
     expect(checkFileForSlot('hero_poster', 'video/mp4').ok).toBe(false);
+    expect(checkFileForSlot('hero_mobile', 'image/jpeg').ok).toBe(false);
+    expect(checkFileForSlot('hero_mobile', 'video/mp4').ok).toBe(true);
     expect(checkFileForSlot('logo', 'image/svg+xml', 10_000).ok).toBe(true);
   });
 

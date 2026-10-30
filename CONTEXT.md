@@ -33,7 +33,7 @@ A person authorized to issue Review Invites and control which Reviews are Visibl
 _Avoid_: User, staff account
 
 **Asset Slot**:
-A fixed, named place on the public site an Admin can fill with an uploaded file: `hero` (landing background, image or muted looping video), `hero_poster` (image shown while a video hero loads) and `logo` (header logo and favicon). Slots are defined in code (`siteAssetSlots.ts`), each with its allowed types, size cap and, for the logo only, a bundled default; Admins do not create slots.
+A fixed, named place on the public site an Admin can fill with an uploaded file: `hero` (landing background, image or muted looping video), `hero_mobile` (a lighter video that replaces a video hero on screens under 768 px), `hero_poster` (image shown while a video hero loads) and `logo` (header logo and favicon). Slots are defined in code (`siteAssetSlots.ts`), each with its allowed types, size cap and, for the logo only, a bundled default; Admins do not create slots.
 _Avoid_: Media library, gallery, upload (that is the action, not the thing)
 
 **Site Asset**:

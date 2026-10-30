@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS quotes (
 -- Admin-managed site assets (docs/proposals/admin-site-assets.md). One row per
 -- Asset Slot that has a published file; a missing row means the bundled default.
 CREATE TABLE IF NOT EXISTS site_assets (
-  slot text PRIMARY KEY CHECK (slot IN ('hero', 'hero_poster', 'logo')),
+  slot text PRIMARY KEY CHECK (slot IN ('hero', 'hero_mobile', 'hero_poster', 'logo')),
   kind text NOT NULL CHECK (kind IN ('image', 'video')),
   url text NOT NULL,
   pathname text NOT NULL,
@@ -79,6 +79,12 @@ CREATE TABLE IF NOT EXISTS site_assets (
   published_by text NOT NULL,
   published_at timestamptz NOT NULL DEFAULT now()
 );
+
+-- hero_mobile was added after the table shipped; widen the slot check on
+-- databases created before it.
+ALTER TABLE site_assets DROP CONSTRAINT IF EXISTS site_assets_slot_check;
+ALTER TABLE site_assets ADD CONSTRAINT site_assets_slot_check
+  CHECK (slot IN ('hero', 'hero_mobile', 'hero_poster', 'logo'));
 
 -- Admin-editable site settings (docs/adr/0007-site-settings-table.md). One JSON
 -- value per code-declared key, e.g. mail.contact → {"to": [...], "cc": [...]}.

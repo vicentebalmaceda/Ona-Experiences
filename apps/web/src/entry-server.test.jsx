@@ -21,6 +21,9 @@ describe('render (server entry)', () => {
     expect(poster).toContain('fetchpriority="high"');
     // The video mounts only after the still has loaded (perf phase), never in the HTML.
     expect(html).not.toContain('<video');
+    // Desktop and mobile videos share the poster: one still, one preload, no video URL in the HTML.
+    expect(html).not.toContain('hero-mobile.mp4');
+    expect(html).not.toContain('hero.mp4');
     expect(head.htmlLang).toBe('es');
     expect(head.canonical).toBe(`${SITE}/`);
     expect(head.preloads).toEqual([{ href: 'https://blob.example.com/poster.jpg', as: 'image', fetchpriority: 'high' }]);

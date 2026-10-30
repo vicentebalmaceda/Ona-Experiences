@@ -36,6 +36,7 @@ export const lodgeReviews = {
 export const siteAssets = {
   items: {
     hero: { kind: 'video', url: 'https://blob.example.com/hero.mp4', alt: null, width: 1920, height: 1080 },
+    hero_mobile: { kind: 'video', url: 'https://blob.example.com/hero-mobile.mp4', alt: null, width: 720, height: 960 },
     hero_poster: { kind: 'image', url: 'https://blob.example.com/poster.jpg', alt: null, width: 1920, height: 1080 },
     logo: null
   }

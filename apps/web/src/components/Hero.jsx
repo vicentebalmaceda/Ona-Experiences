@@ -21,6 +21,42 @@ function useLoadedUrls() {
   return [loaded, markLoaded];
 }
 
+// Phones get the hero_mobile video when one is published (hero_mobile slot).
+const MOBILE_QUERY = '(max-width: 767px)';
+
+/**
+ * A media query, read after mount: the first render (prerendered HTML and
+ * hydration) is the same for every device, which is safe because nothing it
+ * draws depends on the query. The video that does depend on it mounts only
+ * later (useDeferredVideo), so a phone never requests the desktop file.
+ */
+function useMediaQuery(query) {
+  const [matches, setMatches] = useState(false);
+  useEffect(() => {
+    const list = window.matchMedia?.(query);
+    if (!list) return undefined;
+    const onChange = () => setMatches(list.matches);
+    onChange();
+    list.addEventListener?.('change', onChange);
+    return () => list.removeEventListener?.('change', onChange);
+  }, [query]);
+  return matches;
+}
+
+/** Chrome's Data Saver / Lite mode, followed live where the browser reports changes (after mount). */
+function useSaveData() {
+  const [saveData, setSaveData] = useState(false);
+  useEffect(() => {
+    const connection = navigator.connection;
+    if (!connection) return undefined;
+    const onChange = () => setSaveData(Boolean(connection.saveData));
+    onChange();
+    connection.addEventListener?.('change', onChange);
+    return () => connection.removeEventListener?.('change', onChange);
+  }, []);
+  return saveData;
+}
+
 /**
  * Whether the hero video may autoplay on this device: not with reduced motion,
  * Data Saver or a slow connection. Reads browser APIs only when called from an
@@ -78,14 +114,24 @@ function useDeferredVideo(active) {
  */
 function HeroMedia() {
   const { t } = useTranslation();
-  const hero = useSiteAsset('hero');
+  const desktopHero = useSiteAsset('hero');
+  const mobileHero = useSiteAsset('hero_mobile');
   const poster = useSiteAsset('hero_poster');
+  const isMobile = useMediaQuery(MOBILE_QUERY);
+  // Followed live: turning on Reduce Motion or Data Saver drops a playing video
+  // (when there is a poster to show instead). useDeferredVideo also checks
+  // these, plus slow 2g/3g connections, before the video ever mounts.
+  const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+  const saveData = useSaveData();
   const [loaded, markLoaded] = useLoadedUrls();
 
-  const isVideo = hero.kind === 'video' && hero.url;
+  // The mobile video only stands in for a video hero, never for an image one.
+  const isVideo = desktopHero.kind === 'video' && Boolean(desktopHero.url);
+  const hero = isVideo && isMobile && mobileHero.url ? mobileHero : desktopHero;
   // The poster is drawn as a real <img> (high fetch priority) under the video
   // instead of the video's `poster` attribute, which browsers fetch lazily.
-  const stillUrl = isVideo ? poster.url : hero.url;
+  // Desktop and mobile share it, so it is the same on every device.
+  const stillUrl = isVideo ? poster.url : desktopHero.url;
   const stillReady = Boolean(stillUrl) && loaded.has(stillUrl);
   // The still known at the first render is in the prerendered HTML (and
   // preloaded): it is drawn fully opaque from the start, so it paints as soon
@@ -97,10 +143,12 @@ function HeroMedia() {
   // image) and the page is loaded and idle. With a poster it stays out
   // entirely on reduced motion / Data Saver / slow networks; without one it
   // mounts paused so its first frame still shows.
-  const videoGate = useDeferredVideo(Boolean(isVideo) && (stillReady || !poster.url));
-  const mountVideo = isVideo && (videoGate === 'play' || (videoGate === 'blocked' && !poster.url));
-  const videoReady = Boolean(isVideo) && loaded.has(hero.url);
-  const loading = hero.status === 'loading' || (Boolean(hero.url) && !stillReady && !videoReady);
+  const videoGate = useDeferredVideo(isVideo && (stillReady || !poster.url));
+  const skipVideo = (reduceMotion || saveData) && Boolean(poster.url);
+  const mountVideo =
+    isVideo && !skipVideo && (videoGate === 'play' || (videoGate === 'blocked' && !poster.url));
+  const videoReady = isVideo && loaded.has(hero.url);
+  const loading = desktopHero.status === 'loading' || (Boolean(desktopHero.url) && !stillReady && !videoReady);
 
   // Catches images the browser already had cached, whose load event can fire
   // before React attaches the handler.
@@ -117,12 +165,12 @@ function HeroMedia() {
           ref={checkComplete(stillUrl)}
           className={`${layerClass} ${stillVisible ? 'opacity-100' : 'opacity-0'}`}
           src={stillUrl}
-          alt={isVideo ? '' : hero.alt || t('hero.image_alt')}
+          alt={isVideo ? '' : desktopHero.alt || t('hero.image_alt')}
           aria-hidden={isVideo ? 'true' : undefined}
           fetchpriority="high"
           decoding="async"
           onLoad={() => markLoaded(stillUrl)}
-          onError={isVideo ? poster.onError : hero.onError}
+          onError={isVideo ? poster.onError : desktopHero.onError}
         />
       )}
       {mountVideo && (

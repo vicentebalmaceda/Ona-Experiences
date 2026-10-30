@@ -200,7 +200,7 @@ export function loadSeedData(): SiteData {
   ];
   return {
     source: 'seed',
-    siteAssets: { items: { hero: null, hero_poster: null, logo: null } },
+    siteAssets: { items: { hero: null, hero_mobile: null, hero_poster: null, logo: null } },
     catalog: { lodges: lodges.slice(0, LANDING_PAGE_SIZE), guides: guides.slice(0, LANDING_PAGE_SIZE) },
     details
   };
