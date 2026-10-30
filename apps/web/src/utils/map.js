@@ -1,5 +1,6 @@
 import L from 'leaflet';
 import { formatRating, getRatingStats, renderStars } from './rating.js';
+import { detailPathFor } from '../routes.js';
 
 export function createMarkerIcon(type) {
   return L.divIcon({
@@ -20,13 +21,10 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
-export function popupTemplate(item, ratingVersion, labels = {}, { showContact = true } = {}) {
+/** Popup HTML for a map marker; `lang` keeps the detail link in the current URL language. */
+export function popupTemplate(item, ratingVersion, labels = {}, { showContact = true, lang = 'es' } = {}) {
   const stats = getRatingStats(item);
-  const detailPath = item.productId
-    ? item.type === 'Lodge'
-      ? `/lodges/${item.productId}`
-      : `/guides/${item.productId}`
-    : null;
+  const detailPath = detailPathFor(item, lang);
   const typeLabel = escapeHtml(labels.typeLabel || item.type);
   const notInformed = escapeHtml(labels.notInformed || 'No informado');
   const zoneLabel = escapeHtml(labels.zone || 'Zona:');
@@ -38,7 +36,7 @@ export function popupTemplate(item, ratingVersion, labels = {}, { showContact = 
   // Names the item for screen readers and the link-text audit ("Ver detalle de X").
   const viewDetailName = escapeHtml(labels.viewDetailName || `de ${item.name ?? ''}`);
   const detailLink = detailPath
-    ? `<a href="${detailPath}" style="display:inline-block;margin-top:10px;font-size:13px;font-weight:700;color:#0f766e;text-decoration:none;">${viewDetail}<span class="sr-only"> ${viewDetailName}</span> <span aria-hidden="true">→</span></a>`
+    ? `<a href="${escapeHtml(detailPath)}" style="display:inline-block;margin-top:10px;font-size:13px;font-weight:700;color:#0f766e;text-decoration:none;">${viewDetail}<span class="sr-only"> ${viewDetailName}</span> <span aria-hidden="true">→</span></a>`
     : '';
 
   return `

@@ -4,6 +4,7 @@ import GalleryStrip from './GalleryStrip.jsx';
 import RatingPanel from './RatingPanel.jsx';
 import { formatRating, getRatingStats, renderStars } from '../utils/rating.js';
 import { zoneLabel } from '../utils/zones.js';
+import { useLocalizedPath } from '../i18n/locale.js';
 
 function displayTypeLabel(type, t) {
   return type === 'Lodge' ? t('types.lodge') : t('types.guide');
@@ -12,11 +13,8 @@ function displayTypeLabel(type, t) {
 function DirectoryCard({ item, ratingVersion, onRate }) {
   const { t } = useTranslation();
   const stats = getRatingStats(item, ratingVersion);
-  const detailPath = item.productId
-    ? item.type === 'Lodge'
-      ? `/lodges/${item.productId}`
-      : `/guides/${item.productId}`
-    : null;
+  const { detailPath: detailPathFor } = useLocalizedPath();
+  const detailPath = detailPathFor(item);
 
   const cardContent = (
     <>

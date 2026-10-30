@@ -10,10 +10,12 @@ import Hero from '../components/Hero.jsx';
 import ExperienceSection from '../components/ExperienceSection.jsx';
 import ContactSection from '../components/ContactSection.jsx';
 import Footer from '../components/Footer.jsx';
+import { useLocalizedPath } from '../i18n/locale.js';
 
 function LandingPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { detailPath } = useLocalizedPath();
 
   const [apiLodges, setApiLodges] = useState([]);
   const [lodgesLoading, setLodgesLoading] = useState(true);
@@ -105,9 +107,8 @@ function LandingPage() {
   }
 
   function openDetail(item) {
-    if (!item.productId) return;
-    const path = item.type === 'Lodge' ? `/lodges/${item.productId}` : `/guides/${item.productId}`;
-    navigate(path);
+    const path = detailPath(item);
+    if (path) navigate(path);
   }
 
   return (

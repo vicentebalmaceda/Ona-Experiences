@@ -2,11 +2,13 @@ import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import { useTranslation } from 'react-i18next';
 import { createMarkerIcon, popupTemplate } from '../utils/map.js';
+import { useLocale } from '../i18n/locale.js';
 import { getRatingStats } from '../utils/rating.js';
 import { inZone, zoneLabel } from '../utils/zones.js';
 
 function MapSection({ zones, allItems, filteredItems, filters, setFilters, resetFilters, ratingVersion }) {
   const { t } = useTranslation();
+  const lang = useLocale();
   const mapElementRef = useRef(null);
   const mapRef = useRef(null);
   const markerLayerRef = useRef(null);
@@ -69,7 +71,7 @@ function MapSection({ zones, allItems, filteredItems, filters, setFilters, reset
 
       const marker = L.marker([item.lat, item.lng], {
         icon: createMarkerIcon(item.type)
-      }).bindPopup(popupTemplate(item, ratingVersion, labels), { className: 'custom-popup' });
+      }).bindPopup(popupTemplate(item, ratingVersion, labels, { lang }), { className: 'custom-popup' });
 
       marker.on('click', () => {
         const target = item.type === 'Lodge' ? 'lodges-section' : 'guias-section';
@@ -87,7 +89,7 @@ function MapSection({ zones, allItems, filteredItems, filters, setFilters, reset
     } else {
       map.setView([-45.5, -72.5], 5);
     }
-  }, [filteredItems, ratingVersion, t]);
+  }, [filteredItems, ratingVersion, t, lang]);
 
   return (
     <section id="mapa-section" className="py-20">

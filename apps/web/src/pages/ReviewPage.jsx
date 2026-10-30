@@ -4,9 +4,11 @@ import { useTranslation } from 'react-i18next';
 import Header from '../components/Header.jsx';
 import Footer from '../components/Footer.jsx';
 import { fetchReviewInvite, submitReview } from '../api/reviews.js';
+import { useLocalizedPath } from '../i18n/locale.js';
 
 function ReviewPage() {
   const { t } = useTranslation();
+  const { pathTo } = useLocalizedPath();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') || '';
 
@@ -73,7 +75,7 @@ function ReviewPage() {
           <div className="mt-8 rounded-3xl border border-red-200 bg-white p-8">
             <p className="font-semibold text-slate-900">{t('review.invalid_title')}</p>
             <p className="mt-2 text-sm text-slate-600">{error}</p>
-            <Link to="/" className="mt-6 inline-block rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white">
+            <Link to={pathTo('home')} className="mt-6 inline-block rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white">
               {t('review.back_home')}
             </Link>
           </div>
@@ -83,7 +85,7 @@ function ReviewPage() {
           <div className="mt-8 rounded-3xl border border-slate-200 bg-white p-8">
             <p className="text-lg font-black text-slate-950">{t('review.thanks_title')}</p>
             <p className="mt-2 text-sm leading-6 text-slate-600">{t('review.thanks_text')}</p>
-            <Link to="/" className="mt-6 inline-block rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white">
+            <Link to={pathTo('home')} className="mt-6 inline-block rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white">
               {t('review.back_home')}
             </Link>
           </div>

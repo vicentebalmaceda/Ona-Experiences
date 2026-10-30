@@ -2,11 +2,13 @@ import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import { useTranslation } from 'react-i18next';
 import { createMarkerIcon, popupTemplate } from '../utils/map.js';
+import { useLocale } from '../i18n/locale.js';
 import { getRatingStats } from '../utils/rating.js';
 import { zoneLabel } from '../utils/zones.js';
 
 function CompactMap({ items, ratingVersion, onSelect, ariaLabel, showContact = true }) {
   const { t } = useTranslation();
+  const lang = useLocale();
   const mapElementRef = useRef(null);
   const mapRef = useRef(null);
   const markerLayerRef = useRef(null);
@@ -75,7 +77,7 @@ function CompactMap({ items, ratingVersion, onSelect, ariaLabel, showContact = t
 
       const marker = L.marker([item.lat, item.lng], {
         icon: createMarkerIcon(item.type)
-      }).bindPopup(popupTemplate(item, ratingVersion, labels, { showContact }), { className: 'custom-popup' });
+      }).bindPopup(popupTemplate(item, ratingVersion, labels, { showContact, lang }), { className: 'custom-popup' });
 
       marker.on('click', () => onSelect?.(item));
       marker.addTo(markerLayer);
@@ -96,7 +98,7 @@ function CompactMap({ items, ratingVersion, onSelect, ariaLabel, showContact = t
       if (mapRef.current === map) map.invalidateSize();
     }, 80);
     return () => clearTimeout(timer);
-  }, [items, ratingVersion, onSelect, t, showContact]);
+  }, [items, ratingVersion, onSelect, t, showContact, lang]);
 
   return <div ref={mapElementRef} className="interactive-map" role="region" aria-label={resolvedAriaLabel}></div>;
 }

@@ -1,7 +1,35 @@
 {
-  "meta": {
-    "title": "Fly Fishing Lodges & Guides in Chile and Patagonia | ONA Experiences",
-    "description": "Find fly fishing lodges and guides in Chile and Patagonia, with verified reviews from anglers. Compare regions and request availability directly."
+  "seo": {
+    "default_zone": "Chile",
+    "home": {
+      "title": "Fly Fishing Lodges & Guides in Chile and Patagonia | ONA Experiences",
+      "description": "Find fly fishing lodges and guides in Chile and Patagonia, with verified reviews from anglers. Compare regions and request availability directly."
+    },
+    "about": {
+      "title": "About Us: Fly Fishing in Chilean Patagonia | ONA Experiences",
+      "description": "Meet ONA Experiences, the project of Marcos and Vicente Balmaceda that brings together fly fishing lodges and guides in Chile and Patagonia."
+    },
+    "lodge": {
+      "title": "{{name}} – Fly Fishing Lodge in {{zone}} | ONA Experiences",
+      "title_generic": "Fly Fishing Lodge in Chile | ONA Experiences",
+      "description": "{{name}}: fly fishing lodge in {{zone}}. See photos, location and angler reviews, and request availability through ONA Experiences."
+    },
+    "guide": {
+      "title": "{{name}} – Fly Fishing Guide in {{zone}} | ONA Experiences",
+      "title_generic": "Fly Fishing Guide in Chile | ONA Experiences",
+      "description": "{{name}}: fly fishing guide in {{zone}}. See photos, fishing area and angler reviews, and request availability through ONA Experiences."
+    },
+    "review": {
+      "title": "Leave a review | ONA Experiences",
+      "description": "Tell us about your fly fishing experience with ONA Experiences."
+    },
+    "admin": {
+      "title": "Admin | ONA Experiences"
+    },
+    "not_found": {
+      "title": "Page not found | ONA Experiences",
+      "description": "The page you are looking for does not exist or has moved."
+    }
   },
   "nav": {
     "brand": "ONA Experiences",
@@ -274,5 +302,16 @@
     "4": "Northern Patagonia",
     "5": "Southern Patagonia",
     "6": "Tierra del Fuego"
+  },
+  "not_found": {
+    "title": "Page not found",
+    "text": "The page you are looking for does not exist or has moved.",
+    "back_home": "Back to home",
+    "see_lodges": "See lodges"
+  },
+  "language_banner": {
+    "label": "Language suggestion",
+    "cta": "View this page in English",
+    "dismiss": "Dismiss language suggestion"
   }
 }
