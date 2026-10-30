@@ -7,6 +7,7 @@ describe('zoneLabel', () => {
   it('translates known zone ids, numeric or string', () => {
     expect(zoneLabel(3, t)).toBe('t:zones.3');
     expect(zoneLabel('5', t)).toBe('t:zones.5');
+    expect(zoneLabel(6, t)).toBe('t:zones.6');
   });
 
   it('joins several zones, from an array or a comma-separated string', () => {

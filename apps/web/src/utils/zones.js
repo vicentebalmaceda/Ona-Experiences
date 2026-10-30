@@ -1,5 +1,5 @@
 /** Zone ids from BSale's `Zone` description; labels live under `zones.<id>` in the locale files. */
-export const ZONE_IDS = [1, 2, 3, 4, 5];
+export const ZONE_IDS = [1, 2, 3, 4, 5, 6];
 
 /**
  * An item's zones as a list of strings. Accepts a single id, an array of ids (a service spanning
