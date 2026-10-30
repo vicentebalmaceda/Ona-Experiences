@@ -87,6 +87,12 @@ function HeroMedia() {
   // instead of the video's `poster` attribute, which browsers fetch lazily.
   const stillUrl = isVideo ? poster.url : hero.url;
   const stillReady = Boolean(stillUrl) && loaded.has(stillUrl);
+  // The still known at the first render is in the prerendered HTML (and
+  // preloaded): it is drawn fully opaque from the start, so it paints as soon
+  // as it downloads, without JavaScript, and LCP never waits for hydration.
+  // Only a still that arrives later (from the API) fades in once loaded.
+  const [initialStillUrl] = useState(stillUrl);
+  const stillVisible = stillReady || (Boolean(stillUrl) && stillUrl === initialStillUrl);
   // The <video> is mounted only once the poster has painted (it is the LCP
   // image) and the page is loaded and idle. With a poster it stays out
   // entirely on reduced motion / Data Saver / slow networks; without one it
@@ -109,7 +115,7 @@ function HeroMedia() {
         <img
           key={stillUrl}
           ref={checkComplete(stillUrl)}
-          className={`${layerClass} ${stillReady ? 'opacity-100' : 'opacity-0'}`}
+          className={`${layerClass} ${stillVisible ? 'opacity-100' : 'opacity-0'}`}
           src={stillUrl}
           alt={isVideo ? '' : hero.alt || t('hero.image_alt')}
           aria-hidden={isVideo ? 'true' : undefined}

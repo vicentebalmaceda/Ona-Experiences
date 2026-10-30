@@ -14,6 +14,13 @@ describe('render (server entry)', () => {
     expect(html).toContain('Bio Bio Lodge');
     expect(html).toContain('href="/lodges/bio-bio-lodge-65561"');
     expect(html).toContain('src="https://blob.example.com/poster.jpg"');
+    // The prerendered hero still is visible without JavaScript (LCP doesn't wait for hydration).
+    const poster = html.match(/<img[^>]*src="https:\/\/blob\.example\.com\/poster\.jpg"[^>]*>/)[0];
+    expect(poster).toContain('opacity-100');
+    expect(poster).not.toContain('opacity-0');
+    expect(poster).toContain('fetchpriority="high"');
+    // The video mounts only after the still has loaded (perf phase), never in the HTML.
+    expect(html).not.toContain('<video');
     expect(head.htmlLang).toBe('es');
     expect(head.canonical).toBe(`${SITE}/`);
     expect(head.preloads).toEqual([{ href: 'https://blob.example.com/poster.jpg', as: 'image', fetchpriority: 'high' }]);
