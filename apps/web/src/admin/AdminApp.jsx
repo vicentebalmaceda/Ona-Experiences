@@ -213,6 +213,7 @@ export default function AdminApp() {
           {page === 'configs' && (
             <AdminConfigsPage
               onSyncProducts={syncProducts}
+              onRebuildSite={adminApi.rebuildSite}
               mailSettings={mailSettings}
               mailSettingsLoading={mailSettingsLoading}
               mailSettingsError={mailSettingsError}

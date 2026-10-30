@@ -8,7 +8,8 @@ import {
 import {
   adminSiteAssetBySlotHandler,
   adminSiteAssetsHandler,
-  adminSiteAssetUploadTokenHandler
+  adminSiteAssetUploadTokenHandler,
+  adminSiteRebuildHandler
 } from './handlers/adminSiteAssets.js';
 import {
   adminProductSyncHandler,
@@ -157,6 +158,11 @@ const routes: Route[] = [
     pattern: /^\/api\/v1\/admin\/assets\/([^/]+)$/,
     paramNames: ['slot'],
     handler: adminSiteAssetBySlotHandler
+  },
+  {
+    pattern: /^\/api\/v1\/admin\/site\/rebuild$/,
+    paramNames: [],
+    handler: adminSiteRebuildHandler
   },
   {
     pattern: /^\/api\/v1\/admin\/reviews$/,

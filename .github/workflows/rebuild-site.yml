@@ -1,0 +1,32 @@
+# Rebuilds the prerendered public site once a day (and on demand), so the
+# static HTML picks up changes no webhook announces: new or hidden reviews,
+# BSale edits made while the webhook was down, etc.
+#
+# Needs the repository secret VERCEL_DEPLOY_HOOK_URL (Vercel → Project →
+# Settings → Git → Deploy Hooks, branch `main`). Without it the job is skipped.
+name: Rebuild site
+
+on:
+  schedule:
+    # 09:00 UTC = 05:00/06:00 in Chile, before the morning traffic.
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Trigger the Vercel deploy hook
+        env:
+          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$VERCEL_DEPLOY_HOOK_URL" ]; then
+            echo "::notice::VERCEL_DEPLOY_HOOK_URL secret is not set; skipping the rebuild."
+            exit 0
+          fi
+          curl -fsS -X POST "$VERCEL_DEPLOY_HOOK_URL"
+          echo
+          echo "Rebuild requested."

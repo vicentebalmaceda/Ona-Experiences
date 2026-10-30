@@ -8,7 +8,8 @@ import {
 import {
   adminSiteAssetBySlotHandler,
   adminSiteAssetsHandler,
-  adminSiteAssetUploadTokenHandler
+  adminSiteAssetUploadTokenHandler,
+  adminSiteRebuildHandler
 } from './handlers/adminSiteAssets.js';
 import {
   adminQuoteResendInviteHandler,
@@ -31,6 +32,10 @@ import { matchV1Route, mergeV1Query, pathnameFromV1Request } from './v1Router.js
 describe('matchV1Route', () => {
   it('does not match an unknown v1 path', () => {
     expect(matchV1Route('/api/v1/unknown')).toBeNull();
+  });
+
+  it('matches the admin site rebuild route', () => {
+    expect(matchV1Route('/api/v1/admin/site/rebuild')?.handler).toBe(adminSiteRebuildHandler);
   });
 
   it('matches /api/v1/lodges to the lodge list handler', () => {
