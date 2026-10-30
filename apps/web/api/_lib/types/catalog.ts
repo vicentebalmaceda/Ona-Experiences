@@ -5,9 +5,9 @@ export type CatalogType = 'lodge' | 'guide';
 /**
  * Zone ids entered in BSale's `Zone` description, comma-separated when a service spans several zones
  * (e.g. `3,4`). Labels live in the web i18n files (`zones.<id>`):
- * 1 Zona Central, 2 Araucanía, 3 Sur (Región de Los Lagos), 4 Patagonia norte, 5 Patagonia sur.
+ * 1 Zona Central, 2 Araucanía, 3 Sur (Región de Los Lagos), 4 Patagonia norte, 5 Patagonia sur, 6 Tierra del Fuego.
  */
-export const ZONE_IDS = [1, 2, 3, 4, 5] as const;
+export const ZONE_IDS = [1, 2, 3, 4, 5, 6] as const;
 
 export type ZoneId = (typeof ZONE_IDS)[number];
 
