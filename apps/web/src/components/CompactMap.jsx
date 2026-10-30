@@ -1,19 +1,21 @@
 import { useEffect, useRef } from 'react';
-import L from 'leaflet';
+import useLazyLeaflet from '../hooks/useLazyLeaflet.js';
 import { useTranslation } from 'react-i18next';
-import { createMarkerIcon, popupTemplate } from '../utils/map.js';
+import { createMarkerIcon, labelMarker, popupTemplate } from '../utils/map.js';
 import { getRatingStats } from '../utils/rating.js';
 import { zoneLabel } from '../utils/zones.js';
 
 function CompactMap({ items, ratingVersion, onSelect, ariaLabel, showContact = true }) {
   const { t } = useTranslation();
-  const mapElementRef = useRef(null);
+  // Leaflet loads only once the map nears the viewport; until then the sized
+  // map element itself is the placeholder.
+  const [mapElementRef, L] = useLazyLeaflet();
   const mapRef = useRef(null);
   const markerLayerRef = useRef(null);
   const resolvedAriaLabel = ariaLabel || t('map.aria_default');
 
   useEffect(() => {
-    if (!mapElementRef.current || mapRef.current) return;
+    if (!L || !mapElementRef.current || mapRef.current) return;
 
     mapRef.current = L.map(mapElementRef.current, {
       zoomControl: true,
@@ -45,7 +47,7 @@ function CompactMap({ items, ratingVersion, onSelect, ariaLabel, showContact = t
       mapRef.current = null;
       markerLayerRef.current = null;
     };
-  }, []);
+  }, [L, mapElementRef]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -73,11 +75,14 @@ function CompactMap({ items, ratingVersion, onSelect, ariaLabel, showContact = t
       };
 
       const marker = L.marker([item.lat, item.lng], {
-        icon: createMarkerIcon(item.type)
+        icon: createMarkerIcon(L, item.type),
+        title: item.name,
+        alt: item.name
       }).bindPopup(popupTemplate(item, ratingVersion, labels, { showContact }), { className: 'custom-popup' });
 
       marker.on('click', () => onSelect?.(item));
       marker.addTo(markerLayer);
+      labelMarker(marker, item.name);
       bounds.push([item.lat, item.lng]);
     });
 
@@ -95,7 +100,7 @@ function CompactMap({ items, ratingVersion, onSelect, ariaLabel, showContact = t
       if (mapRef.current === map) map.invalidateSize();
     }, 80);
     return () => clearTimeout(timer);
-  }, [items, ratingVersion, onSelect, t, showContact]);
+  }, [L, items, ratingVersion, onSelect, t, showContact]);
 
   return <div ref={mapElementRef} className="interactive-map" role="region" aria-label={resolvedAriaLabel}></div>;
 }

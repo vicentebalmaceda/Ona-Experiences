@@ -1,5 +1,6 @@
 import { Trans, useTranslation } from 'react-i18next';
 import BrandMark from './BrandMark.jsx';
+import { responsiveImage } from '../../utils/responsiveImage.js';
 
 /** Founders' photo. Real pixel size is passed to <img> to avoid layout shift. */
 const FOUNDERS_PHOTO = {
@@ -55,7 +56,7 @@ function AboutSection() {
           {/* Photo stays in view on desktop while the longer text column scrolls. */}
           <figure className="lg:sticky lg:top-36 lg:col-span-5 lg:self-start">
             <img
-              src={FOUNDERS_PHOTO.src}
+              {...responsiveImage(FOUNDERS_PHOTO.src, '(min-width: 1024px) 40vw, 100vw')}
               width={FOUNDERS_PHOTO.width}
               height={FOUNDERS_PHOTO.height}
               alt={t('about.photo_alt')}

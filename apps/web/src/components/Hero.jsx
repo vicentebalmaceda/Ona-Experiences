@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSiteAsset } from '../site/SiteAssetsProvider.jsx';
 
@@ -22,6 +22,55 @@ function useLoadedUrls() {
 }
 
 /**
+ * Whether the hero video may autoplay on this device: not with reduced motion,
+ * Data Saver or a slow connection. Reads browser APIs only when called from an
+ * effect, so this module stays safe to render on the server.
+ */
+function videoAllowed() {
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return false;
+  const connection = navigator.connection;
+  if (connection?.saveData) return false;
+  if (/(^|-)2g$|^3g$/.test(connection?.effectiveType || '')) return false;
+  return true;
+}
+
+/**
+ * Gate for the hero video: 'pending' until the page has loaded and the main
+ * thread is idle, then 'play', or 'blocked' when `videoAllowed()` says no. A
+ * multi-MB video thus never competes with the poster (the LCP image),
+ * scripts or fonts.
+ */
+function useDeferredVideo(active) {
+  const [state, setState] = useState('pending');
+
+  useEffect(() => {
+    if (!active || state !== 'pending') return undefined;
+    if (!videoAllowed()) {
+      setState('blocked');
+      return undefined;
+    }
+    let idleId;
+    let timeoutId;
+    const start = () => {
+      if (window.requestIdleCallback) {
+        idleId = window.requestIdleCallback(() => setState('play'), { timeout: 2000 });
+      } else {
+        timeoutId = window.setTimeout(() => setState('play'), 200);
+      }
+    };
+    if (document.readyState === 'complete') start();
+    else window.addEventListener('load', start, { once: true });
+    return () => {
+      window.removeEventListener('load', start);
+      if (idleId && window.cancelIdleCallback) window.cancelIdleCallback(idleId);
+      if (timeoutId) window.clearTimeout(timeoutId);
+    };
+  }, [active, state]);
+
+  return state;
+}
+
+/**
  * Background media for the hero: an image, or a muted looping video over its
  * poster. There is no bundled fallback: a skeleton shimmers until the
  * published media is ready, and the plain dark hero stays if nothing is
@@ -37,6 +86,12 @@ function HeroMedia() {
   // instead of the video's `poster` attribute, which browsers fetch lazily.
   const stillUrl = isVideo ? poster.url : hero.url;
   const stillReady = Boolean(stillUrl) && loaded.has(stillUrl);
+  // The <video> is mounted only once the poster has painted (it is the LCP
+  // image) and the page is loaded and idle. With a poster it stays out
+  // entirely on reduced motion / Data Saver / slow networks; without one it
+  // mounts paused so its first frame still shows.
+  const videoGate = useDeferredVideo(Boolean(isVideo) && (stillReady || !poster.url));
+  const mountVideo = isVideo && (videoGate === 'play' || (videoGate === 'blocked' && !poster.url));
   const videoReady = Boolean(isVideo) && loaded.has(hero.url);
   const loading = hero.status === 'loading' || (Boolean(hero.url) && !stillReady && !videoReady);
 
@@ -63,16 +118,16 @@ function HeroMedia() {
           onError={isVideo ? poster.onError : hero.onError}
         />
       )}
-      {isVideo && (
+      {mountVideo && (
         <video
           key={hero.url}
           className={`${layerClass} ${videoReady ? 'opacity-100' : 'opacity-0'}`}
           src={hero.url}
-          autoPlay
+          autoPlay={videoGate === 'play'}
           muted
           loop
           playsInline
-          preload="auto"
+          preload={videoGate === 'play' ? 'auto' : 'metadata'}
           aria-hidden="true"
           onLoadedData={() => markLoaded(hero.url)}
           onPlaying={() => markLoaded(hero.url)}
