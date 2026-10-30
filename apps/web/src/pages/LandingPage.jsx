@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { fetchLodges } from '../api/lodges.js';
 import { fetchGuides } from '../api/guides.js';
 import { useInitialData } from '../site/initialData.js';
-import { landingItems, sameData } from '../site/pageData.js';
+import { landingItems, landingList, sameData } from '../site/pageData.js';
 import Header from '../components/Header.jsx';
 import Hero from '../components/Hero.jsx';
 import ExperienceSection from '../components/ExperienceSection.jsx';
@@ -18,14 +18,16 @@ function LandingPage() {
   const { detailPath } = useLocalizedPath();
 
   const { data, ssr } = useInitialData();
-  // Prerendered landing: the lists come embedded, so the first render is the
-  // final page (and matches the HTML); they are revalidated after mount.
+  // Prerendered landing: the lists come embedded (LANDING_FIELDS only), so the
+  // first render is the final page (and matches the HTML). They are revalidated
+  // after mount and compared on those same fields, so unchanged data never
+  // re-renders.
   const embedded = data?.catalog ?? null;
-  const [apiLodges, setApiLodges] = useState(() => embedded?.lodges ?? []);
+  const [apiLodges, setApiLodges] = useState(() => landingList(embedded?.lodges));
   const [lodgesLoading, setLodgesLoading] = useState(!embedded && !ssr);
   const [lodgesError, setLodgesError] = useState(null);
 
-  const [apiGuides, setApiGuides] = useState(() => embedded?.guides ?? []);
+  const [apiGuides, setApiGuides] = useState(() => landingList(embedded?.guides));
   const [guidesLoading, setGuidesLoading] = useState(!embedded && !ssr);
   const [guidesError, setGuidesError] = useState(null);
   const hasLodges = useRef(Boolean(embedded));
@@ -42,7 +44,7 @@ function LandingPage() {
       try {
         const result = await fetchLodges({ limit: 50, offset: 0 });
         if (cancelled) return;
-        const next = result.items ?? [];
+        const next = landingList(result.items);
         hasLodges.current = true;
         setApiLodges((current) => (sameData(current, next) ? current : next));
       } catch (error) {
@@ -75,7 +77,7 @@ function LandingPage() {
       try {
         const result = await fetchGuides({ limit: 50, offset: 0 });
         if (cancelled) return;
-        const next = result.items ?? [];
+        const next = landingList(result.items);
         hasGuides.current = true;
         setApiGuides((current) => (sameData(current, next) ? current : next));
       } catch (error) {

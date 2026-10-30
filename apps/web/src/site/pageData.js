@@ -15,6 +15,42 @@ export const CATALOG_TYPES = {
 
 export const EMPTY_REVIEWS = Object.freeze({ average: null, count: 0, items: [] });
 
+/**
+ * The list-item fields the landing renders: cards (name, image, zone, rating),
+ * the search filter (email, representative) and the map markers/popups
+ * (lat, lng, phone, email, representative). Descriptions (10–20k characters
+ * each), galleries and prices are left out, both from the embedded
+ * window.__ONA_DATA__ and from the state the landing compares on revalidation.
+ */
+export const LANDING_FIELDS = Object.freeze([
+  'productId',
+  'name',
+  'zone',
+  'image',
+  'lat',
+  'lng',
+  'phone',
+  'email',
+  'representative',
+  'rating',
+  'reviews',
+  'ratingLabel'
+]);
+
+/** An API list item reduced to LANDING_FIELDS (absent fields stay absent). */
+export function landingItem(apiItem) {
+  const picked = {};
+  for (const field of LANDING_FIELDS) {
+    if (apiItem && apiItem[field] !== undefined) picked[field] = apiItem[field];
+  }
+  return picked;
+}
+
+/** API list items reduced to LANDING_FIELDS. */
+export function landingList(apiItems) {
+  return Array.isArray(apiItems) ? apiItems.map(landingItem) : [];
+}
+
 /** Landing lists from the API list items: seed presentation filled in, internal type codes set. */
 export function landingItems(apiLodges, apiGuides) {
   return {

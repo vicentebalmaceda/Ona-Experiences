@@ -149,11 +149,16 @@ interface SeedItem {
 }
 
 function seedDescription(item: SeedItem, kind: string): string {
-  return (
+  const intro =
     `<p>[Descripción de ejemplo: build local sin BSale] ${item.name} es un ${kind} de pesca con mosca ` +
     `en el sur de Chile. En producción este texto viene de la ficha market_info del producto en BSale, ` +
-    `y el prerender lo incluye en el HTML estático de esta página.</p>`
-  );
+    `y el prerender lo incluye en el HTML estático de esta página.</p>`;
+  // PRERENDER_SEED_DESCRIPTION_CHARS pads it to a realistic size (live ones run
+  // 10–20k characters), to measure page weight locally.
+  const target = Number(process.env.PRERENDER_SEED_DESCRIPTION_CHARS || 0);
+  if (!(target > intro.length)) return intro;
+  const filler = '<p>Relleno de medición: río, lago, truchas y vadeo en la Patagonia chilena.</p>';
+  return intro + filler.repeat(Math.ceil((target - intro.length) / filler.length));
 }
 
 /** API-shaped items from the bundled seed catalog (local builds only). */
@@ -161,7 +166,11 @@ function seedItem(item: SeedItem, type: CatalogType): ApiItem {
   const base = {
     productId: item.productId as number,
     name: item.name,
-    description: item.productId != null ? seedDescription(item, type === 'lodge' ? 'lodge' : 'guía') : null,
+    // Every live product has one; locally only the ones with a detail page (all with the measuring knob).
+    description:
+      item.productId != null || process.env.PRERENDER_SEED_DESCRIPTION_CHARS
+        ? seedDescription(item, type === 'lodge' ? 'lodge' : 'guía')
+        : null,
     zone: item.zone == null ? null : ([Number(item.zone)] as Lodge['zone']),
     phone: item.phone ?? null,
     email: item.email ?? null,

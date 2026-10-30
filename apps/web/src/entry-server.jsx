@@ -29,6 +29,7 @@ export { ROBOTS_INDEX } from './seo/buildHead.js';
 export { localizePath, SUPPORTED_LANGS } from './routes.js';
 export { productSlug } from '../shared/productSlug.ts';
 export { sanitizeMarketDescription } from './utils/sanitizeDescription.js';
+export { landingList } from './site/pageData.js';
 export { SITE_URL } from '../shared/site.ts';
 export { renderHeadTags, serializeJsonForScript };
 

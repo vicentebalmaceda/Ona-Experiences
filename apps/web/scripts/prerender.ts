@@ -38,6 +38,7 @@ interface ServerEntry {
   serializeJsonForScript(value: unknown): string;
   buildSitemap(heads: Head[], options: { lastmod: string }): string;
   sanitizeMarketDescription(purify: unknown, html: unknown): string;
+  landingList(items: unknown[]): unknown[];
   localizePath(pageId: string, lang: string, params?: Record<string, string>): string | null;
   productSlug(item: { name?: string | null; productId?: number | string | null }): string | null;
   SUPPORTED_LANGS: string[];
@@ -171,10 +172,13 @@ async function main(): Promise<void> {
   const logo = (siteAssets.items as Record<string, { url?: string } | null>).logo;
   const logoUrl = logo?.url ?? null;
 
+  // The landing needs only LANDING_FIELDS of each item (no descriptions).
+  const catalog = { lodges: entry.landingList(data.catalog.lodges), guides: entry.landingList(data.catalog.guides) };
+
   const jobs: PageJob[] = [];
   for (const lang of entry.SUPPORTED_LANGS) {
     const home = entry.localizePath('home', lang)!;
-    jobs.push({ path: home, expectStatus: 200, data: { v: 1, path: home, pageId: 'home', lang, siteAssets, catalog: data.catalog } });
+    jobs.push({ path: home, expectStatus: 200, data: { v: 1, path: home, pageId: 'home', lang, siteAssets, catalog } });
     const about = entry.localizePath('about', lang);
     if (about) jobs.push({ path: about, expectStatus: 200, data: { v: 1, path: about, pageId: 'about', lang, siteAssets } });
   }
