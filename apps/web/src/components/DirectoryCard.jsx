@@ -54,6 +54,7 @@ function DirectoryCard({ item, ratingVersion, onRate }) {
             className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
           >
             {t('common.view_detail')}
+            <span className="sr-only"> {t('common.view_detail_name', { name: item.name })}</span>
           </Link>
         ) : null}
       </div>

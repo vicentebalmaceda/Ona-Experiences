@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import CompactMap from './CompactMap.jsx';
 import { formatRating, getRatingStats, renderStars, sortItemsByRating } from '../utils/rating.js';
 import { inZone, zoneIds, zoneLabel } from '../utils/zones.js';
+import { itemImageAlt } from '../utils/imageAlt.js';
 
 function imageUrl(src) {
   if (!src) return '';
@@ -21,7 +22,7 @@ function ExperienceListItem({ item, onSelect }) {
   return (
     <button type="button" onClick={() => onSelect(item)} className="experience-list-item group">
       <div className="experience-list-cover">
-        <img src={imageUrl(item.image)} alt={item.name} className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+        <img src={imageUrl(item.image)} alt={itemImageAlt(item, t)} className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
       </div>
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 py-1 pr-1 text-left">
         <div className="flex items-start justify-between gap-2">

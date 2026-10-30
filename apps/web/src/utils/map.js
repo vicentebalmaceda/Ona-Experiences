@@ -34,9 +34,11 @@ export function popupTemplate(item, ratingVersion, labels = {}, { showContact = 
   const phoneLabel = escapeHtml(labels.phone || 'Teléfono:');
   const emailLabel = escapeHtml(labels.email || 'Email:');
   const reviewsLabel = escapeHtml(labels.reviews || `(${stats.reviews} reseñas)`);
-  const viewDetail = escapeHtml(labels.viewDetail || 'Ver detalle →');
+  const viewDetail = escapeHtml(labels.viewDetail || 'Ver detalle');
+  // Names the item for screen readers and the link-text audit ("Ver detalle de X").
+  const viewDetailName = escapeHtml(labels.viewDetailName || `de ${item.name ?? ''}`);
   const detailLink = detailPath
-    ? `<a href="${detailPath}" style="display:inline-block;margin-top:10px;font-size:13px;font-weight:700;color:#0f766e;text-decoration:none;">${viewDetail}</a>`
+    ? `<a href="${detailPath}" style="display:inline-block;margin-top:10px;font-size:13px;font-weight:700;color:#0f766e;text-decoration:none;">${viewDetail}<span class="sr-only"> ${viewDetailName}</span> <span aria-hidden="true">→</span></a>`
     : '';
 
   return `

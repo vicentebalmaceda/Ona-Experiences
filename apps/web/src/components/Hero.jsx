@@ -28,6 +28,7 @@ function useLoadedUrls() {
  * published or it fails to load.
  */
 function HeroMedia() {
+  const { t } = useTranslation();
   const hero = useSiteAsset('hero');
   const poster = useSiteAsset('hero_poster');
   const [loaded, markLoaded] = useLoadedUrls();
@@ -55,7 +56,7 @@ function HeroMedia() {
           ref={checkComplete(stillUrl)}
           className={`${layerClass} ${stillReady ? 'opacity-100' : 'opacity-0'}`}
           src={stillUrl}
-          alt={isVideo ? '' : hero.alt || ''}
+          alt={isVideo ? '' : hero.alt || t('hero.image_alt')}
           aria-hidden={isVideo ? 'true' : undefined}
           fetchpriority="high"
           decoding="async"
@@ -91,7 +92,8 @@ function Hero() {
       <HeroMedia />
       <div className="mx-auto flex min-h-[calc(92vh-8rem)] max-w-7xl items-center px-4 py-14 sm:px-6 lg:px-8">
         <div className="max-w-4xl">
-          <h1 className={`max-w-3xl font-display text-4xl leading-[0.98] ${lettering} sm:text-6xl lg:text-7xl`}>{t('hero.title')}</h1>
+          <p className={`max-w-2xl font-display text-xl italic leading-snug text-ona-200 ${lettering} sm:text-2xl lg:text-3xl`}>{t('hero.tagline')}</p>
+          <h1 className={`mt-4 max-w-3xl font-display text-4xl leading-[0.98] ${lettering} sm:text-6xl lg:text-7xl`}>{t('hero.heading')}</h1>
           <p className={`mt-6 max-w-2xl text-lg leading-8 text-slate-100 ${lettering} sm:text-xl`}>{t('hero.subtitle')}</p>
         </div>
       </div>

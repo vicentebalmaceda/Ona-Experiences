@@ -121,7 +121,7 @@ function PhotoLightbox({ images, index, open, onClose, onIndexChange, alt }) {
       ) : null}
 
       <div className="photo-lightbox__stage" onClick={(event) => event.stopPropagation()}>
-        <img src={currentSrc} alt={`${photoAlt} ${safeIndex + 1}`} className="photo-lightbox__image" />
+        <img src={currentSrc} alt={count > 1 ? `${photoAlt} (${safeIndex + 1}/${count})` : photoAlt} className="photo-lightbox__image" />
       </div>
     </div>
   );

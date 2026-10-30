@@ -63,7 +63,8 @@ function MapSection({ zones, allItems, filteredItems, filters, setFilters, reset
         phone: t('map.phone'),
         email: t('map.email'),
         reviews: t('map.reviews', { count: stats.reviews }),
-        viewDetail: t('map.view_detail')
+        viewDetail: t('common.view_detail'),
+        viewDetailName: t('common.view_detail_name', { name: item.name })
       };
 
       const marker = L.marker([item.lat, item.lng], {

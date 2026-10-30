@@ -8,6 +8,7 @@ import QuoteRequestForm from './QuoteRequestForm.jsx';
 import ReviewsCarousel from './ReviewsCarousel.jsx';
 import { formatRating, getRatingStats, renderStars } from '../utils/rating.js';
 import { zoneLabel } from '../utils/zones.js';
+import { itemImageAlt } from '../utils/imageAlt.js';
 import useSmartSticky from '../hooks/useSmartSticky.js';
 
 const DESCRIPTION_ALLOWED_TAGS = [
@@ -244,7 +245,7 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
         open={lightboxOpen}
         onClose={() => setLightboxOpen(false)}
         onIndexChange={setLightboxIndex}
-        alt={item.name}
+        alt={itemImageAlt(item, t)}
       />
     </section>
   );

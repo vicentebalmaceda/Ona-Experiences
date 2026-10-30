@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "ONA Experiences | Mapa de Lodges y Guías",
-    "description": "Directorio profesional de lodges y guías de pesca con mosca en el sur de Chile."
+    "title": "Lodges y guías de pesca con mosca en Chile y la Patagonia | ONA Experiences",
+    "description": "Encuentra lodges y guías de pesca con mosca en Chile y la Patagonia, con reseñas verificadas de pescadores. Compara zonas y pide disponibilidad."
   },
   "nav": {
     "brand": "ONA Experiences",
@@ -17,8 +17,10 @@
     "lang_en": "EN"
   },
   "hero": {
-    "title": "Tu próxima aventura de pesca comienza aquí.",
-    "subtitle": "Encuentra lodges y guías seleccionados en la Patagonia chilena."
+    "heading": "Lodges y guías de pesca con mosca en Chile",
+    "tagline": "Tu próxima aventura de pesca comienza aquí.",
+    "subtitle": "Encuentra lodges y guías seleccionados en la Patagonia chilena.",
+    "image_alt": "Pesca con mosca en la Patagonia chilena"
   },
   "about": {
     "eyebrow": "Nuestra historia",
@@ -225,7 +227,10 @@
     "representative": "Representante:",
     "not_informed": "No informado",
     "view_detail": "Ver detalle",
-    "view_detail_arrow": "Ver detalle →"
+    "view_detail_arrow": "Ver detalle →",
+    "view_detail_name": "de {{name}}",
+    "item_image_alt": "{{name}} – pesca con mosca en {{zone}}",
+    "item_image_alt_no_zone": "{{name}} – pesca con mosca en Chile"
   },
   "card": {
     "representative": "Representante:"
@@ -256,8 +261,7 @@
     "representative": "Representante:",
     "phone": "Teléfono:",
     "email": "Email:",
-    "not_informed": "No informado",
-    "view_detail": "Ver detalle →"
+    "not_informed": "No informado"
   },
   "types": {
     "lodge": "Lodge",

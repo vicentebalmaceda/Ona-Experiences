@@ -69,7 +69,8 @@ function CompactMap({ items, ratingVersion, onSelect, ariaLabel, showContact = t
         email: t('map.email'),
         reviews: t('map.reviews', { count: stats.reviews }),
         noReviews: t('rating.none'),
-        viewDetail: t('map.view_detail')
+        viewDetail: t('common.view_detail'),
+        viewDetailName: t('common.view_detail_name', { name: item.name })
       };
 
       const marker = L.marker([item.lat, item.lng], {

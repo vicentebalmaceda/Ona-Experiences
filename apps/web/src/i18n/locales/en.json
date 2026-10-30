@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "ONA Experiences | Lodges & Guides Map",
-    "description": "Professional directory of fly fishing lodges and guides in southern Chile."
+    "title": "Fly Fishing Lodges & Guides in Chile and Patagonia | ONA Experiences",
+    "description": "Find fly fishing lodges and guides in Chile and Patagonia, with verified reviews from anglers. Compare regions and request availability directly."
   },
   "nav": {
     "brand": "ONA Experiences",
@@ -17,8 +17,10 @@
     "lang_en": "EN"
   },
   "hero": {
-    "title": "Your next fishing adventure starts here.",
-    "subtitle": "Find selected lodges and guides in Chilean Patagonia."
+    "heading": "Fly fishing lodges and guides in Chile",
+    "tagline": "Your next fishing adventure starts here.",
+    "subtitle": "Find selected lodges and guides in Chilean Patagonia.",
+    "image_alt": "Fly fishing in Chilean Patagonia"
   },
   "about": {
     "eyebrow": "Our story",
@@ -225,7 +227,10 @@
     "representative": "Representative:",
     "not_informed": "Not provided",
     "view_detail": "View details",
-    "view_detail_arrow": "View details →"
+    "view_detail_arrow": "View details →",
+    "view_detail_name": "for {{name}}",
+    "item_image_alt": "{{name}} – fly fishing in {{zone}}",
+    "item_image_alt_no_zone": "{{name}} – fly fishing in Chile"
   },
   "card": {
     "representative": "Representative:"
@@ -256,8 +261,7 @@
     "representative": "Representative:",
     "phone": "Phone:",
     "email": "Email:",
-    "not_informed": "Not provided",
-    "view_detail": "View details →"
+    "not_informed": "Not provided"
   },
   "types": {
     "lodge": "Lodge",

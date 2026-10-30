@@ -139,8 +139,8 @@ function Header({ onNavigate }) {
             <Link to="/#contacto" className="rounded-full bg-white px-4 py-2 font-semibold text-slate-900 transition hover:bg-slate-200">{t('nav.contact')}</Link>
           )}
         </nav>
-        <button onClick={() => setOpen(!open)} className="rounded-xl border border-white/15 p-2 text-white md:hidden" aria-label={t('nav.open_menu')}>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        <button type="button" onClick={() => setOpen(!open)} className="rounded-xl border border-white/15 p-2 text-white md:hidden" aria-label={t('nav.open_menu')} aria-expanded={open}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 6h16M4 12h16M4 18h16" /></svg>
         </button>
       </div>
       <div className={`${open ? 'block' : 'hidden'} border-t border-white/10 bg-slate-950/95 md:hidden`}>
