@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { HeadProvider } from './components/DocumentMeta.jsx';
 import LocaleLayout from './components/LocaleLayout.jsx';
@@ -7,7 +8,6 @@ import ProductDetailPage from './pages/ProductDetailPage.jsx';
 import ReviewPage from './pages/ReviewPage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
-import AdminApp from './admin/AdminApp.jsx';
 import { SiteAssetsProvider } from './site/SiteAssetsProvider.jsx';
 import { ROUTES, SUPPORTED_LANGS } from './routes.js';
 
@@ -20,6 +20,9 @@ const PAGE_ELEMENTS = {
   review: <ReviewPage />,
   notFound: <NotFoundPage />
 };
+
+// Admin console is code-split so the public bundle doesn't ship it.
+const AdminApp = lazy(() => import('./admin/AdminApp.jsx'));
 
 function App() {
   const { pathname } = useLocation();
@@ -38,7 +41,7 @@ function App() {
             </Route>
           ))}
           {/* Admin is Spanish-only and outside the locale layout (ROUTES.admin.es). */}
-          <Route path="/admin/*" element={<AdminApp />} />
+          <Route path="/admin/*" element={<Suspense fallback={<div className="min-h-screen bg-slate-50" />}><AdminApp /></Suspense>} />
         </Routes>
         {!pathname.startsWith('/admin') && <TroutJump />}
       </HeadProvider>

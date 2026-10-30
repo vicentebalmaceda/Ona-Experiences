@@ -2,7 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
-import 'leaflet/dist/leaflet.css';
+import './fonts.css';
 import './styles.css';
 import { createI18n } from './i18n';
 import { langFromPath } from './routes.js';

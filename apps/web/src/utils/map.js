@@ -1,15 +1,31 @@
-import L from 'leaflet';
 import { formatRating, getRatingStats, renderStars } from './rating.js';
 import { detailPathFor } from '../routes.js';
+import { responsiveImage } from './responsiveImage.js';
 
-export function createMarkerIcon(type) {
+/** Smallest WebP variant for bundled photos (the popup is ~250px wide), else the URL as is. */
+function popupImageUrl(src) {
+  const { src: url, srcSet } = responsiveImage(src);
+  return srcSet ? srcSet.split(' ')[0] : url;
+}
+
+/**
+ * `L` is the lazily loaded Leaflet namespace (see utils/leafletLoader.js).
+ * The 18px dot sits centred in a 24px hit area (WCAG target size).
+ */
+export function createMarkerIcon(L, type) {
   return L.divIcon({
-    className: '',
+    className: 'custom-marker-hit',
     html: `<div class="custom-marker ${type === 'Lodge' ? 'lodge' : 'guia'}"></div>`,
-    iconSize: [18, 18],
-    iconAnchor: [9, 9],
-    popupAnchor: [0, -10]
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+    popupAnchor: [0, -12]
   });
+}
+
+/** Gives a marker (role=button in Leaflet) an accessible name once it is on the map. */
+export function labelMarker(marker, label) {
+  const element = marker.getElement?.();
+  if (element && label) element.setAttribute('aria-label', String(label));
 }
 
 function escapeHtml(value) {
@@ -41,7 +57,7 @@ export function popupTemplate(item, ratingVersion, labels = {}, { showContact = 
 
   return `
     <div>
-      <div class="popup-image" style="background-image:url('${item.image}')"></div>
+      <div class="popup-image" style="background-image:url('${escapeHtml(popupImageUrl(item.image))}')"></div>
       <span class="popup-badge ${item.type === 'Lodge' ? 'lodge' : 'guia'}">${typeLabel}</span>
       <h3 style="margin:10px 0 6px;font-size:18px;font-weight:800;color:#0f172a;line-height:1.25;">${escapeHtml(item.name)}</h3>
       <div class="popup-rating">${

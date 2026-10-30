@@ -4,16 +4,21 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "node scripts/optimize-images.mjs",
     "dev": "vite",
     "dev:bff": "vercel dev",
     "dev:bff-local": "tsx scripts/devServer.ts",
+    "prebuild": "node scripts/optimize-images.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "images": "node scripts/optimize-images.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/newsreader": "^5.3.0",
+    "@fontsource/nunito-sans": "^5.3.0",
     "@neondatabase/serverless": "^1.1.0",
     "@vercel/blob": "^2.8.1",
     "@vercel/node": "^5.1.8",
@@ -33,6 +38,7 @@
     "@types/node": "^22.10.2",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
+    "sharp": "^0.35.5",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",

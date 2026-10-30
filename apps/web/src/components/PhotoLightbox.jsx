@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { responsiveImage } from '../utils/responsiveImage.js';
 
 const SWIPE_THRESHOLD_PX = 40;
 
@@ -121,7 +122,7 @@ function PhotoLightbox({ images, index, open, onClose, onIndexChange, alt }) {
       ) : null}
 
       <div className="photo-lightbox__stage" onClick={(event) => event.stopPropagation()}>
-        <img src={currentSrc} alt={count > 1 ? `${photoAlt} (${safeIndex + 1}/${count})` : photoAlt} className="photo-lightbox__image" />
+        <img {...responsiveImage(currentSrc, '90vw')} alt={count > 1 ? `${photoAlt} (${safeIndex + 1}/${count})` : photoAlt} decoding="async" className="photo-lightbox__image" />
       </div>
     </div>
   );

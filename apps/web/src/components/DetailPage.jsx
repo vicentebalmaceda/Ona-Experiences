@@ -1,5 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
-import DOMPurify from 'dompurify';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import CompactMap from './CompactMap.jsx';
 import GalleryStrip from './GalleryStrip.jsx';
@@ -10,6 +9,7 @@ import { formatRating, getRatingStats, renderStars } from '../utils/rating.js';
 import { zoneLabel } from '../utils/zones.js';
 import { itemImageAlt } from '../utils/imageAlt.js';
 import useSmartSticky from '../hooks/useSmartSticky.js';
+import { imageUrl, responsiveImage } from '../utils/responsiveImage.js';
 
 const DESCRIPTION_ALLOWED_TAGS = [
   'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
@@ -18,11 +18,6 @@ const DESCRIPTION_ALLOWED_TAGS = [
   'ul', 'ol', 'li',
 ];
 const DESCRIPTION_ALLOWED_ATTR = ['href', 'target', 'rel'];
-
-function imageUrl(src) {
-  if (!src) return '';
-  return src.startsWith('http') ? src : `/${src.replace(/^\/?/, '')}`;
-}
 
 function uniqueImageUrls(sources) {
   const seen = new Set();
@@ -36,9 +31,39 @@ function uniqueImageUrls(sources) {
   return urls;
 }
 
+// DOMPurify (~22 KB min) is only needed here, so it loads with the first
+// detail page that has a description instead of shipping in the main bundle.
+let purifyPromise = null;
+function loadPurify() {
+  if (!purifyPromise) {
+    purifyPromise = import('dompurify').then((mod) => mod.default ?? mod).catch((error) => {
+      purifyPromise = null;
+      throw error;
+    });
+  }
+  return purifyPromise;
+}
+
+function usePurify(needed) {
+  const [purify, setPurify] = useState(null);
+  useEffect(() => {
+    if (!needed || purify) return undefined;
+    let alive = true;
+    loadPurify()
+      .then((instance) => {
+        if (alive) setPurify(() => instance);
+      })
+      .catch((error) => console.error('Failed to load the HTML sanitizer:', error));
+    return () => {
+      alive = false;
+    };
+  }, [needed, purify]);
+  return purify;
+}
+
 /** Sanitize BSale market_info HTML so tags and Spanish entities render safely. */
-function sanitizeMarketDescription(html) {
-  if (!html || typeof html !== 'string') return '';
+function sanitizeMarketDescription(DOMPurify, html) {
+  if (!DOMPurify || !html || typeof html !== 'string') return '';
   return DOMPurify.sanitize(html, {
     ALLOWED_TAGS: DESCRIPTION_ALLOWED_TAGS,
     ALLOWED_ATTR: DESCRIPTION_ALLOWED_ATTR,
@@ -63,10 +88,14 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
     () => uniqueImageUrls([...(gallery || []), item.image]),
     [item.gallery, item.image]
   );
+  const hasDescription = typeof item.description === 'string' && item.description.trim() !== '';
+  const purify = usePurify(hasDescription);
   const descriptionHtml = useMemo(
-    () => sanitizeMarketDescription(item.description),
-    [item.description]
+    () => sanitizeMarketDescription(purify, item.description),
+    [purify, item.description]
   );
+  // While the sanitizer loads, hold the space instead of flashing the fallback copy.
+  const descriptionPending = hasDescription && !purify;
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const bookingPanelRef = useRef(null);
@@ -127,19 +156,37 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
             <button
               type="button"
               className="detail-gallery-main"
-              style={{ backgroundImage: `url('${uniqueGallery[0]}')` }}
               onClick={() => openLightbox(uniqueGallery[0])}
               aria-label={t('detail.view_photo', { index: 1, name: item.name })}
-            />
+            >
+              {/* Likely LCP on detail pages: eager, high priority. */}
+              <img
+                {...responsiveImage(uniqueGallery[0], '(min-width: 900px) 640px, 100vw')}
+                alt=""
+                width="960"
+                height="960"
+                fetchpriority="high"
+                decoding="async"
+                className="detail-gallery__img"
+              />
+            </button>
             {uniqueGallery.slice(1, 5).map((src, index) => (
               <button
                 type="button"
                 key={src}
                 className="detail-gallery-thumb"
-                style={{ backgroundImage: `url('${src}')` }}
                 onClick={() => openLightbox(src)}
                 aria-label={t('detail.view_photo', { index: index + 2, name: item.name })}
-              />
+              >
+                <img
+                  {...responsiveImage(src, '(min-width: 900px) 320px, 50vw')}
+                  alt=""
+                  width="480"
+                  height="480"
+                  decoding="async"
+                  className="detail-gallery__img"
+                />
+              </button>
             ))}
           </div>
         ) : null}
@@ -160,6 +207,8 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
                   className="detail-description mt-6 text-base leading-8 text-slate-600"
                   dangerouslySetInnerHTML={{ __html: descriptionHtml }}
                 />
+              ) : descriptionPending ? (
+                <div className="mt-6 min-h-16" aria-busy="true" />
               ) : (
                 <p className="mt-6 text-base leading-8 text-slate-600">{t('detail.fallback_description', { name: item.name, zone: zoneLabel(item.zone, t) })}</p>
               )}
