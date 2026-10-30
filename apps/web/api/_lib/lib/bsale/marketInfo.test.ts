@@ -31,7 +31,23 @@ describe('extractPresentationFromDescriptions', () => {
     expect(extractPresentationFromDescriptions(withDescriptions({ Zone: '3,3' })).zone).toEqual([3]);
   });
 
-  it.each(['Coyhaique', '0', '7', '3a', '3.0', '2 4', '', '<p></p>', '3,', ',3', '3,7', '3;4'])(
+  it.each([
+    ['2 4', [2, 4]],
+    ['3;4', [3, 4]],
+    ['3/4', [3, 4]],
+    ['3 - 4', [3, 4]],
+    ['3 y 4', [3, 4]],
+    ['3, 4 and 6', [3, 4, 6]],
+    ['3,', [3]],
+    [',3', [3]],
+    [' , 3 ,, 4 , ', [3, 4]],
+    ['<p>3</p><p>4</p>', [3, 4]],
+    ['<p>3<br>5</p>', [3, 5]]
+  ])('tolerates loose zone formatting %j', (zone, expected) => {
+    expect(extractPresentationFromDescriptions(withDescriptions({ Zone: zone })).zone).toEqual(expected);
+  });
+
+  it.each(['Coyhaique', '0', '7', '3a', '3.0', '', '<p></p>', ' , ', 'y', '3,7', '3 zona 4'])(
     'omits invalid zone %j',
     (zone) => {
       expect(extractPresentationFromDescriptions(withDescriptions({ Zone: zone }))).not.toHaveProperty(
