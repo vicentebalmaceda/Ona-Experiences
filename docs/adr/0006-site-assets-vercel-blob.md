@@ -38,7 +38,7 @@ Showing `hero-default.jpg` first and then swapping to the published hero (plus a
 
 Phones downloaded the full 1080p hero video even though `object-cover` shows only the central third of it in portrait, so the hero took seconds to start on mobile data. Now:
 
-- A `hero_mobile` slot (MP4/WebM, 20 MB cap, ideally a 720×960 center crop under 3 MB) replaces the hero video on screens up to 767 px wide. It is chosen on first render, so phones never request the desktop file; if it is missing or fails to load, phones fall back to `hero`.
+- A `hero_mobile` slot (MP4/WebM, 20 MB cap, ideally a 720×960 center crop under 3 MB) replaces the hero video on screens up to 767 px wide. It is chosen right after mount (the prerendered first render is the same on every device and only draws the shared poster), and the video itself mounts later, once the poster has loaded and the page is idle, so phones never request the desktop file; if it is missing or fails to load, phones fall back to `hero`.
 - It applies only while `hero` is a video; an image hero ignores it.
 - Visitors with Data Saver or Reduce Motion on see the poster without any video, when a poster is published.
 - Databases created before this need the widened slot check from `schema.sql` (`site_assets_slot_check`); until it runs, publishing to `hero_mobile` fails and the rest of the site is unaffected.

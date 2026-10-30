@@ -19,7 +19,10 @@ async function fetchCatalogItem(path, productId) {
 
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(`Failed to fetch ${path}/${productId} (${response.status}): ${body}`);
+    const error = new Error(`Failed to fetch ${path}/${productId} (${response.status}): ${body}`);
+    // Lets the detail page tell "no such product" (404) from other failures.
+    error.status = response.status;
+    throw error;
   }
 
   return response.json();

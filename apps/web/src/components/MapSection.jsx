@@ -1,18 +1,22 @@
 import { useEffect, useRef } from 'react';
-import L from 'leaflet';
+import useLazyLeaflet from '../hooks/useLazyLeaflet.js';
 import { useTranslation } from 'react-i18next';
-import { createMarkerIcon, popupTemplate } from '../utils/map.js';
+import { createMarkerIcon, labelMarker, popupTemplate } from '../utils/map.js';
+import { useLocale } from '../i18n/locale.js';
 import { getRatingStats } from '../utils/rating.js';
 import { inZone, zoneLabel } from '../utils/zones.js';
 
 function MapSection({ zones, allItems, filteredItems, filters, setFilters, resetFilters, ratingVersion }) {
   const { t } = useTranslation();
-  const mapElementRef = useRef(null);
+  const lang = useLocale();
+  // Leaflet loads only once the map nears the viewport; until then the sized
+  // map element itself is the placeholder.
+  const [mapElementRef, L] = useLazyLeaflet();
   const mapRef = useRef(null);
   const markerLayerRef = useRef(null);
 
   useEffect(() => {
-    if (!mapElementRef.current || mapRef.current) return;
+    if (!L || !mapElementRef.current || mapRef.current) return;
 
     mapRef.current = L.map(mapElementRef.current, {
       zoomControl: true,
@@ -40,7 +44,7 @@ function MapSection({ zones, allItems, filteredItems, filters, setFilters, reset
       mapRef.current = null;
       markerLayerRef.current = null;
     };
-  }, []);
+  }, [L, mapElementRef]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -63,12 +67,15 @@ function MapSection({ zones, allItems, filteredItems, filters, setFilters, reset
         phone: t('map.phone'),
         email: t('map.email'),
         reviews: t('map.reviews', { count: stats.reviews }),
-        viewDetail: t('map.view_detail')
+        viewDetail: t('common.view_detail'),
+        viewDetailName: t('common.view_detail_name', { name: item.name })
       };
 
       const marker = L.marker([item.lat, item.lng], {
-        icon: createMarkerIcon(item.type)
-      }).bindPopup(popupTemplate(item, ratingVersion, labels), { className: 'custom-popup' });
+        icon: createMarkerIcon(L, item.type),
+        title: item.name,
+        alt: item.name
+      }).bindPopup(popupTemplate(item, ratingVersion, labels, { lang }), { className: 'custom-popup' });
 
       marker.on('click', () => {
         const target = item.type === 'Lodge' ? 'lodges-section' : 'guias-section';
@@ -76,6 +83,7 @@ function MapSection({ zones, allItems, filteredItems, filters, setFilters, reset
       });
 
       marker.addTo(markerLayer);
+      labelMarker(marker, item.name);
       bounds.push([item.lat, item.lng]);
     });
 
@@ -86,7 +94,7 @@ function MapSection({ zones, allItems, filteredItems, filters, setFilters, reset
     } else {
       map.setView([-45.5, -72.5], 5);
     }
-  }, [filteredItems, ratingVersion, t]);
+  }, [L, filteredItems, ratingVersion, t, lang]);
 
   return (
     <section id="mapa-section" className="py-20">

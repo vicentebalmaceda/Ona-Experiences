@@ -39,7 +39,7 @@ export default {
       fontFamily: {
         display: ['Nunito Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         body: ['Nunito Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        // Serif for editorial pages (Quiénes somos). Loaded from Google Fonts in index.html.
+        // Serif for editorial pages (Quiénes somos). Self-hosted in src/fonts.css.
         editorial: ['Newsreader', 'Georgia', 'Cambria', 'Times New Roman', 'serif'],
         adminDisplay: ['Georgia', 'Cambria', 'Times New Roman', 'serif']
       },

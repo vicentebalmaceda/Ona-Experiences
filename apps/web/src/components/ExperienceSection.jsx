@@ -1,27 +1,32 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import CompactMap from './CompactMap.jsx';
 import { formatRating, getRatingStats, renderStars, sortItemsByRating } from '../utils/rating.js';
 import { inZone, zoneIds, zoneLabel } from '../utils/zones.js';
-
-function imageUrl(src) {
-  if (!src) return '';
-  return src.startsWith('http') ? src : `/${src.replace(/^\/?/, '')}`;
-}
+import { itemImageAlt } from '../utils/imageAlt.js';
+import { responsiveImage } from '../utils/responsiveImage.js';
+import { useLocalizedPath } from '../i18n/locale.js';
 
 function normalizeText(value) {
   return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
-// Square thumbnail on the left, details stacked on the right.
+// Square thumbnail on the left, details stacked on the right. A real link
+// when the item has a detail page, so crawlers (and the prerendered HTML)
+// reach every lodge and guide from the landing.
 function ExperienceListItem({ item, onSelect }) {
   const { t } = useTranslation();
+  const { detailPath } = useLocalizedPath();
   const stats = getRatingStats(item);
+  const href = detailPath(item);
+  const Wrapper = href ? Link : 'button';
+  const wrapperProps = href ? { to: href } : { type: 'button', onClick: () => onSelect(item) };
 
   return (
-    <button type="button" onClick={() => onSelect(item)} className="experience-list-item group">
+    <Wrapper {...wrapperProps} className="experience-list-item group">
       <div className="experience-list-cover">
-        <img src={imageUrl(item.image)} alt={item.name} className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+        <img {...responsiveImage(item.image, '128px')} width="128" height="128" loading="lazy" decoding="async" alt={itemImageAlt(item, t)} className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
       </div>
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 py-1 pr-1 text-left">
         <div className="flex items-start justify-between gap-2">
@@ -42,7 +47,7 @@ function ExperienceListItem({ item, onSelect }) {
           )}
         </div>
       </div>
-    </button>
+    </Wrapper>
   );
 }
 
@@ -86,7 +91,7 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
 
         <div className="experience-layout">
           <aside className="experience-photo-card">
-            <img src={imageUrl(heroImage || heroItem?.image)} alt={heroAlt || title} className="absolute inset-0 h-full w-full object-cover" />
+            <img {...responsiveImage(heroImage || heroItem?.image, '(min-width: 1280px) 28vw, 100vw')} width="960" height="1200" loading="lazy" decoding="async" alt={heroAlt || title} className="absolute inset-0 h-full w-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-transparent"></div>
             <div className="relative z-10 flex h-full flex-col justify-end p-6 text-white">
               <span className="mb-4 w-fit rounded-full border border-white/20 bg-white/12 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] backdrop-blur">{t('experience.fly_fishing')}</span>

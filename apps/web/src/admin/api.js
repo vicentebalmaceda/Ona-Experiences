@@ -107,5 +107,9 @@ export const adminApi = {
   },
   restoreSiteAsset(slot) {
     return request(`/api/v1/admin/assets/${slot}`, { method: 'DELETE' });
+  },
+  /** Asks Vercel to rebuild the prerendered public site. Answers `{ triggered, skipped?, error? }`. */
+  rebuildSite() {
+    return request('/api/v1/admin/site/rebuild', { method: 'POST', body: '{}' });
   }
 };

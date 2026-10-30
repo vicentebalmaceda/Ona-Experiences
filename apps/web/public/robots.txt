@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin
+Disallow: /review
+Disallow: /api/
+
+Sitemap: https://www.onaexperiences.com/sitemap.xml

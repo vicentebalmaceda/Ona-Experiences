@@ -1,5 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
-import DOMPurify from 'dompurify';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import CompactMap from './CompactMap.jsx';
 import GalleryStrip from './GalleryStrip.jsx';
@@ -8,20 +7,10 @@ import QuoteRequestForm from './QuoteRequestForm.jsx';
 import ReviewsCarousel from './ReviewsCarousel.jsx';
 import { formatRating, getRatingStats, renderStars } from '../utils/rating.js';
 import { zoneLabel } from '../utils/zones.js';
+import { itemImageAlt } from '../utils/imageAlt.js';
 import useSmartSticky from '../hooks/useSmartSticky.js';
-
-const DESCRIPTION_ALLOWED_TAGS = [
-  'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-  'p', 'span', 'br', 'a',
-  'strong', 'em', 'b', 'i', 'u',
-  'ul', 'ol', 'li',
-];
-const DESCRIPTION_ALLOWED_ATTR = ['href', 'target', 'rel'];
-
-function imageUrl(src) {
-  if (!src) return '';
-  return src.startsWith('http') ? src : `/${src.replace(/^\/?/, '')}`;
-}
+import { imageUrl, responsiveImage } from '../utils/responsiveImage.js';
+import { sanitizeMarketDescription } from '../utils/sanitizeDescription.js';
 
 function uniqueImageUrls(sources) {
   const seen = new Set();
@@ -35,21 +24,47 @@ function uniqueImageUrls(sources) {
   return urls;
 }
 
-/** Sanitize BSale market_info HTML so tags and Spanish entities render safely. */
-function sanitizeMarketDescription(html) {
-  if (!html || typeof html !== 'string') return '';
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: DESCRIPTION_ALLOWED_TAGS,
-    ALLOWED_ATTR: DESCRIPTION_ALLOWED_ATTR,
-    ALLOW_DATA_ATTR: false,
-  }).trim();
+// DOMPurify (~22 KB min) is only needed here, so it loads with the first
+// detail page that has a description instead of shipping in the main bundle.
+let purifyPromise = null;
+function loadPurify() {
+  if (!purifyPromise) {
+    purifyPromise = import('dompurify').then((mod) => mod.default ?? mod).catch((error) => {
+      purifyPromise = null;
+      throw error;
+    });
+  }
+  return purifyPromise;
+}
+
+function usePurify(needed) {
+  const [purify, setPurify] = useState(null);
+  useEffect(() => {
+    if (!needed || purify) return undefined;
+    let alive = true;
+    loadPurify()
+      .then((instance) => {
+        if (alive) setPurify(() => instance);
+      })
+      .catch((error) => console.error('Failed to load the HTML sanitizer:', error));
+    return () => {
+      alive = false;
+    };
+  }, [needed, purify]);
+  return purify;
 }
 
 function displayTypeLabel(type, t) {
   return type === 'Lodge' ? t('types.lodge') : t('types.guide');
 }
 
-function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate }) {
+/**
+ * `prerenderedDescription` is `{ source, html }`: the description HTML the
+ * prerender sanitized at build time (window.__ONA_DATA__). While `item.description`
+ * is still that `source`, it is rendered as is, so the first client render
+ * matches the server HTML and DOMPurify is not downloaded at all.
+ */
+function DetailPage({ item, catalogType, productId, reviews, prerenderedDescription, onBack, onNavigate }) {
   const { t } = useTranslation();
   const catalogStats = getRatingStats(item);
   const stats = {
@@ -62,10 +77,18 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
     () => uniqueImageUrls([...(gallery || []), item.image]),
     [item.gallery, item.image]
   );
+  const hasDescription = typeof item.description === 'string' && item.description.trim() !== '';
+  const prerendered =
+    prerenderedDescription && prerenderedDescription.source === item.description
+      ? prerenderedDescription.html
+      : null;
+  const purify = usePurify(hasDescription && prerendered == null);
   const descriptionHtml = useMemo(
-    () => sanitizeMarketDescription(item.description),
-    [item.description]
+    () => prerendered ?? sanitizeMarketDescription(purify, item.description),
+    [prerendered, purify, item.description]
   );
+  // While the sanitizer loads, hold the space instead of flashing the fallback copy.
+  const descriptionPending = hasDescription && prerendered == null && !purify;
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const bookingPanelRef = useRef(null);
@@ -126,19 +149,37 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
             <button
               type="button"
               className="detail-gallery-main"
-              style={{ backgroundImage: `url('${uniqueGallery[0]}')` }}
               onClick={() => openLightbox(uniqueGallery[0])}
               aria-label={t('detail.view_photo', { index: 1, name: item.name })}
-            />
+            >
+              {/* Likely LCP on detail pages: eager, high priority. */}
+              <img
+                {...responsiveImage(uniqueGallery[0], '(min-width: 900px) 640px, 100vw')}
+                alt=""
+                width="960"
+                height="960"
+                fetchpriority="high"
+                decoding="async"
+                className="detail-gallery__img"
+              />
+            </button>
             {uniqueGallery.slice(1, 5).map((src, index) => (
               <button
                 type="button"
                 key={src}
                 className="detail-gallery-thumb"
-                style={{ backgroundImage: `url('${src}')` }}
                 onClick={() => openLightbox(src)}
                 aria-label={t('detail.view_photo', { index: index + 2, name: item.name })}
-              />
+              >
+                <img
+                  {...responsiveImage(src, '(min-width: 900px) 320px, 50vw')}
+                  alt=""
+                  width="480"
+                  height="480"
+                  decoding="async"
+                  className="detail-gallery__img"
+                />
+              </button>
             ))}
           </div>
         ) : null}
@@ -159,6 +200,8 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
                   className="detail-description mt-6 text-base leading-8 text-slate-600"
                   dangerouslySetInnerHTML={{ __html: descriptionHtml }}
                 />
+              ) : descriptionPending ? (
+                <div className="mt-6 min-h-16" aria-busy="true" />
               ) : (
                 <p className="mt-6 text-base leading-8 text-slate-600">{t('detail.fallback_description', { name: item.name, zone: zoneLabel(item.zone, t) })}</p>
               )}
@@ -244,7 +287,7 @@ function DetailPage({ item, catalogType, productId, reviews, onBack, onNavigate 
         open={lightboxOpen}
         onClose={() => setLightboxOpen(false)}
         onIndexChange={setLightboxIndex}
-        alt={item.name}
+        alt={itemImageAlt(item, t)}
       />
     </section>
   );

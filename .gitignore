@@ -15,6 +15,7 @@ node_modules
 dist
 build
 apps/web/dist
+apps/web/dist-server
 apps/api/dist
 .vite
 .vite-env
@@ -23,3 +24,4 @@ apps/api/dist
 .vite-env.test.local
 .vite-env.production.local
 
+apps/web/public/assets/_img

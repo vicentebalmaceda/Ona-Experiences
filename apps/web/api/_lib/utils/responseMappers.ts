@@ -2,7 +2,7 @@ import type { CatalogType, CatalogVariant, Guide, ListVariantsResult, Lodge } fr
 import { EMPTY_SERVICE_PRESENTATION } from '../types/catalog.js';
 import type { ReviewAggregate } from '../types/reviews.js';
 import type { QuoteSale } from '../types/sales.js';
-import { ReviewService, aggregateLookup } from '../services/reviewService.js';
+import { aggregateLookup, type ReviewAggregateSource } from '../services/reviewService.js';
 
 function mapVariantPresentation(variant: CatalogVariant) {
   return variant.presentation ?? EMPTY_SERVICE_PRESENTATION;
@@ -82,14 +82,14 @@ export function applyVisibleReviewAggregate<T extends { productId: number; ratin
 
 export async function attachLodgeReviewAggregates(
   items: Lodge[],
-  reviewService: ReviewService
+  reviewService: ReviewAggregateSource
 ): Promise<Lodge[]> {
   return attachAggregates(items, 'lodge', reviewService);
 }
 
 export async function attachGuideReviewAggregates(
   items: Guide[],
-  reviewService: ReviewService
+  reviewService: ReviewAggregateSource
 ): Promise<Guide[]> {
   return attachAggregates(items, 'guide', reviewService);
 }
@@ -97,7 +97,7 @@ export async function attachGuideReviewAggregates(
 async function attachAggregates<T extends { productId: number; rating: number | null; reviews: number | null; ratingLabel: string | null }>(
   items: T[],
   catalogType: CatalogType,
-  reviewService: ReviewService
+  reviewService: ReviewAggregateSource
 ): Promise<T[]> {
   const aggregates = await reviewService.getAggregatesFor(
     items.map((item) => ({ catalogType, bsaleProductId: item.productId }))

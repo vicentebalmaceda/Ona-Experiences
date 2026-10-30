@@ -1,14 +1,31 @@
-import L from 'leaflet';
 import { formatRating, getRatingStats, renderStars } from './rating.js';
+import { detailPathFor } from '../routes.js';
+import { responsiveImage } from './responsiveImage.js';
 
-export function createMarkerIcon(type) {
+/** Smallest WebP variant for bundled photos (the popup is ~250px wide), else the URL as is. */
+function popupImageUrl(src) {
+  const { src: url, srcSet } = responsiveImage(src);
+  return srcSet ? srcSet.split(' ')[0] : url;
+}
+
+/**
+ * `L` is the lazily loaded Leaflet namespace (see utils/leafletLoader.js).
+ * The 18px dot sits centred in a 24px hit area (WCAG target size).
+ */
+export function createMarkerIcon(L, type) {
   return L.divIcon({
-    className: '',
+    className: 'custom-marker-hit',
     html: `<div class="custom-marker ${type === 'Lodge' ? 'lodge' : 'guia'}"></div>`,
-    iconSize: [18, 18],
-    iconAnchor: [9, 9],
-    popupAnchor: [0, -10]
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+    popupAnchor: [0, -12]
   });
+}
+
+/** Gives a marker (role=button in Leaflet) an accessible name once it is on the map. */
+export function labelMarker(marker, label) {
+  const element = marker.getElement?.();
+  if (element && label) element.setAttribute('aria-label', String(label));
 }
 
 function escapeHtml(value) {
@@ -20,13 +37,10 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
-export function popupTemplate(item, ratingVersion, labels = {}, { showContact = true } = {}) {
+/** Popup HTML for a map marker; `lang` keeps the detail link in the current URL language. */
+export function popupTemplate(item, ratingVersion, labels = {}, { showContact = true, lang = 'es' } = {}) {
   const stats = getRatingStats(item);
-  const detailPath = item.productId
-    ? item.type === 'Lodge'
-      ? `/lodges/${item.productId}`
-      : `/guides/${item.productId}`
-    : null;
+  const detailPath = detailPathFor(item, lang);
   const typeLabel = escapeHtml(labels.typeLabel || item.type);
   const notInformed = escapeHtml(labels.notInformed || 'No informado');
   const zoneLabel = escapeHtml(labels.zone || 'Zona:');
@@ -34,14 +48,16 @@ export function popupTemplate(item, ratingVersion, labels = {}, { showContact = 
   const phoneLabel = escapeHtml(labels.phone || 'Teléfono:');
   const emailLabel = escapeHtml(labels.email || 'Email:');
   const reviewsLabel = escapeHtml(labels.reviews || `(${stats.reviews} reseñas)`);
-  const viewDetail = escapeHtml(labels.viewDetail || 'Ver detalle →');
+  const viewDetail = escapeHtml(labels.viewDetail || 'Ver detalle');
+  // Names the item for screen readers and the link-text audit ("Ver detalle de X").
+  const viewDetailName = escapeHtml(labels.viewDetailName || `de ${item.name ?? ''}`);
   const detailLink = detailPath
-    ? `<a href="${detailPath}" style="display:inline-block;margin-top:10px;font-size:13px;font-weight:700;color:#0f766e;text-decoration:none;">${viewDetail}</a>`
+    ? `<a href="${escapeHtml(detailPath)}" style="display:inline-block;margin-top:10px;font-size:13px;font-weight:700;color:#0f766e;text-decoration:none;">${viewDetail}<span class="sr-only"> ${viewDetailName}</span> <span aria-hidden="true">→</span></a>`
     : '';
 
   return `
     <div>
-      <div class="popup-image" style="background-image:url('${item.image}')"></div>
+      <div class="popup-image" style="background-image:url('${escapeHtml(popupImageUrl(item.image))}')"></div>
       <span class="popup-badge ${item.type === 'Lodge' ? 'lodge' : 'guia'}">${typeLabel}</span>
       <h3 style="margin:10px 0 6px;font-size:18px;font-weight:800;color:#0f172a;line-height:1.25;">${escapeHtml(item.name)}</h3>
       <div class="popup-rating">${

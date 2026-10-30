@@ -9,6 +9,7 @@ import {
   reviewIdParamSchema
 } from '../types/schemas.js';
 import { methodNotAllowed } from '../utils/http.js';
+import { triggerCoalescedRebuild } from '../utils/deployHook.js';
 
 function optionalInviteNote(req: { body?: unknown }): string | undefined {
   const parsed = adminInviteNoteSchema.parse(req.body ?? {});
@@ -92,5 +93,7 @@ export const adminReviewByIdHandler = createApiHandler(async (req, res) => {
   const { reviewId } = validateParams(reviewIdParamSchema, req);
   const { hidden } = validateBody(hideReviewSchema, req);
   await getServices().adminService.setReviewHidden(reviewId, hidden);
+  // Visible reviews and aggregateRating are part of the prerendered detail pages.
+  await triggerCoalescedRebuild(hidden ? 'review hidden' : 'review shown');
   res.status(200).json({ ok: true, reviewId, hidden });
 });

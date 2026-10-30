@@ -53,6 +53,75 @@ function sameList(a, b) {
   return a.length === b.length && a.every((item, index) => item === b[index]);
 }
 
+/**
+ * "Republicar sitio": the public pages are static HTML generated at build
+ * time. BSale, Sitio and review changes already trigger a rebuild; this is
+ * the manual escape hatch.
+ */
+function SiteRebuildSection({ onRebuildSite }) {
+  const [state, setState] = useState({ status: 'idle', message: null });
+
+  const run = async () => {
+    setState({ status: 'running', message: null });
+    try {
+      const result = await onRebuildSite();
+      if (result?.triggered) {
+        setState({
+          status: 'done',
+          message: 'Listo: el sitio se está regenerando. Los cambios se verán en unos minutos.'
+        });
+      } else if (result?.skipped === 'unconfigured') {
+        setState({
+          status: 'error',
+          message: 'Falta configurar VERCEL_DEPLOY_HOOK_URL en Vercel; no se pudo republicar.'
+        });
+      } else {
+        setState({ status: 'done', message: 'Ya hay una republicación en curso.' });
+      }
+    } catch (err) {
+      setState({
+        status: 'error',
+        message: err instanceof Error ? err.message : 'No se pudo republicar el sitio'
+      });
+    }
+  };
+
+  return (
+    <section className="admin-surface p-5 sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="max-w-2xl">
+          <p className="admin-eyebrow">Sitio público</p>
+          <h2 className="mt-1 text-lg font-semibold text-forest-950">Republicar sitio</h2>
+          <p className="mt-2 text-sm text-forest-500">
+            Las páginas públicas se generan como HTML estático. Se regeneran solas cuando cambia un
+            producto en BSale, una imagen de Sitio o una reseña, y una vez al día. Usa este botón si
+            un cambio todavía no aparece después de unos minutos.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={run}
+          disabled={state.status === 'running'}
+          className="admin-button-primary shrink-0"
+        >
+          <AdminIcon name="sync" className={`h-4 w-4 ${state.status === 'running' ? 'animate-spin' : ''}`} />
+          {state.status === 'running' ? 'Republicando…' : 'Republicar sitio'}
+        </button>
+      </div>
+      {state.message && (
+        <p
+          role="status"
+          className={`mt-4 rounded-2xl px-4 py-3 text-sm font-medium ${
+            state.status === 'error' ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'
+          }`}
+        >
+          {state.message}
+        </p>
+      )}
+    </section>
+  );
+}
+
 const STORE_NOTICE =
   'La tabla site_settings todavía no existe en la base de datos. Ejecuta el bloque site_settings de schema.sql para poder guardar; mientras tanto se usa ADMIN_EMAIL.';
 
@@ -250,6 +319,7 @@ function MailSettingsSection({ settings, loading, error, onReload, onSave, onRes
 
 export default function AdminConfigsPage({
   onSyncProducts,
+  onRebuildSite,
   mailSettings,
   mailSettingsLoading,
   mailSettingsError,
@@ -404,6 +474,8 @@ export default function AdminConfigsPage({
           </div>
         </section>
       )}
+
+      {onRebuildSite && <SiteRebuildSection onRebuildSite={onRebuildSite} />}
     </div>
   );
 }

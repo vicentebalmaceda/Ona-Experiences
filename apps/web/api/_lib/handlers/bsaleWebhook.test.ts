@@ -85,3 +85,41 @@ describe('POST /api/webhooks/bsale', () => {
     expect(res.statusCode).toBe(500);
   });
 });
+
+describe('BSale webhook site rebuild', () => {
+  beforeEach(() => {
+    dispatch.mockReset();
+    dispatch.mockResolvedValue({ handled: true, detail: 'catalog cache invalidated' });
+  });
+
+  it('requests a rebuild for catalog topics only', async () => {
+    const hook = vi.fn().mockResolvedValue(new Response('{}', { status: 201 }));
+    vi.stubGlobal('fetch', hook);
+    process.env.VERCEL_DEPLOY_HOOK_URL = 'https://hook.example/deploy';
+    try {
+      const { default: handler } = await import('../../webhooks/bsale.js');
+      const send = async (topic: string) => {
+        const res = createMockRes();
+        const req = {
+          method: 'POST',
+          headers: {},
+          url: '/api/webhooks/bsale',
+          query: {},
+          body: { topic, action: 'put', resourceId: '1' }
+        };
+        await handler(req as never, res as never);
+        return res;
+      };
+      expect((await send('stock')).statusCode).toBe(200);
+      expect(hook).not.toHaveBeenCalled();
+      expect((await send('product')).statusCode).toBe(200);
+      expect(hook).toHaveBeenCalledWith(
+        'https://hook.example/deploy',
+        expect.objectContaining({ method: 'POST' })
+      );
+    } finally {
+      vi.unstubAllGlobals();
+      delete process.env.VERCEL_DEPLOY_HOOK_URL;
+    }
+  });
+});

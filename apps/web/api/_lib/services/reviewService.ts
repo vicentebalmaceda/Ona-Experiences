@@ -33,13 +33,55 @@ export interface ReviewServiceDeps {
   createToken?: () => string;
 }
 
+/**
+ * The public, read-only side of reviews: Visible Reviews of a product and
+ * their aggregates. Needs only the store, so the build-time prerender can use
+ * it without mail or BSale invite configuration.
+ */
+export class ReviewReader {
+  constructor(private readonly store: ReviewStore) {}
+
+  async listVisibleForProduct(
+    catalogType: CatalogType,
+    bsaleProductId: number
+  ): Promise<ProductReviewsView> {
+    const product = await this.store.getProductByExternalKey(catalogType, bsaleProductId);
+    if (!product) {
+      return { average: null, count: 0, items: [] };
+    }
+
+    const [aggregate, records] = await Promise.all([
+      this.store.getVisibleAggregate(product.id),
+      this.store.listVisibleReviews(product.id, PUBLIC_REVIEW_LIMIT)
+    ]);
+
+    return {
+      average: aggregate.average,
+      count: aggregate.count,
+      items: records.map(toPublicReview)
+    };
+  }
+
+  async getAggregatesFor(
+    keys: Array<{ catalogType: CatalogType; bsaleProductId: number }>
+  ): Promise<Map<string, ReviewAggregate>> {
+    if (keys.length === 0) return new Map();
+    return this.store.getVisibleAggregatesByExternalKeys(keys);
+  }
+}
+
+/** What response mappers need to attach visible-review aggregates. */
+export type ReviewAggregateSource = Pick<ReviewReader, 'getAggregatesFor'>;
+
 export class ReviewService {
   private readonly now: () => Date;
   private readonly createToken: () => string;
+  private readonly reader: ReviewReader;
 
   constructor(private readonly deps: ReviewServiceDeps) {
     this.now = deps.now ?? (() => new Date());
     this.createToken = deps.createToken ?? createInviteToken;
+    this.reader = new ReviewReader(deps.store);
   }
 
   async createInvite(input: CreateReviewInviteInput): Promise<{ inviteId: string; expiresAt: string }> {
@@ -143,32 +185,14 @@ export class ReviewService {
     await this.deps.store.setReviewHidden(reviewId, hidden ? this.now() : null);
   }
 
-  async listVisibleForProduct(
-    catalogType: CatalogType,
-    bsaleProductId: number
-  ): Promise<ProductReviewsView> {
-    const product = await this.deps.store.getProductByExternalKey(catalogType, bsaleProductId);
-    if (!product) {
-      return { average: null, count: 0, items: [] };
-    }
-
-    const [aggregate, records] = await Promise.all([
-      this.deps.store.getVisibleAggregate(product.id),
-      this.deps.store.listVisibleReviews(product.id, PUBLIC_REVIEW_LIMIT)
-    ]);
-
-    return {
-      average: aggregate.average,
-      count: aggregate.count,
-      items: records.map(toPublicReview)
-    };
+  listVisibleForProduct(catalogType: CatalogType, bsaleProductId: number): Promise<ProductReviewsView> {
+    return this.reader.listVisibleForProduct(catalogType, bsaleProductId);
   }
 
-  async getAggregatesFor(
+  getAggregatesFor(
     keys: Array<{ catalogType: CatalogType; bsaleProductId: number }>
   ): Promise<Map<string, ReviewAggregate>> {
-    if (keys.length === 0) return new Map();
-    return this.deps.store.getVisibleAggregatesByExternalKeys(keys);
+    return this.reader.getAggregatesFor(keys);
   }
 
   private async requireRedeemableInvite(token: string): Promise<{

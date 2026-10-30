@@ -6,6 +6,7 @@ import { getServices } from '../services/container.js';
 import { DomainError } from '../types/errors.js';
 import { publishSiteAssetSchema, siteAssetSlotParamSchema } from '../types/schemas.js';
 import { methodNotAllowed } from '../utils/http.js';
+import { triggerRebuild } from '../utils/deployHook.js';
 
 export const adminSiteAssetsHandler = createApiHandler(async (req, res) => {
   if (req.method !== 'GET') {
@@ -53,6 +54,8 @@ export const adminSiteAssetBySlotHandler = createApiHandler(async (req, res) => 
 
   if (req.method === 'DELETE') {
     await service.restoreDefault(slot);
+    // The prerendered pages embed the site assets (hero poster preload, og:image).
+    await triggerRebuild(`site asset restored: ${slot}`);
     res.status(200).json({ ok: true, slot });
     return;
   }
@@ -66,5 +69,21 @@ export const adminSiteAssetBySlotHandler = createApiHandler(async (req, res) => 
     height: body.height,
     publishedBy: email
   });
+  await triggerRebuild(`site asset published: ${slot}`);
   res.status(200).json({ asset });
+});
+
+/**
+ * Admin "Republicar sitio": rebuilds the static site now instead of waiting
+ * for the next content change or the daily scheduled rebuild.
+ */
+export const adminSiteRebuildHandler = createApiHandler(async (req, res) => {
+  if (req.method !== 'POST') {
+    methodNotAllowed(res, ['POST']);
+    return;
+  }
+  requireAdminSession(req);
+  const result = await triggerRebuild('admin request (Republicar sitio)');
+  res.setHeader('Cache-Control', 'no-store');
+  res.status(result.error ? 502 : 200).json(result);
 });

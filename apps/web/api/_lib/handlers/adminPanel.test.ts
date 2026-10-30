@@ -3,13 +3,14 @@ import { createAdminSessionToken } from '../auth/adminSession.js';
 import { resetEnvForTests } from '../config/env.js';
 import { createMockRes } from '../test/mockRes.js';
 import { adminLoginHandler } from './adminAuth.js';
-import { adminQuoteSendInviteHandler } from './adminPanel.js';
+import { adminQuoteSendInviteHandler, adminReviewByIdHandler } from './adminPanel.js';
 
 const sendInvite = vi.fn();
+const setReviewHidden = vi.fn();
 
 vi.mock('../services/container.js', () => ({
   getServices: () => ({
-    adminService: { sendInvite }
+    adminService: { sendInvite, setReviewHidden }
   })
 }));
 
@@ -70,5 +71,33 @@ describe('admin auth + send invite', () => {
 
     expect(res.statusCode).toBe(201);
     expect(sendInvite).toHaveBeenCalledWith(6634, 'post-stay');
+  });
+});
+
+describe('review moderation rebuilds the site', () => {
+  it('requests a (coalesced) rebuild after hiding a review', async () => {
+    resetEnvForTests();
+    setReviewHidden.mockResolvedValue(undefined);
+    const hook = vi.fn().mockResolvedValue(new Response('{}', { status: 201 }));
+    vi.stubGlobal('fetch', hook);
+    process.env.VERCEL_DEPLOY_HOOK_URL = 'https://hook.example/deploy';
+    try {
+      const { token } = createAdminSessionToken('admin@ona.example', process.env.ADMIN_SESSION_SECRET!);
+      const req = {
+        method: 'PATCH',
+        headers: { origin: 'http://localhost:5173', cookie: `ona_admin_session=${encodeURIComponent(token)}` },
+        url: '/api/v1/admin/reviews/7b0c1f4e-0000-4000-8000-000000000001',
+        query: { reviewId: '7b0c1f4e-0000-4000-8000-000000000001' },
+        body: { hidden: true }
+      };
+      const res = createMockRes();
+      await adminReviewByIdHandler(req as never, res as never);
+      expect(res.statusCode).toBe(200);
+      expect(setReviewHidden).toHaveBeenCalled();
+      expect(hook).toHaveBeenCalledWith('https://hook.example/deploy', expect.objectContaining({ method: 'POST' }));
+    } finally {
+      vi.unstubAllGlobals();
+      delete process.env.VERCEL_DEPLOY_HOOK_URL;
+    }
   });
 });

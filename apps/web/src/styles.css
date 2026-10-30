@@ -125,6 +125,12 @@ body {
 .marker-dot-lodge { background: #1f4f73; }
 .marker-dot-guide { background: #17372c; }
 
+.custom-marker-hit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .custom-marker {
   width: 18px;
   height: 18px;
@@ -554,8 +560,11 @@ body {
   z-index: 1;
 }
 
+/* leaflet.css loads lazily (after this file), so restate the background with
+   higher specificity than its `.leaflet-container { background: #ddd }`. */
 .leaflet-container.interactive-map {
   font-family: inherit;
+  background: #dbeafe;
 }
 
 .detail-page {
@@ -660,6 +669,22 @@ body {
   padding: 0;
   cursor: pointer;
   transition: filter 160ms ease, transform 160ms ease;
+}
+
+.detail-gallery-main,
+.detail-gallery-thumb,
+.gallery-thumb {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Photos are real <img>s (srcset, lazy loading) laid over the square tile. */
+.detail-gallery__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .detail-gallery-main:hover,

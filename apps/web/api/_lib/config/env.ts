@@ -66,3 +66,30 @@ export function getEnv(): Env {
 export function resetEnvForTests(): void {
   cached = undefined;
 }
+
+/**
+ * The subset the public content needs (catalog from BSale, reviews and site
+ * assets from Postgres): what the build-time prerender validates, so a missing
+ * Resend or admin secret can never break a deploy. Same rules as envSchema.
+ */
+const contentEnvSchema = z.object({
+  BSALE_ACCESS_TOKEN: envSchema.shape.BSALE_ACCESS_TOKEN,
+  BSALE_API_BASE_URL: envSchema.shape.BSALE_API_BASE_URL,
+  BSALE_LODGE_PRODUCT_TYPE_NAME: envSchema.shape.BSALE_LODGE_PRODUCT_TYPE_NAME,
+  BSALE_GUIDE_PRODUCT_TYPE_NAME: envSchema.shape.BSALE_GUIDE_PRODUCT_TYPE_NAME,
+  POSTGRES_URL: envSchema.shape.POSTGRES_URL
+});
+
+export type ContentEnv = z.infer<typeof contentEnvSchema>;
+
+/** Parses only the content env vars; throws a descriptive error when one is missing or invalid. */
+export function getContentEnv(source: NodeJS.ProcessEnv = process.env): ContentEnv {
+  const result = contentEnvSchema.safeParse(source);
+  if (!result.success) {
+    const formatted = result.error.issues
+      .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+      .join('; ');
+    throw new Error(`Invalid content environment configuration: ${formatted}`);
+  }
+  return result.data;
+}

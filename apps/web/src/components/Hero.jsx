@@ -21,33 +21,89 @@ function useLoadedUrls() {
   return [loaded, markLoaded];
 }
 
-// Phones get the hero_mobile video when one is published. Read on first
-// render so a phone never starts downloading the desktop file.
+// Phones get the hero_mobile video when one is published (hero_mobile slot).
 const MOBILE_QUERY = '(max-width: 767px)';
 
+/**
+ * A media query, read after mount: the first render (prerendered HTML and
+ * hydration) is the same for every device, which is safe because nothing it
+ * draws depends on the query. The video that does depend on it mounts only
+ * later (useDeferredVideo), so a phone never requests the desktop file.
+ */
 function useMediaQuery(query) {
-  const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
+  const [matches, setMatches] = useState(false);
   useEffect(() => {
-    const list = window.matchMedia(query);
+    const list = window.matchMedia?.(query);
+    if (!list) return undefined;
     const onChange = () => setMatches(list.matches);
     onChange();
-    list.addEventListener('change', onChange);
-    return () => list.removeEventListener('change', onChange);
+    list.addEventListener?.('change', onChange);
+    return () => list.removeEventListener?.('change', onChange);
   }, [query]);
   return matches;
 }
 
-/** Chrome's Data Saver / Lite mode, followed live where the browser reports changes. */
+/** Chrome's Data Saver / Lite mode, followed live where the browser reports changes (after mount). */
 function useSaveData() {
-  const connection = navigator.connection;
-  const [saveData, setSaveData] = useState(() => Boolean(connection?.saveData));
+  const [saveData, setSaveData] = useState(false);
   useEffect(() => {
-    if (!connection?.addEventListener) return undefined;
+    const connection = navigator.connection;
+    if (!connection) return undefined;
     const onChange = () => setSaveData(Boolean(connection.saveData));
-    connection.addEventListener('change', onChange);
-    return () => connection.removeEventListener('change', onChange);
-  }, [connection]);
+    onChange();
+    connection.addEventListener?.('change', onChange);
+    return () => connection.removeEventListener?.('change', onChange);
+  }, []);
   return saveData;
+}
+
+/**
+ * Whether the hero video may autoplay on this device: not with reduced motion,
+ * Data Saver or a slow connection. Reads browser APIs only when called from an
+ * effect, so this module stays safe to render on the server.
+ */
+function videoAllowed() {
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return false;
+  const connection = navigator.connection;
+  if (connection?.saveData) return false;
+  if (/(^|-)2g$|^3g$/.test(connection?.effectiveType || '')) return false;
+  return true;
+}
+
+/**
+ * Gate for the hero video: 'pending' until the page has loaded and the main
+ * thread is idle, then 'play', or 'blocked' when `videoAllowed()` says no. A
+ * multi-MB video thus never competes with the poster (the LCP image),
+ * scripts or fonts.
+ */
+function useDeferredVideo(active) {
+  const [state, setState] = useState('pending');
+
+  useEffect(() => {
+    if (!active || state !== 'pending') return undefined;
+    if (!videoAllowed()) {
+      setState('blocked');
+      return undefined;
+    }
+    let idleId;
+    let timeoutId;
+    const start = () => {
+      if (window.requestIdleCallback) {
+        idleId = window.requestIdleCallback(() => setState('play'), { timeout: 2000 });
+      } else {
+        timeoutId = window.setTimeout(() => setState('play'), 200);
+      }
+    };
+    if (document.readyState === 'complete') start();
+    else window.addEventListener('load', start, { once: true });
+    return () => {
+      window.removeEventListener('load', start);
+      if (idleId && window.cancelIdleCallback) window.cancelIdleCallback(idleId);
+      if (timeoutId) window.clearTimeout(timeoutId);
+    };
+  }, [active, state]);
+
+  return state;
 }
 
 /**
@@ -57,27 +113,42 @@ function useSaveData() {
  * published or it fails to load.
  */
 function HeroMedia() {
+  const { t } = useTranslation();
   const desktopHero = useSiteAsset('hero');
   const mobileHero = useSiteAsset('hero_mobile');
   const poster = useSiteAsset('hero_poster');
   const isMobile = useMediaQuery(MOBILE_QUERY);
-  // Data Saver and Reduce Motion users get the poster without the video.
+  // Followed live: turning on Reduce Motion or Data Saver drops a playing video
+  // (when there is a poster to show instead). useDeferredVideo also checks
+  // these, plus slow 2g/3g connections, before the video ever mounts.
   const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
   const saveData = useSaveData();
-  const skipVideo = reduceMotion || saveData;
   const [loaded, markLoaded] = useLoadedUrls();
 
   // The mobile video only stands in for a video hero, never for an image one.
-  const desktopIsVideo = desktopHero.kind === 'video' && Boolean(desktopHero.url);
-  const hero = desktopIsVideo && isMobile && mobileHero.url ? mobileHero : desktopHero;
-  // Skipping the video only makes sense when there is a poster to show instead.
-  const playVideo = desktopIsVideo && !(skipVideo && poster.url);
+  const isVideo = desktopHero.kind === 'video' && Boolean(desktopHero.url);
+  const hero = isVideo && isMobile && mobileHero.url ? mobileHero : desktopHero;
   // The poster is drawn as a real <img> (high fetch priority) under the video
   // instead of the video's `poster` attribute, which browsers fetch lazily.
-  const stillUrl = desktopIsVideo ? poster.url : hero.url;
+  // Desktop and mobile share it, so it is the same on every device.
+  const stillUrl = isVideo ? poster.url : desktopHero.url;
   const stillReady = Boolean(stillUrl) && loaded.has(stillUrl);
-  const videoReady = playVideo && loaded.has(hero.url);
-  const loading = hero.status === 'loading' || (Boolean(hero.url) && !stillReady && !videoReady);
+  // The still known at the first render is in the prerendered HTML (and
+  // preloaded): it is drawn fully opaque from the start, so it paints as soon
+  // as it downloads, without JavaScript, and LCP never waits for hydration.
+  // Only a still that arrives later (from the API) fades in once loaded.
+  const [initialStillUrl] = useState(stillUrl);
+  const stillVisible = stillReady || (Boolean(stillUrl) && stillUrl === initialStillUrl);
+  // The <video> is mounted only once the poster has painted (it is the LCP
+  // image) and the page is loaded and idle. With a poster it stays out
+  // entirely on reduced motion / Data Saver / slow networks; without one it
+  // mounts paused so its first frame still shows.
+  const videoGate = useDeferredVideo(isVideo && (stillReady || !poster.url));
+  const skipVideo = (reduceMotion || saveData) && Boolean(poster.url);
+  const mountVideo =
+    isVideo && !skipVideo && (videoGate === 'play' || (videoGate === 'blocked' && !poster.url));
+  const videoReady = isVideo && loaded.has(hero.url);
+  const loading = desktopHero.status === 'loading' || (Boolean(desktopHero.url) && !stillReady && !videoReady);
 
   // Catches images the browser already had cached, whose load event can fire
   // before React attaches the handler.
@@ -92,26 +163,26 @@ function HeroMedia() {
         <img
           key={stillUrl}
           ref={checkComplete(stillUrl)}
-          className={`${layerClass} ${stillReady ? 'opacity-100' : 'opacity-0'}`}
+          className={`${layerClass} ${stillVisible ? 'opacity-100' : 'opacity-0'}`}
           src={stillUrl}
-          alt={desktopIsVideo ? '' : hero.alt || ''}
-          aria-hidden={desktopIsVideo ? 'true' : undefined}
+          alt={isVideo ? '' : desktopHero.alt || t('hero.image_alt')}
+          aria-hidden={isVideo ? 'true' : undefined}
           fetchpriority="high"
           decoding="async"
           onLoad={() => markLoaded(stillUrl)}
-          onError={desktopIsVideo ? poster.onError : hero.onError}
+          onError={isVideo ? poster.onError : desktopHero.onError}
         />
       )}
-      {playVideo && (
+      {mountVideo && (
         <video
           key={hero.url}
           className={`${layerClass} ${videoReady ? 'opacity-100' : 'opacity-0'}`}
           src={hero.url}
-          autoPlay
+          autoPlay={videoGate === 'play'}
           muted
           loop
           playsInline
-          preload="auto"
+          preload={videoGate === 'play' ? 'auto' : 'metadata'}
           aria-hidden="true"
           onLoadedData={() => markLoaded(hero.url)}
           onPlaying={() => markLoaded(hero.url)}
@@ -130,7 +201,8 @@ function Hero() {
       <HeroMedia />
       <div className="mx-auto flex min-h-[calc(92vh-8rem)] max-w-7xl items-center px-4 py-14 sm:px-6 lg:px-8">
         <div className="max-w-4xl">
-          <h1 className={`max-w-3xl font-display text-4xl leading-[0.98] ${lettering} sm:text-6xl lg:text-7xl`}>{t('hero.title')}</h1>
+          <p className={`max-w-2xl font-display text-xl italic leading-snug text-ona-200 ${lettering} sm:text-2xl lg:text-3xl`}>{t('hero.tagline')}</p>
+          <h1 className={`mt-4 max-w-3xl font-display text-4xl leading-[0.98] ${lettering} sm:text-6xl lg:text-7xl`}>{t('hero.heading')}</h1>
           <p className={`mt-6 max-w-2xl text-lg leading-8 text-slate-100 ${lettering} sm:text-xl`}>{t('hero.subtitle')}</p>
         </div>
       </div>

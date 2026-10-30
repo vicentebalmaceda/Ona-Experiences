@@ -1,19 +1,23 @@
 import { useEffect, useRef } from 'react';
-import L from 'leaflet';
+import useLazyLeaflet from '../hooks/useLazyLeaflet.js';
 import { useTranslation } from 'react-i18next';
-import { createMarkerIcon, popupTemplate } from '../utils/map.js';
+import { createMarkerIcon, labelMarker, popupTemplate } from '../utils/map.js';
+import { useLocale } from '../i18n/locale.js';
 import { getRatingStats } from '../utils/rating.js';
 import { zoneLabel } from '../utils/zones.js';
 
 function CompactMap({ items, ratingVersion, onSelect, ariaLabel, showContact = true }) {
   const { t } = useTranslation();
-  const mapElementRef = useRef(null);
+  const lang = useLocale();
+  // Leaflet loads only once the map nears the viewport; until then the sized
+  // map element itself is the placeholder.
+  const [mapElementRef, L] = useLazyLeaflet();
   const mapRef = useRef(null);
   const markerLayerRef = useRef(null);
   const resolvedAriaLabel = ariaLabel || t('map.aria_default');
 
   useEffect(() => {
-    if (!mapElementRef.current || mapRef.current) return;
+    if (!L || !mapElementRef.current || mapRef.current) return;
 
     mapRef.current = L.map(mapElementRef.current, {
       zoomControl: true,
@@ -45,7 +49,7 @@ function CompactMap({ items, ratingVersion, onSelect, ariaLabel, showContact = t
       mapRef.current = null;
       markerLayerRef.current = null;
     };
-  }, []);
+  }, [L, mapElementRef]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -69,15 +73,19 @@ function CompactMap({ items, ratingVersion, onSelect, ariaLabel, showContact = t
         email: t('map.email'),
         reviews: t('map.reviews', { count: stats.reviews }),
         noReviews: t('rating.none'),
-        viewDetail: t('map.view_detail')
+        viewDetail: t('common.view_detail'),
+        viewDetailName: t('common.view_detail_name', { name: item.name })
       };
 
       const marker = L.marker([item.lat, item.lng], {
-        icon: createMarkerIcon(item.type)
-      }).bindPopup(popupTemplate(item, ratingVersion, labels, { showContact }), { className: 'custom-popup' });
+        icon: createMarkerIcon(L, item.type),
+        title: item.name,
+        alt: item.name
+      }).bindPopup(popupTemplate(item, ratingVersion, labels, { showContact, lang }), { className: 'custom-popup' });
 
       marker.on('click', () => onSelect?.(item));
       marker.addTo(markerLayer);
+      labelMarker(marker, item.name);
       bounds.push([item.lat, item.lng]);
     });
 
@@ -95,7 +103,7 @@ function CompactMap({ items, ratingVersion, onSelect, ariaLabel, showContact = t
       if (mapRef.current === map) map.invalidateSize();
     }, 80);
     return () => clearTimeout(timer);
-  }, [items, ratingVersion, onSelect, t, showContact]);
+  }, [L, items, ratingVersion, onSelect, t, showContact, lang]);
 
   return <div ref={mapElementRef} className="interactive-map" role="region" aria-label={resolvedAriaLabel}></div>;
 }

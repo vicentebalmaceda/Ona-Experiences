@@ -2,6 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
   "installCommand": "cd ../.. && npm install",
+  "cleanUrls": false,
+  "trailingSlash": false,
   "functions": {
     "api/v1/index.ts": {
       "includeFiles": "api/_lib/lib/enrichment/catalog-seed.json"
@@ -10,6 +12,21 @@
   "rewrites": [
     { "source": "/health", "destination": "/api/health" },
     { "source": "/api/v1/(.*)", "destination": "/api/v1?path=$1" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/admin", "destination": "/spa.html" },
+    { "source": "/admin/(.*)", "destination": "/spa.html" },
+    { "source": "/review", "destination": "/spa.html" },
+    { "source": "/lodges/:slug", "destination": "/spa.html" },
+    { "source": "/guides/:slug", "destination": "/spa.html" },
+    { "source": "/en/lodges/:slug", "destination": "/spa.html" },
+    { "source": "/en/guides/:slug", "destination": "/spa.html" }
+  ],
+  "headers": [
+    { "source": "/admin", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] },
+    { "source": "/admin/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] },
+    { "source": "/review", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] },
+    {
+      "source": "/assets/(.*)\\.(js|css|woff2)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    }
   ]
 }
