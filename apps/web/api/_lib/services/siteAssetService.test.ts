@@ -70,7 +70,7 @@ beforeEach(() => {
 describe('SiteAssetService.getPublished', () => {
   it('returns null for every slot when nothing is published, and caches it', async () => {
     const published = await service.getPublished();
-    expect(published).toEqual({ hero: null, hero_poster: null, logo: null });
+    expect(published).toEqual({ hero: null, hero_mobile: null, hero_poster: null, logo: null });
     expect(cache.store.size).toBe(1);
   });
 });

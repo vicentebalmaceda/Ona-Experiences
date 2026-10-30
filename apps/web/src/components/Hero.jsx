@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSiteAsset } from '../site/SiteAssetsProvider.jsx';
 
@@ -21,6 +21,35 @@ function useLoadedUrls() {
   return [loaded, markLoaded];
 }
 
+// Phones get the hero_mobile video when one is published. Read on first
+// render so a phone never starts downloading the desktop file.
+const MOBILE_QUERY = '(max-width: 767px)';
+
+function useMediaQuery(query) {
+  const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
+  useEffect(() => {
+    const list = window.matchMedia(query);
+    const onChange = () => setMatches(list.matches);
+    onChange();
+    list.addEventListener('change', onChange);
+    return () => list.removeEventListener('change', onChange);
+  }, [query]);
+  return matches;
+}
+
+/** Chrome's Data Saver / Lite mode, followed live where the browser reports changes. */
+function useSaveData() {
+  const connection = navigator.connection;
+  const [saveData, setSaveData] = useState(() => Boolean(connection?.saveData));
+  useEffect(() => {
+    if (!connection?.addEventListener) return undefined;
+    const onChange = () => setSaveData(Boolean(connection.saveData));
+    connection.addEventListener('change', onChange);
+    return () => connection.removeEventListener('change', onChange);
+  }, [connection]);
+  return saveData;
+}
+
 /**
  * Background media for the hero: an image, or a muted looping video over its
  * poster. There is no bundled fallback: a skeleton shimmers until the
@@ -28,16 +57,26 @@ function useLoadedUrls() {
  * published or it fails to load.
  */
 function HeroMedia() {
-  const hero = useSiteAsset('hero');
+  const desktopHero = useSiteAsset('hero');
+  const mobileHero = useSiteAsset('hero_mobile');
   const poster = useSiteAsset('hero_poster');
+  const isMobile = useMediaQuery(MOBILE_QUERY);
+  // Data Saver and Reduce Motion users get the poster without the video.
+  const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+  const saveData = useSaveData();
+  const skipVideo = reduceMotion || saveData;
   const [loaded, markLoaded] = useLoadedUrls();
 
-  const isVideo = hero.kind === 'video' && hero.url;
+  // The mobile video only stands in for a video hero, never for an image one.
+  const desktopIsVideo = desktopHero.kind === 'video' && Boolean(desktopHero.url);
+  const hero = desktopIsVideo && isMobile && mobileHero.url ? mobileHero : desktopHero;
+  // Skipping the video only makes sense when there is a poster to show instead.
+  const playVideo = desktopIsVideo && !(skipVideo && poster.url);
   // The poster is drawn as a real <img> (high fetch priority) under the video
   // instead of the video's `poster` attribute, which browsers fetch lazily.
-  const stillUrl = isVideo ? poster.url : hero.url;
+  const stillUrl = desktopIsVideo ? poster.url : hero.url;
   const stillReady = Boolean(stillUrl) && loaded.has(stillUrl);
-  const videoReady = Boolean(isVideo) && loaded.has(hero.url);
+  const videoReady = playVideo && loaded.has(hero.url);
   const loading = hero.status === 'loading' || (Boolean(hero.url) && !stillReady && !videoReady);
 
   // Catches images the browser already had cached, whose load event can fire
@@ -55,15 +94,15 @@ function HeroMedia() {
           ref={checkComplete(stillUrl)}
           className={`${layerClass} ${stillReady ? 'opacity-100' : 'opacity-0'}`}
           src={stillUrl}
-          alt={isVideo ? '' : hero.alt || ''}
-          aria-hidden={isVideo ? 'true' : undefined}
+          alt={desktopIsVideo ? '' : hero.alt || ''}
+          aria-hidden={desktopIsVideo ? 'true' : undefined}
           fetchpriority="high"
           decoding="async"
           onLoad={() => markLoaded(stillUrl)}
-          onError={isVideo ? poster.onError : hero.onError}
+          onError={desktopIsVideo ? poster.onError : hero.onError}
         />
       )}
-      {isVideo && (
+      {playVideo && (
         <video
           key={hero.url}
           className={`${layerClass} ${videoReady ? 'opacity-100' : 'opacity-0'}`}

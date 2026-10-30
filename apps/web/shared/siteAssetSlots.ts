@@ -10,7 +10,7 @@
  * URL to the BFF, which would 404 the module in development.
  */
 
-export const SITE_ASSET_SLOTS = ['hero', 'hero_poster', 'logo'] as const;
+export const SITE_ASSET_SLOTS = ['hero', 'hero_mobile', 'hero_poster', 'logo'] as const;
 export type SiteAssetSlot = (typeof SITE_ASSET_SLOTS)[number];
 
 export type SiteAssetKind = 'image' | 'video';
@@ -45,6 +45,15 @@ export const SLOT_RULES: Record<SiteAssetSlot, SlotRules> = {
       'Imagen JPG/WebP de 1920×1080 o mayor (máx. 6 MB), o video MP4/WebM 1080p, sin audio (máx. 100 MB).',
     defaultUrl: null,
     defaultKind: 'image'
+  },
+  hero_mobile: {
+    label: 'Video del hero para celulares',
+    description: 'Versión liviana del video del hero que se muestra en pantallas angostas.',
+    allowedContentTypes: ['video/mp4', 'video/webm'],
+    maxSizeBytes: 20 * MB,
+    recommended: 'Video MP4 vertical 720×960, sin audio, recortado al centro del video del hero (idealmente menos de 3 MB).',
+    defaultUrl: null,
+    defaultKind: 'video'
   },
   hero_poster: {
     label: 'Poster del video',
