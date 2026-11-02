@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import useLazyLeaflet from '../hooks/useLazyLeaflet.js';
 import { useTranslation } from 'react-i18next';
-import { createMarkerIcon, labelMarker, popupTemplate } from '../utils/map.js';
+import { createMarkerIcon, enableTwoFingerPan, labelMarker, popupTemplate } from '../utils/map.js';
 import { useLocale } from '../i18n/locale.js';
 import { getRatingStats } from '../utils/rating.js';
 import { zoneLabel } from '../utils/zones.js';
@@ -31,6 +31,7 @@ function CompactMap({ items, ratingVersion, onSelect, ariaLabel, showContact = t
     }).addTo(mapRef.current);
 
     markerLayerRef.current = L.layerGroup().addTo(mapRef.current);
+    const disableTwoFingerPan = enableTwoFingerPan(mapRef.current, t('map.two_finger_hint'));
 
     const invalidate = () => mapRef.current?.invalidateSize();
     setTimeout(invalidate, 120);
@@ -45,6 +46,7 @@ function CompactMap({ items, ratingVersion, onSelect, ariaLabel, showContact = t
     return () => {
       window.removeEventListener('resize', invalidate);
       resizeObserver?.disconnect();
+      disableTwoFingerPan();
       mapRef.current?.remove();
       mapRef.current = null;
       markerLayerRef.current = null;
