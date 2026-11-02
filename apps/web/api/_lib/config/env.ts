@@ -30,7 +30,9 @@ const envSchema = z.object({
   ADMIN_SESSION_SECRET: z
     .string()
     .min(32, 'ADMIN_SESSION_SECRET must be at least 32 characters'),
-  PUBLIC_APP_URL: z.string().url('PUBLIC_APP_URL must be a valid URL')
+  PUBLIC_APP_URL: z.string().url('PUBLIC_APP_URL must be a valid URL'),
+  /** Google Cloud Translation API key for English product descriptions. Optional: without it only stored translations are served. */
+  GOOGLE_TRANSLATE_API_KEY: z.preprocess((value) => (value === '' ? undefined : value), z.string().min(1).optional())
 });
 
 const envSchemaWithDefaults = envSchema.transform((data) => ({
@@ -69,7 +71,7 @@ export function resetEnvForTests(): void {
 
 /**
  * The subset the public content needs (catalog from BSale, reviews and site
- * assets from Postgres): what the build-time prerender validates, so a missing
+ * assets from Postgres, plus the optional translation key): what the build-time prerender validates, so a missing
  * Resend or admin secret can never break a deploy. Same rules as envSchema.
  */
 const contentEnvSchema = z.object({
@@ -77,7 +79,8 @@ const contentEnvSchema = z.object({
   BSALE_API_BASE_URL: envSchema.shape.BSALE_API_BASE_URL,
   BSALE_LODGE_PRODUCT_TYPE_NAME: envSchema.shape.BSALE_LODGE_PRODUCT_TYPE_NAME,
   BSALE_GUIDE_PRODUCT_TYPE_NAME: envSchema.shape.BSALE_GUIDE_PRODUCT_TYPE_NAME,
-  POSTGRES_URL: envSchema.shape.POSTGRES_URL
+  POSTGRES_URL: envSchema.shape.POSTGRES_URL,
+  GOOGLE_TRANSLATE_API_KEY: envSchema.shape.GOOGLE_TRANSLATE_API_KEY
 });
 
 export type ContentEnv = z.infer<typeof contentEnvSchema>;

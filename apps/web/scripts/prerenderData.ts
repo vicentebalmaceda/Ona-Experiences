@@ -8,6 +8,7 @@
  * window.__ONA_DATA__ equals what the pages refetch after mount:
  *   catalog.lodges / catalog.guides  = GET /api/v1/{lodges,guides}?limit=50&offset=0 → items
  *   details[].item                   = GET /api/v1/{lodges,guides}/:productId
+ *   details[].itemsByLang[lang]      = GET /api/v1/{lodges,guides}/:productId?lang=<lang>
  *   details[].reviews                = GET /api/v1/{lodges,guides}/:productId/reviews
  *   siteAssets                       = GET /api/v1/site/assets
  *
@@ -27,6 +28,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 /** Same page the landing requests (src/pages/LandingPage.jsx). */
 export const LANDING_PAGE_SIZE = 50;
 const DETAIL_CONCURRENCY = 4;
+/** URL languages of the detail pages (src/routes.js SUPPORTED_LANGS). */
+const DETAIL_LANGS = ['es', 'en'];
 
 export type ApiCatalogType = 'lodges' | 'guides';
 export type ApiItem = Lodge | Guide;
@@ -34,6 +37,8 @@ export type ApiItem = Lodge | Guide;
 export interface DetailData {
   catalogType: ApiCatalogType;
   item: ApiItem;
+  /** The item as the detail endpoint serves it per URL language (description translated when available). */
+  itemsByLang?: Record<string, ApiItem>;
   reviews: ProductReviewsView;
 }
 
@@ -104,8 +109,12 @@ export async function loadLiveData(): Promise<SiteData> {
         type === 'lodge'
           ? await mappers.attachLodgeReviewAggregates([mappers.mapCatalogVariantToLodge(variant)], services.reviewReader)
           : await mappers.attachGuideReviewAggregates([mappers.mapCatalogVariantToGuide(variant)], services.reviewReader);
+      const itemsByLang: Record<string, ApiItem> = {};
+      for (const lang of DETAIL_LANGS) {
+        itemsByLang[lang] = await services.descriptionTranslations.localize(type, item, lang);
+      }
       const reviews = await services.reviewReader.listVisibleForProduct(type, productId);
-      return { catalogType: API_TYPE[type], item, reviews };
+      return { catalogType: API_TYPE[type], item, itemsByLang, reviews };
     } catch (error) {
       // Listed but not fetchable (e.g. deactivated meanwhile): no page for it.
       if (isNotFound(error)) return null;

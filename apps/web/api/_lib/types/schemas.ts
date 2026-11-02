@@ -16,6 +16,11 @@ export const productIdParamSchema = z.object({
 
 export type ProductIdParams = z.infer<typeof productIdParamSchema>;
 
+/** `?lang=` of a detail request: the URL language of the page asking (unknown values mean Spanish). */
+export const detailLangQuerySchema = z.object({
+  lang: z.string().optional().transform((value) => (value === 'en' ? 'en' : 'es'))
+});
+
 const isoDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected ISO date YYYY-MM-DD');
 
 const optionalTrimmed = (max: number) =>

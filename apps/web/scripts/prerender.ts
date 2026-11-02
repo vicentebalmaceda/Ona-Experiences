@@ -140,14 +140,17 @@ function detailJobs(entry: ServerEntry, data: SiteData, siteAssets: unknown, pur
     const pageId = DETAIL_PAGE[detail.catalogType];
     const slug = entry.productSlug(detail.item);
     if (!slug) continue;
-    const descriptionHtml = entry.sanitizeMarketDescription(purify, detail.item.description);
+    const { itemsByLang, ...shared } = detail;
     for (const lang of entry.SUPPORTED_LANGS) {
       const path = entry.localizePath(pageId, lang, { slug });
       if (!path) continue;
+      // The description in this URL language when it was translated, else Spanish.
+      const item = itemsByLang?.[lang] ?? detail.item;
+      const descriptionHtml = entry.sanitizeMarketDescription(purify, item.description);
       pages.push({
         path,
         expectStatus: 200,
-        data: { v: 1, path, pageId, lang, siteAssets, detail: { ...detail, descriptionHtml } }
+        data: { v: 1, path, pageId, lang, siteAssets, detail: { ...shared, item, descriptionHtml } }
       });
       const legacyPath = entry.localizePath(pageId, lang, { slug: String(detail.item.productId) });
       if (legacyPath && legacyPath !== path) legacy.push({ file: fileForPath(legacyPath), target: path, lang });

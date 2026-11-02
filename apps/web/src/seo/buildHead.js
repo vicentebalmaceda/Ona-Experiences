@@ -115,14 +115,24 @@ export function visibleRating(item, reviews) {
   return { average, count };
 }
 
-function detailTexts(pageId, item, t) {
+/**
+ * Languages the item's description exists in (`descriptionLangs` from the
+ * detail API). Spanish always; items without the field are Spanish-only.
+ */
+function describedLangs(item) {
+  const langs = Array.isArray(item?.descriptionLangs) ? item.descriptionLangs : [];
+  return [DEFAULT_LANG, ...langs.filter(lang => lang !== DEFAULT_LANG)];
+}
+
+function detailTexts(pageId, item, language, t) {
   const kind = pageId === 'lodge' ? 'lodge' : 'guide';
   if (!item) {
     return { title: t(`seo.${kind}.title_generic`), description: t('seo.home.description') };
   }
   const name = item.name || '';
   const zone = zoneLabel(item.zone, t) || t('seo.default_zone');
-  const fromItem = excerptFromHtml(item.description);
+  // The description excerpt only when it is in the page's language.
+  const fromItem = (item.descriptionLang ?? DEFAULT_LANG) === language ? excerptFromHtml(item.description) : '';
   return {
     title: t(`seo.${kind}.title`, { name, zone }),
     description: fromItem.length >= DESCRIPTION_MIN ? fromItem : t(`seo.${kind}.description`, { name, zone })
@@ -292,19 +302,24 @@ export function buildHead({ pageId, lang, params = {}, item, reviews, lodges, he
     }
     case 'lodge':
     case 'guide': {
-      Object.assign(head, detailTexts(pageId, item, t));
+      Object.assign(head, detailTexts(pageId, item, language, t));
       const productId = parseProductSlug(params.slug) ?? item?.productId;
       const slug = (item && productSlug({ name: item.name, productId })) || params.slug;
       const pageUrl = slug ? absolute(localizePath(pageId, language, { slug })) : null;
-      if (language !== DEFAULT_LANG) {
-        // BSale descriptions are Spanish-only: English detail pages stay out of
-        // the index and are not paired with the Spanish ones.
+      // BSale descriptions are Spanish; another language's page is indexed (and
+      // paired with hreflang) only when the API served a translation for it.
+      // Without one it would be a near-duplicate of the Spanish page.
+      const descriptionLangs = describedLangs(item);
+      if (language !== DEFAULT_LANG && item?.descriptionLang !== language) {
         head.robots = ROBOTS_NOINDEX_FOLLOW;
       } else if (slug) {
         head.canonical = pageUrl;
         head.alternates = [
-          { hreflang: DEFAULT_LANG, href: pageUrl },
-          { hreflang: 'x-default', href: pageUrl }
+          ...SUPPORTED_LANGS.filter(alt => descriptionLangs.includes(alt)).map(alt => ({
+            hreflang: alt,
+            href: absolute(localizePath(pageId, alt, { slug }))
+          })),
+          { hreflang: 'x-default', href: absolute(localizePath(pageId, DEFAULT_LANG, { slug })) }
         ];
       }
       if (item) {

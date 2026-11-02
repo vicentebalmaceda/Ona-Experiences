@@ -1,8 +1,8 @@
 import { createApiHandler } from '../middleware/createApiHandler.js';
-import { validateParams } from '../middleware/validate.js';
+import { validateParams, validateQuery } from '../middleware/validate.js';
 import { getServices } from '../services/container.js';
 import type { CatalogType } from '../types/catalog.js';
-import { productIdParamSchema } from '../types/schemas.js';
+import { detailLangQuerySchema, productIdParamSchema } from '../types/schemas.js';
 import { methodNotAllowed } from '../utils/http.js';
 import {
   attachGuideReviewAggregates,
@@ -19,6 +19,7 @@ export function createCatalogItemHandler(catalogType: CatalogType) {
     }
 
     const { productId } = validateParams(productIdParamSchema, req);
+    const { lang } = validateQuery(detailLangQuerySchema, req);
     const services = getServices();
     const variant = await services.catalogService.get(catalogType, productId);
 
@@ -27,7 +28,7 @@ export function createCatalogItemHandler(catalogType: CatalogType) {
         [mapCatalogVariantToLodge(variant)],
         services.reviewService
       );
-      res.status(200).json(lodge);
+      res.status(200).json(await services.descriptionTranslations.localize(catalogType, lodge, lang));
       return;
     }
 
@@ -35,7 +36,7 @@ export function createCatalogItemHandler(catalogType: CatalogType) {
       [mapCatalogVariantToGuide(variant)],
       services.reviewService
     );
-    res.status(200).json(guide);
+    res.status(200).json(await services.descriptionTranslations.localize(catalogType, guide, lang));
   });
 }
 

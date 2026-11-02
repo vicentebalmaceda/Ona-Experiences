@@ -95,3 +95,18 @@ CREATE TABLE IF NOT EXISTS site_settings (
   updated_by text NOT NULL,
   updated_at timestamptz NOT NULL DEFAULT now()
 );
+
+-- Machine translations of BSale product descriptions (descripción web), one row
+-- per product and target language. Keyed by BSale's product id like the catalog
+-- itself: every listed product can have one, not only those with Reviews.
+-- source_hash is the SHA-256 of the Spanish HTML that was translated; a
+-- mismatch means BSale's description changed and the row is stale.
+CREATE TABLE IF NOT EXISTS product_translations (
+  catalog_type text NOT NULL CHECK (catalog_type IN ('lodge', 'guide')),
+  bsale_product_id integer NOT NULL,
+  lang text NOT NULL CHECK (lang IN ('en')),
+  source_hash text NOT NULL,
+  description_html text NOT NULL,
+  translated_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (catalog_type, bsale_product_id, lang)
+);

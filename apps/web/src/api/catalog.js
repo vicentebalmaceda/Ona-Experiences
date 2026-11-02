@@ -13,8 +13,10 @@ async function fetchCatalog(path, { limit = 50, offset = 0 } = {}) {
   return response.json();
 }
 
-async function fetchCatalogItem(path, productId) {
-  const url = `${apiBase()}/api/v1/${path}/${productId}`;
+/** `lang` is the page's URL language: the description comes translated when available. */
+async function fetchCatalogItem(path, productId, lang) {
+  const query = lang ? `?lang=${encodeURIComponent(lang)}` : '';
+  const url = `${apiBase()}/api/v1/${path}/${productId}${query}`;
   const response = await fetch(url);
 
   if (!response.ok) {
@@ -36,12 +38,12 @@ export async function fetchGuides(params) {
   return fetchCatalog('guides', params);
 }
 
-export async function fetchLodgeById(productId) {
-  return fetchCatalogItem('lodges', productId);
+export async function fetchLodgeById(productId, lang) {
+  return fetchCatalogItem('lodges', productId, lang);
 }
 
-export async function fetchGuideById(productId) {
-  return fetchCatalogItem('guides', productId);
+export async function fetchGuideById(productId, lang) {
+  return fetchCatalogItem('guides', productId, lang);
 }
 
 export async function fetchProductReviews(path, productId) {
