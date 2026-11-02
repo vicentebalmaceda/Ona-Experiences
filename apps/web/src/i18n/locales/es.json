@@ -85,6 +85,7 @@
     "options": "Opciones",
     "zones": "zonas",
     "visible": "{{count}} visibles",
+    "show_more": "Ver más ({{count}})",
     "search": "Buscar",
     "search_placeholder": "Buscar por nombre o zona",
     "zone": "Zona",
@@ -272,6 +273,7 @@
   "map": {
     "interactive": "Mapa interactivo",
     "aria_default": "Mapa interactivo",
+    "two_finger_hint": "Usa dos dedos para mover el mapa",
     "section_title": "Ubicación visual clara, seria y fácil de usar",
     "section_description": "Este mapa usa una base real para que el usuario pueda entender mejor dónde está cada punto. Los marcadores se vinculan con los listados de lodges y guías.",
     "zones_title": "Zonas cubiertas",

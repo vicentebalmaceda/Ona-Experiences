@@ -8,6 +8,8 @@ import { itemImageAlt } from '../utils/imageAlt.js';
 import { responsiveImage } from '../utils/responsiveImage.js';
 import { useLocalizedPath } from '../i18n/locale.js';
 
+const MOBILE_VISIBLE_ITEMS = 5;
+
 function normalizeText(value) {
   return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
@@ -55,6 +57,7 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
   const { t, i18n } = useTranslation();
   const [query, setQuery] = useState('');
   const [zone, setZone] = useState('all');
+  const [expanded, setExpanded] = useState(false);
 
   // Zone ids run north to south, so numeric order is geographic order.
   const zones = useMemo(() => {
@@ -72,6 +75,10 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
   }, [items, query, zone, t]);
 
   const sortedItems = useMemo(() => sortItemsByRating(filteredItems), [filteredItems]);
+
+  // Phones show this many items before the "show more" button; the cut-off
+  // itself is CSS (.experience-list-scroll.is-collapsed), so desktop is unaffected.
+  const hiddenOnMobile = expanded ? 0 : Math.max(sortedItems.length - MOBILE_VISIBLE_ITEMS, 0);
 
   const heroItem = filteredItems[0] || items[0];
 
@@ -128,7 +135,7 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
               </div>
             </div>
 
-            <div className="experience-list-scroll">
+            <div className={`experience-list-scroll ${hiddenOnMobile ? 'is-collapsed' : ''}`}>
               {sortedItems.length ? sortedItems.map(item => (
                 <ExperienceListItem
                   key={item.productId ?? `${item.type}-${item.name}`}
@@ -141,6 +148,11 @@ function ExperienceSection({ id, mapAnchorId, eyebrow, title, description, heroI
                 </div>
               )}
             </div>
+            {hiddenOnMobile > 0 && (
+              <button type="button" className="experience-list-more" onClick={() => setExpanded(true)}>
+                {t('experience.show_more', { count: hiddenOnMobile })}
+              </button>
+            )}
           </section>
 
           <aside className="experience-map-card">

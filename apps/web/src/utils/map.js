@@ -73,3 +73,41 @@ export function popupTemplate(item, ratingVersion, labels = {}, { showContact = 
     </div>
   `;
 }
+
+/**
+ * On touch screens one finger scrolls the page and two fingers move (and
+ * pinch-zoom) the map, so a map never traps the page scroll. A one-finger
+ * swipe over the map shows `message` briefly. Returns a cleanup function.
+ */
+export function enableTwoFingerPan(map, message) {
+  if (!window.matchMedia?.('(pointer: coarse)').matches) return () => {};
+
+  // Without the drag handler Leaflet leaves `touch-action: pan-x pan-y` on the
+  // container: the browser scrolls on one finger, Leaflet's TouchZoom handles two.
+  map.dragging.disable();
+
+  const container = map.getContainer();
+  const hint = document.createElement('div');
+  hint.className = 'map-gesture-hint';
+  hint.setAttribute('aria-hidden', 'true');
+  hint.textContent = message;
+  container.appendChild(hint);
+
+  let timer;
+  const onTouchMove = (event) => {
+    clearTimeout(timer);
+    if (event.touches.length !== 1) {
+      hint.classList.remove('is-visible');
+      return;
+    }
+    hint.classList.add('is-visible');
+    timer = setTimeout(() => hint.classList.remove('is-visible'), 1200);
+  };
+  container.addEventListener('touchmove', onTouchMove, { passive: true });
+
+  return () => {
+    clearTimeout(timer);
+    container.removeEventListener('touchmove', onTouchMove);
+    hint.remove();
+  };
+}

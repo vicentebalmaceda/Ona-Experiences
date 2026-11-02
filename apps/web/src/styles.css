@@ -567,6 +567,30 @@ body {
   background: #dbeafe;
 }
 
+/* Shown over a map on touch screens when a one-finger swipe scrolls the page
+   instead of moving the map (see enableTwoFingerPan in utils/map.js). */
+.map-gesture-hint {
+  position: absolute;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15,23,42,.55);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+}
+
+.map-gesture-hint.is-visible {
+  opacity: 1;
+}
+
 .detail-page {
   background:
     radial-gradient(circle at 12% 2%, rgba(31,79,115,.08), transparent 28%),
@@ -1013,6 +1037,42 @@ body {
   .experience-list-scroll {
     flex: none;
     height: 480px;
+  }
+}
+
+/* Phones: the list flows with the page instead of scrolling inside its card,
+   so a swipe never gets stuck. Past the first few items it collapses behind
+   a "show more" button (items stay in the DOM for crawlers). */
+.experience-list-more {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .experience-list-card,
+  .experience-map-card {
+    min-height: auto;
+  }
+
+  .experience-list-scroll {
+    height: auto;
+    grid-auto-rows: 112px;
+    overflow: visible;
+  }
+
+  .experience-list-scroll.is-collapsed > .experience-list-item:nth-child(n + 6) {
+    display: none;
+  }
+
+  .experience-list-more {
+    display: block;
+    margin: 0 12px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    background: #fff;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #1f4f73;
   }
 }
 
