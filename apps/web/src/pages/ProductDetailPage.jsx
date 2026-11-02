@@ -78,7 +78,7 @@ function ProductDetailPage({ catalogType }) {
       }
 
       try {
-        const apiItem = await fetch(productId);
+        const apiItem = await fetch(productId, lang);
         if (cancelled) return;
         const next = detailItem(apiItem, catalogType);
         setItem((previous) => (sameData(previous, next) ? previous : next));
@@ -119,7 +119,7 @@ function ProductDetailPage({ catalogType }) {
     return () => {
       cancelled = true;
     };
-  }, [catalogType, productId, t]);
+  }, [catalogType, productId, lang, t]);
 
   // Old (bare id) or stale (renamed item) slugs: move to the current one without a history entry.
   const canonicalSlug = item ? productSlug({ name: item.name, productId }) : null;

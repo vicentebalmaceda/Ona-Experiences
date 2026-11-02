@@ -99,6 +99,7 @@ Each phase is one branch with one PR into `main`, so you can review and ship inc
   - **(c)** English lodge pages `noindex` until translated
 
   Default: (c) in phase 4, then (a).
+  **Decided:** (b), machine-translated with Google on the server and stored, no review step; (c) still applies to products without a translation. See `docs/adr/0008-machine-translated-descriptions.md`.
 
 ## How I'll coordinate
 

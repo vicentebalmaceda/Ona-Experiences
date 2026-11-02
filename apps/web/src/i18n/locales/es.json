@@ -144,6 +144,7 @@
     "type": "Tipo",
     "zone": "Zona",
     "fallback_description": "{{name}} aparece registrado en la zona de {{zone}}. La ficha mantiene la información disponible actualmente y deja el espacio listo para que el backend agregue disponibilidad, más reseñas y servicios incluidos.",
+    "machine_translated": "Traducido automáticamente del español.",
     "representative_label": "Representante informado:",
     "map": "Mapa",
     "location": "Ubicación",

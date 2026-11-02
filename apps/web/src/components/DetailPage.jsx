@@ -11,6 +11,7 @@ import { itemImageAlt } from '../utils/imageAlt.js';
 import useSmartSticky from '../hooks/useSmartSticky.js';
 import { imageUrl, responsiveImage } from '../utils/responsiveImage.js';
 import { sanitizeMarketDescription } from '../utils/sanitizeDescription.js';
+import { DEFAULT_LANG } from '../routes.js';
 
 function uniqueImageUrls(sources) {
   const seen = new Set();
@@ -196,10 +197,16 @@ function DetailPage({ item, catalogType, productId, reviews, prerenderedDescript
                 <div className="detail-fact"><span>{t('detail.zone')}</span><strong>{zoneLabel(item.zone, t)}</strong></div>
               </div>
               {descriptionHtml ? (
-                <div
-                  className="detail-description mt-6 text-base leading-8 text-slate-600"
-                  dangerouslySetInnerHTML={{ __html: descriptionHtml }}
-                />
+                <>
+                  <div
+                    lang={item.descriptionLang ?? DEFAULT_LANG}
+                    className="detail-description mt-6 text-base leading-8 text-slate-600"
+                    dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+                  />
+                  {item.descriptionLang && item.descriptionLang !== DEFAULT_LANG ? (
+                    <p className="mt-3 text-xs italic text-slate-500">{t('detail.machine_translated')}</p>
+                  ) : null}
+                </>
               ) : descriptionPending ? (
                 <div className="mt-6 min-h-16" aria-busy="true" />
               ) : (

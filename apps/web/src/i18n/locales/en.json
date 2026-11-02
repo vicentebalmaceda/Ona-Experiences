@@ -144,6 +144,7 @@
     "type": "Type",
     "zone": "Zone",
     "fallback_description": "{{name}} is listed in the {{zone}} area. This profile keeps the information currently available and is ready for the backend to add availability, more reviews, and included services.",
+    "machine_translated": "Automatically translated from Spanish.",
     "representative_label": "Listed representative:",
     "map": "Map",
     "location": "Location",

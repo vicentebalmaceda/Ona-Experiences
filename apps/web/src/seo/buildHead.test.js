@@ -95,6 +95,44 @@ describe('buildHead', () => {
     expect(head.htmlLang).toBe('en');
   });
 
+  describe('with an English translation of the description', () => {
+    const langs = ['es', 'en'];
+    const pairs = [
+      { hreflang: 'es', href: `${SITE}/lodges/bio-bio-river-lodge-2007` },
+      { hreflang: 'en', href: `${SITE}/en/lodges/bio-bio-river-lodge-2007` },
+      { hreflang: 'x-default', href: `${SITE}/lodges/bio-bio-river-lodge-2007` }
+    ];
+    const english = {
+      ...lodge,
+      description:
+        '<p>Located on the banks of the Biobío river, the lodge offers fly fishing for rainbow trout in a unique &amp; quiet setting, with bilingual guides, boats and wading.</p>',
+      descriptionLang: 'en',
+      descriptionLangs: langs
+    };
+
+    it('en lodge: indexed, self-canonical, paired with the Spanish page, English excerpt', () => {
+      const head = headFor('/en/lodges/bio-bio-river-lodge-2007', english);
+      expect(head.robots).toMatch(/^index/);
+      expect(head.canonical).toBe(`${SITE}/en/lodges/bio-bio-river-lodge-2007`);
+      expect(head.alternates).toEqual(pairs);
+      expect(head.description.startsWith('Located on the banks of the Biobío river')).toBe(true);
+      expect(head.jsonLd[0].description).toContain('Located on the banks');
+    });
+
+    it('es lodge: lists the English page as an alternate', () => {
+      const head = headFor('/lodges/bio-bio-river-lodge-2007', { ...lodge, descriptionLang: 'es', descriptionLangs: langs });
+      expect(head.canonical).toBe(`${SITE}/lodges/bio-bio-river-lodge-2007`);
+      expect(head.alternates).toEqual(pairs);
+    });
+
+    it('en lodge served the Spanish fallback stays noindex with the English template description', () => {
+      const head = headFor('/en/lodges/bio-bio-river-lodge-2007', { ...lodge, descriptionLang: 'es', descriptionLangs: ['es'] });
+      expect(head.robots).toBe('noindex, follow');
+      expect(head.alternates).toEqual([]);
+      expect(head.description).not.toContain('Ubicado');
+    });
+  });
+
   it('review: noindex, no canonical', () => {
     const head = headFor('/review');
     expect(head.title).toBe('Deja tu reseña | ONA Experiences');

@@ -63,6 +63,27 @@ describe('render (server entry)', () => {
     expect(head.jsonLd).toEqual([]);
   });
 
+  it('en lodge with a translated description: English text marked as such, indexed and paired', () => {
+    const path = '/en/lodges/bio-bio-lodge-65561';
+    const english = '<p>Located on the banks of the Biobío river, the lodge offers fly fishing for rainbow trout in a unique, quiet setting.</p>';
+    const data = lodgeData(path, 'en');
+    data.detail = {
+      ...data.detail,
+      item: { ...data.detail.item, description: english, descriptionLang: 'en', descriptionLangs: ['es', 'en'] },
+      descriptionHtml: english
+    };
+    const { html, head, status } = render(path, data);
+    expect(status).toBe(200);
+    expect(html).toContain('<div lang="en" class="detail-description');
+    expect(html).toContain('Located on the banks of the Biobío river');
+    expect(html).not.toContain(DESCRIPTION_TEXT);
+    expect(html).toContain('Automatically translated from Spanish.');
+    expect(head.robots).toMatch(/^index/);
+    expect(head.canonical).toBe(`${SITE}${path}`);
+    expect(head.alternates.map(alt => alt.hreflang)).toEqual(['es', 'en', 'x-default']);
+    expect(renderHeadTags(head)).toContain('"@type":"LodgingBusiness"');
+  });
+
   it('unknown paths and products without data are 404 not-found pages', () => {
     const unknown = render('/no-existe', { v: 1, path: '/no-existe', pageId: 'notFound', lang: 'es' });
     expect(unknown.status).toBe(404);

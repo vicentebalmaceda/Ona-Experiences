@@ -13,12 +13,15 @@ import { BsaleVariantPricing } from '../lib/bsale/pricing.js';
 import { PostgresQuoteStore } from '../lib/quotes/postgresQuoteStore.js';
 import { PostgresReviewStore } from '../lib/reviews/postgresReviewStore.js';
 import { MarketInfoEnricher } from '../lib/enrichment/marketInfoEnricher.js';
+import { createTranslator } from '../lib/translation/googleTranslator.js';
+import { PostgresTranslationStore } from '../lib/translation/postgresTranslationStore.js';
 import { SeedServiceEnricher } from '../lib/enrichment/seedEnricher.js';
 import { ResendMailer } from '../mailer/resendMailer.js';
 import type { Mailer, TestMailer } from '../mailer/types.js';
 import { BsaleQuoteCapture, type QuoteCapture } from './bsaleQuoteCapture.js';
 import { BsaleQuoteInviteResolver } from './bsaleQuoteInviteResolver.js';
 import { CatalogService } from './catalogService.js';
+import { DescriptionTranslationService } from './descriptionTranslationService.js';
 import { LocalFirstQuoteInviteResolver } from './localFirstQuoteInviteResolver.js';
 import { ProductSyncService } from './productSyncService.js';
 import { ReviewService } from './reviewService.js';
@@ -29,6 +32,7 @@ import { SiteAssetService } from './siteAssetService.js';
 
 export interface Services {
   catalogService: CatalogService;
+  descriptionTranslations: DescriptionTranslationService;
   salesService: SalesService;
   reviewService: ReviewService;
   adminService: AdminService;
@@ -106,6 +110,10 @@ export function getServices(): Services {
 
   services = {
     catalogService,
+    descriptionTranslations: new DescriptionTranslationService({
+      store: new PostgresTranslationStore(sql),
+      translator: createTranslator(env.GOOGLE_TRANSLATE_API_KEY)
+    }),
     salesService: new SalesService(
       catalogRepository,
       clientRepository,
