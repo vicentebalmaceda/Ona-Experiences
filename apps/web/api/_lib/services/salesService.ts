@@ -48,7 +48,7 @@ export class SalesService {
       params.type
     );
     const pricing = await this.variantPricing.resolve(variant.id, variant.productId);
-    const clientId = await this.clientRepository.upsertByEmail(params.customer);
+    const clientId = await this.clientRepository.upsert(params.customer);
 
     const emissionIso = params.emissionDate ?? todayIsoDate();
     const expirationIso = params.expirationDate ?? addDaysIsoDate(emissionIso, 7);
