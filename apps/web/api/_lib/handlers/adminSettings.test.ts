@@ -62,14 +62,19 @@ describe('admin mail settings handlers', () => {
     expect(testMailer.sendTestEmail).not.toHaveBeenCalled();
   });
 
-  it('lists settings with no-store', async () => {
-    settingsService.listMailSettingsForAdmin.mockResolvedValue({ items: [{ key: 'mail.contact' }], storeAvailable: true });
+  it('lists recipients and the sender with no-store', async () => {
+    const sender = { key: 'mail.from', source: 'env', value: { from: 'Website <noreply@ona.example>' } };
+    settingsService.listMailSettingsForAdmin.mockResolvedValue({
+      items: [{ key: 'mail.contact' }],
+      sender,
+      storeAvailable: true
+    });
     const res = createMockRes();
 
     await adminMailSettingsHandler(request('GET', '/api/v1/admin/settings') as never, res as never);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body).toEqual({ items: [{ key: 'mail.contact' }], storeAvailable: true });
+    expect(res.body).toEqual({ items: [{ key: 'mail.contact' }], sender, storeAvailable: true });
     expect(res.headers['Cache-Control']).toBe('no-store');
   });
 

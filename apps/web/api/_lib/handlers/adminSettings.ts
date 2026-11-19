@@ -15,9 +15,9 @@ export const adminMailSettingsHandler = createApiHandler(async (req, res) => {
     return;
   }
   requireAdminSession(req);
-  const { items, storeAvailable } = await getServices().settingsService.listMailSettingsForAdmin();
+  const { items, sender, storeAvailable } = await getServices().settingsService.listMailSettingsForAdmin();
   res.setHeader('Cache-Control', 'no-store');
-  res.status(200).json({ items, storeAvailable });
+  res.status(200).json({ items, sender, storeAvailable });
 });
 
 export const adminMailSettingByKeyHandler = createApiHandler(async (req, res) => {
