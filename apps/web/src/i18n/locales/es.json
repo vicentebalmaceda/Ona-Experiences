@@ -183,7 +183,6 @@
     "success": "Cotización enviada correctamente",
     "reference": "Referencia: {{id}}",
     "document_number": "Número de documento: {{number}}",
-    "total": "Total: ${{amount}}",
     "view_pdf": "Ver PDF",
     "view_quote": "Ver cotización",
     "first_name": "Nombre",

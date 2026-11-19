@@ -10,7 +10,7 @@ function todayIsoDate() {
 }
 
 function QuoteRequestForm({ catalogType, productId, productName }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -139,9 +139,6 @@ function QuoteRequestForm({ catalogType, productId, productName }) {
           <p className="mt-2">{t('quote.reference', { id: quoteResult.salesId })}</p>
           {quoteResult.documentNumber ? (
             <p className="mt-1">{t('quote.document_number', { number: quoteResult.documentNumber })}</p>
-          ) : null}
-          {quoteResult.totalAmount != null ? (
-            <p className="mt-1">{t('quote.total', { amount: quoteResult.totalAmount.toLocaleString(i18n.language === 'en' ? 'en-US' : 'es-CL') })}</p>
           ) : null}
           <div className="mt-4 flex flex-wrap gap-3">
             {quoteResult.urlPdf ? (

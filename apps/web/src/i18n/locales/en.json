@@ -183,7 +183,6 @@
     "success": "Quote sent successfully",
     "reference": "Reference: {{id}}",
     "document_number": "Document number: {{number}}",
-    "total": "Total: ${{amount}}",
     "view_pdf": "View PDF",
     "view_quote": "View quote",
     "first_name": "First name",
