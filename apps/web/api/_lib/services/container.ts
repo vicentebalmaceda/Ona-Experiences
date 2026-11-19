@@ -75,13 +75,18 @@ export function getServices(): Services {
   const settingsService = new SettingsService({
     store: new PostgresSettingsStore(sql),
     cache: getCache(),
-    defaultAdminEmail: env.ADMIN_EMAIL
+    defaultAdminEmail: env.ADMIN_EMAIL,
+    defaultMailFrom: env.MAIL_FROM
   });
   // Internal emails go to whatever an Admin saved in Configuración → Correos,
-  // falling back to ADMIN_EMAIL.
-  const mailer = new ResendMailer(env, undefined, {
-    forFlow: (key) => settingsService.getMailRecipients(key)
-  });
+  // falling back to ADMIN_EMAIL; every email's sender likewise falls back to
+  // MAIL_FROM.
+  const mailer = new ResendMailer(
+    env,
+    undefined,
+    { forFlow: (key) => settingsService.getMailRecipients(key) },
+    { current: () => settingsService.getMailSender() }
+  );
   const catalogService = new CatalogService(catalogRepository, enrichers);
   const bsaleQuoteResolver = new BsaleQuoteInviteResolver({
     sales: salesRepository,

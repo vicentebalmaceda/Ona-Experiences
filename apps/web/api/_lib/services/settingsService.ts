@@ -1,8 +1,11 @@
 import {
   MAIL_SETTING_KEYS,
+  MAIL_SENDER_KEY,
   MAIL_SETTINGS,
   validateMailRecipients,
+  validateMailSender,
   type MailRecipients,
+  type MailSender,
   type MailSettingKey
 } from '../../../shared/siteSettings.js';
 import type { Cache } from '../cache/cache.js';
@@ -25,11 +28,23 @@ export interface MailSettingView {
   updatedAt: string | null;
 }
 
+/** Admin view of the sender setting. */
+export interface MailSenderView {
+  key: typeof MAIL_SENDER_KEY;
+  /** `db` when an Admin saved it; `env` when MAIL_FROM is being used. */
+  source: 'db' | 'env';
+  value: MailSender;
+  updatedBy: string | null;
+  updatedAt: string | null;
+}
+
 export interface SettingsServiceDeps {
   store: SettingsStore;
   cache: Cache;
   /** ADMIN_EMAIL: the recipient used until an Admin saves a list. */
   defaultAdminEmail: string;
+  /** MAIL_FROM: the sender used until an Admin saves one. */
+  defaultMailFrom: string;
 }
 
 /**
@@ -66,7 +81,11 @@ export class SettingsService {
    * Admin listing. `storeAvailable` is false when the table cannot be read
    * (typically not migrated yet); every key then shows its env default.
    */
-  async listMailSettingsForAdmin(): Promise<{ items: MailSettingView[]; storeAvailable: boolean }> {
+  async listMailSettingsForAdmin(): Promise<{
+    items: MailSettingView[];
+    sender: MailSenderView;
+    storeAvailable: boolean;
+  }> {
     let storeAvailable = true;
     let rows = new Map<string, SettingRecord>();
     try {
@@ -84,7 +103,59 @@ export class SettingsService {
         ? toView(key, parsed.value, row)
         : toView(key, this.defaultRecipients(), null);
     });
-    return { items, storeAvailable };
+    const senderRow = rows.get(MAIL_SENDER_KEY);
+    const senderCheck = senderRow ? validateMailSender(senderRow.value) : null;
+    const sender =
+      senderRow && senderCheck?.ok && senderCheck.value
+        ? toSenderView(senderCheck.value, senderRow)
+        : toSenderView(this.defaultSender(), null);
+    return { items, sender, storeAvailable };
+  }
+
+  /**
+   * The "From" every email should use right now: the saved sender, else
+   * MAIL_FROM. Like recipients, a read failure never blocks a send.
+   */
+  async getMailSender(): Promise<string> {
+    const cacheKey = cacheKeys.setting(MAIL_SENDER_KEY);
+    const cached = await this.deps.cache.get<MailSender>(cacheKey);
+    if (cached?.from) return cached.from;
+
+    let stored: unknown;
+    try {
+      stored = (await this.deps.store.get(MAIL_SENDER_KEY))?.value;
+    } catch (error) {
+      log.warn('Could not read sender setting; using MAIL_FROM', {
+        message: error instanceof Error ? error.message : String(error)
+      });
+      return this.defaultSender().from;
+    }
+
+    let value = this.defaultSender();
+    if (stored != null) {
+      const check = validateMailSender(stored);
+      if (check.ok && check.value) value = check.value;
+      else log.warn('Stored sender is malformed; using MAIL_FROM', { reason: check.reason });
+    }
+    await this.deps.cache.set(cacheKey, value, CACHE_TTL_SECONDS.setting);
+    return value.from;
+  }
+
+  async saveMailSender(input: unknown, updatedBy: string): Promise<MailSenderView> {
+    const check = validateMailSender(input);
+    if (!check.ok || !check.value) {
+      throw new DomainError(check.reason ?? 'Invalid sender', 422, 'INVALID_SETTING');
+    }
+    const row = await this.deps.store.set(MAIL_SENDER_KEY, check.value, updatedBy);
+    await this.deps.cache.delete(cacheKeys.setting(MAIL_SENDER_KEY));
+    log.info('Mail sender updated', { by: updatedBy });
+    return toSenderView(check.value, row);
+  }
+
+  async resetMailSender(): Promise<void> {
+    await this.deps.store.remove(MAIL_SENDER_KEY);
+    await this.deps.cache.delete(cacheKeys.setting(MAIL_SENDER_KEY));
+    log.info('Mail sender reset to MAIL_FROM');
   }
 
   async saveMailRecipients(
@@ -133,6 +204,10 @@ export class SettingsService {
     return { to: [this.deps.defaultAdminEmail.trim().toLowerCase()], cc: [] };
   }
 
+  private defaultSender(): MailSender {
+    return { from: this.deps.defaultMailFrom.trim() };
+  }
+
   private parseStored(key: MailSettingKey, stored: unknown): MailRecipients {
     const check = validateMailRecipients(stored);
     if (check.ok && check.value) return check.value;
@@ -145,6 +220,16 @@ function toView(key: MailSettingKey, value: MailRecipients, row: SettingRecord |
   return {
     key,
     ...MAIL_SETTINGS[key],
+    source: row ? 'db' : 'env',
+    value,
+    updatedBy: row?.updatedBy ?? null,
+    updatedAt: row?.updatedAt.toISOString() ?? null
+  };
+}
+
+function toSenderView(value: MailSender, row: SettingRecord | null): MailSenderView {
+  return {
+    key: MAIL_SENDER_KEY,
     source: row ? 'db' : 'env',
     value,
     updatedBy: row?.updatedBy ?? null,

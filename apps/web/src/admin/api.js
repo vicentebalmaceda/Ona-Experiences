@@ -87,6 +87,15 @@ export const adminApi = {
   resetMailSetting(key) {
     return request(`/api/v1/admin/settings/${encodeURIComponent(key)}`, { method: 'DELETE' });
   },
+  saveMailSender(from) {
+    return request('/api/v1/admin/settings/sender', {
+      method: 'PUT',
+      body: JSON.stringify({ from })
+    });
+  },
+  resetMailSender() {
+    return request('/api/v1/admin/settings/sender', { method: 'DELETE' });
+  },
   sendTestEmail(key, recipients) {
     return request(`/api/v1/admin/settings/${encodeURIComponent(key)}/test`, {
       method: 'POST',

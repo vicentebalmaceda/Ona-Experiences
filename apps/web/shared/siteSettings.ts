@@ -104,3 +104,69 @@ export function validateMailRecipients(input: unknown): MailRecipientsCheck {
 
   return { ok: true, value: { to, cc } };
 }
+
+/**
+ * Sender ("From") of every email the site sends, internal and to Customers.
+ * Stored as `{ from }` under its own key; MAIL_FROM is the fallback.
+ */
+export const MAIL_SENDER_KEY = 'mail.from' as const;
+export type MailSenderKey = typeof MAIL_SENDER_KEY;
+
+export interface MailSender {
+  /** `correo@dominio.cl` or `Nombre <correo@dominio.cl>`. */
+  from: string;
+}
+
+export const MAX_SENDER_NAME_LENGTH = 80;
+
+const DISPLAY_NAME_FORMAT = /^(.*?)\s*<([^<>]*)>$/;
+// Characters that would break the header or the "Name <email>" format.
+const FORBIDDEN_NAME_CHARS = /[<>"\\\u0000-\u001f\u007f]/;
+
+export interface MailSenderCheck {
+  ok: boolean;
+  value?: MailSender;
+  /** Spanish, safe to show to the admin. */
+  reason?: string;
+}
+
+/**
+ * The one rule set for the sender, applied by the admin SPA and the BFF.
+ * Accepts a bare address or `Name <address>`; returns it normalized
+ * (trimmed, address lowercased, quotes around the name removed).
+ */
+export function validateMailSender(input: unknown): MailSenderCheck {
+  if (!input || typeof input !== 'object' || typeof (input as { from?: unknown }).from !== 'string') {
+    return { ok: false, reason: 'Formato inválido: "from" debe ser texto.' };
+  }
+  const raw = (input as { from: string }).from.trim();
+  if (!raw) {
+    return { ok: false, reason: 'Debes indicar una dirección de remitente.' };
+  }
+  if (/[\r\n]/.test(raw)) {
+    return { ok: false, reason: 'El remitente no puede tener saltos de línea.' };
+  }
+
+  let name = '';
+  let email = raw;
+  const match = DISPLAY_NAME_FORMAT.exec(raw);
+  if (match) {
+    name = match[1].trim().replace(/^"(.*)"$/, '$1').trim();
+    email = match[2].trim();
+  } else if (/[<>]/.test(raw)) {
+    return { ok: false, reason: 'Usa el formato "Nombre <correo@dominio.cl>" o solo la dirección.' };
+  }
+
+  email = email.toLowerCase();
+  if (!isValidEmail(email)) {
+    return { ok: false, reason: `Dirección no válida: ${email || '(vacía)'}.` };
+  }
+  if (name.length > MAX_SENDER_NAME_LENGTH) {
+    return { ok: false, reason: `El nombre no puede superar ${MAX_SENDER_NAME_LENGTH} caracteres.` };
+  }
+  if (FORBIDDEN_NAME_CHARS.test(name)) {
+    return { ok: false, reason: 'El nombre no puede contener <, >, comillas ni barras invertidas.' };
+  }
+
+  return { ok: true, value: { from: name ? `${name} <${email}>` : email } };
+}

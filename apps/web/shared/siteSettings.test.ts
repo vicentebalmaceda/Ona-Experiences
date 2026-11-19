@@ -4,7 +4,8 @@ import {
   MAIL_SETTING_KEYS,
   MAIL_SETTINGS,
   normalizeEmailList,
-  validateMailRecipients
+  validateMailRecipients,
+  validateMailSender
 } from './siteSettings.js';
 
 describe('mail setting keys', () => {
@@ -77,5 +78,36 @@ describe('validateMailRecipients', () => {
   it('rejects non-object payloads', () => {
     expect(validateMailRecipients(null).ok).toBe(false);
     expect(validateMailRecipients({ to: 'a@b.co' }).ok).toBe(false);
+  });
+});
+
+describe('validateMailSender', () => {
+  it('accepts a bare address and lowercases it', () => {
+    expect(validateMailSender({ from: ' Hola@Ona.Example ' })).toEqual({ ok: true, value: { from: 'hola@ona.example' } });
+  });
+
+  it('accepts "Name <address>" and strips quotes around the name', () => {
+    expect(validateMailSender({ from: 'Ona Experiences <hola@ona.example>' }).value).toEqual({
+      from: 'Ona Experiences <hola@ona.example>'
+    });
+    expect(validateMailSender({ from: '"Ona Experiences"   <Hola@ona.example>' }).value).toEqual({
+      from: 'Ona Experiences <hola@ona.example>'
+    });
+    expect(validateMailSender({ from: '<hola@ona.example>' }).value).toEqual({ from: 'hola@ona.example' });
+  });
+
+  it('rejects junk with a Spanish reason', () => {
+    for (const from of ['', '   ', 'not-an-email', 'Ona <not-an-email>', 'Ona hola@ona.example>', 'a@b.co\r\nBcc: x@y.z']) {
+      const check = validateMailSender({ from });
+      expect(check.ok).toBe(false);
+      expect(check.reason).toBeTruthy();
+    }
+    expect(validateMailSender(null).ok).toBe(false);
+    expect(validateMailSender({ from: 42 }).ok).toBe(false);
+  });
+
+  it('rejects names that would break the header or are too long', () => {
+    expect(validateMailSender({ from: 'Ona "x" <hola@ona.example>' }).ok).toBe(false);
+    expect(validateMailSender({ from: `${'a'.repeat(81)} <hola@ona.example>` }).ok).toBe(false);
   });
 });

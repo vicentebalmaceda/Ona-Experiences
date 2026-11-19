@@ -2,6 +2,7 @@ import type { VercelRequest } from '@vercel/node';
 import { adminLoginHandler, adminLogoutHandler, adminMeHandler } from './handlers/adminAuth.js';
 import {
   adminMailSettingByKeyHandler,
+  adminMailSenderHandler,
   adminMailSettingsHandler,
   adminMailSettingTestHandler
 } from './handlers/adminSettings.js';
@@ -131,6 +132,12 @@ const routes: Route[] = [
     pattern: /^\/api\/v1\/admin\/settings$/,
     paramNames: [],
     handler: adminMailSettingsHandler
+  },
+  {
+    // Must precede the :key route so "sender" is never read as a flow key.
+    pattern: /^\/api\/v1\/admin\/settings\/sender$/,
+    paramNames: [],
+    handler: adminMailSenderHandler
   },
   {
     // Must precede the :key route.

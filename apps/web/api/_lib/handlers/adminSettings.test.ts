@@ -4,6 +4,7 @@ import { resetEnvForTests } from '../config/env.js';
 import { createMockRes } from '../test/mockRes.js';
 import { DomainError } from '../types/errors.js';
 import {
+  adminMailSenderHandler,
   adminMailSettingByKeyHandler,
   adminMailSettingsHandler,
   adminMailSettingTestHandler
@@ -13,6 +14,8 @@ const settingsService = {
   listMailSettingsForAdmin: vi.fn(),
   saveMailRecipients: vi.fn(),
   resetMailRecipients: vi.fn(),
+  saveMailSender: vi.fn(),
+  resetMailSender: vi.fn(),
   claimTestSendSlot: vi.fn(),
   releaseTestSendSlot: vi.fn()
 };
@@ -190,5 +193,55 @@ describe('admin mail settings handlers', () => {
 
     expect(res.statusCode).toBe(429);
     expect(testMailer.sendTestEmail).not.toHaveBeenCalled();
+  });
+});
+
+describe('admin mail sender handler', () => {
+  it('requires a session', async () => {
+    const res = createMockRes();
+    await adminMailSenderHandler(
+      { ...request('PUT', '/api/v1/admin/settings/sender'), headers: {} } as never,
+      res as never
+    );
+    expect(res.statusCode).toBe(401);
+    expect(settingsService.saveMailSender).not.toHaveBeenCalled();
+  });
+
+  it('saves the sender with the session email as author', async () => {
+    settingsService.saveMailSender.mockResolvedValue({ key: 'mail.from', source: 'db', value: { from: 'hola@ona.example' } });
+    const res = createMockRes();
+
+    await adminMailSenderHandler(
+      request('PUT', '/api/v1/admin/settings/sender', { body: { from: 'hola@ona.example' } }) as never,
+      res as never
+    );
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({ sender: { key: 'mail.from', source: 'db', value: { from: 'hola@ona.example' } } });
+    expect(settingsService.saveMailSender).toHaveBeenCalledWith({ from: 'hola@ona.example' }, 'admin@ona.example');
+  });
+
+  it('surfaces a validation failure as 422', async () => {
+    settingsService.saveMailSender.mockRejectedValue(new DomainError('Dirección no válida: x.', 422, 'INVALID_SETTING'));
+    const res = createMockRes();
+
+    await adminMailSenderHandler(
+      request('PUT', '/api/v1/admin/settings/sender', { body: { from: 'x' } }) as never,
+      res as never
+    );
+
+    expect(res.statusCode).toBe(422);
+  });
+
+  it('resets on DELETE and rejects other methods', async () => {
+    settingsService.resetMailSender.mockResolvedValue(undefined);
+    const res = createMockRes();
+    await adminMailSenderHandler(request('DELETE', '/api/v1/admin/settings/sender') as never, res as never);
+    expect(res.statusCode).toBe(200);
+    expect(settingsService.resetMailSender).toHaveBeenCalledTimes(1);
+
+    const res2 = createMockRes();
+    await adminMailSenderHandler(request('GET', '/api/v1/admin/settings/sender') as never, res2 as never);
+    expect(res2.statusCode).toBe(405);
   });
 });

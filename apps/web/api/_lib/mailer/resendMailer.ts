@@ -21,6 +21,7 @@ import type {
   EmailAttachment,
   Mailer,
   MailRecipientResolver,
+  MailSenderResolver,
   QuoteNotification,
   ReviewInviteEmail,
   ReviewSubmittedEmail,
@@ -35,6 +36,15 @@ export class EnvMailRecipients implements MailRecipientResolver {
 
   async forFlow(): Promise<MailRecipients> {
     return { to: [this.adminEmail], cc: [] };
+  }
+}
+
+/** Default sender: MAIL_FROM. */
+export class EnvMailSender implements MailSenderResolver {
+  constructor(private readonly mailFrom: string) {}
+
+  async current(): Promise<string> {
+    return this.mailFrom;
   }
 }
 
@@ -56,10 +66,22 @@ function toResendAttachments(attachments: EmailAttachment[] | undefined) {
 export class ResendMailer implements Mailer, TestMailer {
   private readonly resend: Resend;
   private readonly recipients: MailRecipientResolver;
+  private readonly sender: MailSenderResolver;
 
-  constructor(private readonly env: Env, resendClient?: Resend, recipients?: MailRecipientResolver) {
+  constructor(
+    private readonly env: Env,
+    resendClient?: Resend,
+    recipients?: MailRecipientResolver,
+    sender?: MailSenderResolver
+  ) {
     this.resend = resendClient ?? new Resend(env.RESEND_API_KEY);
     this.recipients = recipients ?? new EnvMailRecipients(env.ADMIN_EMAIL);
+    this.sender = sender ?? new EnvMailSender(env.MAIL_FROM);
+  }
+
+  /** Every send goes through here so no flow can bypass the sender setting. */
+  private async from(): Promise<string> {
+    return this.sender.current();
   }
 
   async sendContactMessage(data: ContactMessage): Promise<void> {
@@ -71,7 +93,7 @@ export class ResendMailer implements Mailer, TestMailer {
     log.info('Sending contact message email', { subject, to: recipients.to.length });
 
     const { error } = await this.resend.emails.send({
-      from: this.env.MAIL_FROM,
+      from: await this.from(),
       ...recipientFields(recipients),
       replyTo: data.email,
       subject,
@@ -104,7 +126,7 @@ export class ResendMailer implements Mailer, TestMailer {
 
     const { error } = await this.resend.emails.send(
       {
-        from: this.env.MAIL_FROM,
+        from: await this.from(),
         ...recipientFields(recipients),
         ...(replyTo ? { replyTo } : {}),
         subject,
@@ -128,7 +150,7 @@ export class ResendMailer implements Mailer, TestMailer {
 
   async sendReviewInvite(data: ReviewInviteEmail): Promise<void> {
     const { error } = await this.resend.emails.send({
-      from: this.env.MAIL_FROM,
+      from: await this.from(),
       to: [data.to],
       subject: reviewInviteEmailSubject(data),
       template: {
@@ -145,7 +167,7 @@ export class ResendMailer implements Mailer, TestMailer {
 
   async sendReviewThankYou(data: ReviewSubmittedEmail): Promise<void> {
     const { error } = await this.resend.emails.send({
-      from: this.env.MAIL_FROM,
+      from: await this.from(),
       to: [data.customerEmail],
       subject: reviewThanksEmailSubject(data),
       template: {
@@ -163,7 +185,7 @@ export class ResendMailer implements Mailer, TestMailer {
   async sendReviewAdminNotification(data: ReviewSubmittedEmail): Promise<void> {
     const recipients = await this.recipients.forFlow('mail.review_admin');
     const { error } = await this.resend.emails.send({
-      from: this.env.MAIL_FROM,
+      from: await this.from(),
       ...recipientFields(recipients),
       replyTo: data.customerEmail,
       subject: reviewAdminEmailSubject(data),
@@ -188,7 +210,7 @@ export class ResendMailer implements Mailer, TestMailer {
     log.info('Sending test email', { key, to: recipients.to.length, cc: recipients.cc.length });
 
     const { error } = await this.resend.emails.send({
-      from: this.env.MAIL_FROM,
+      from: await this.from(),
       ...recipientFields(recipients),
       subject: TEST_SUBJECT_PREFIX + sample.subject,
       template: sample.template
