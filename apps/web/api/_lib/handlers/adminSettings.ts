@@ -63,3 +63,23 @@ export const adminMailSettingTestHandler = createApiHandler(async (req, res) => 
   }
   res.status(200).json({ ok: true, key, sentTo: check.value });
 });
+
+/** PUT saves the sender ("From") of every email; DELETE goes back to MAIL_FROM. */
+export const adminMailSenderHandler = createApiHandler(async (req, res) => {
+  if (req.method !== 'PUT' && req.method !== 'DELETE') {
+    methodNotAllowed(res, ['PUT', 'DELETE']);
+    return;
+  }
+  const { email } = requireAdminSession(req);
+  const service = getServices().settingsService;
+
+  if (req.method === 'DELETE') {
+    await service.resetMailSender();
+    res.status(200).json({ ok: true });
+    return;
+  }
+
+  // The service validates the body (422 with a Spanish reason on failure).
+  const sender = await service.saveMailSender(req.body, email);
+  res.status(200).json({ sender });
+});

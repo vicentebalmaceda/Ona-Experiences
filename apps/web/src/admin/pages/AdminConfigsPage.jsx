@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { validateMailRecipients } from '../../../shared/siteSettings.ts';
+import { validateMailRecipients, validateMailSender } from '../../../shared/siteSettings.ts';
 import AdminEmailListInput from '../components/AdminEmailListInput';
 import AdminIcon from '../components/AdminIcon';
 
@@ -270,7 +270,159 @@ function MailSettingCard({ item, canSave, onSave, onReset, onTest }) {
   );
 }
 
-function MailSettingsSection({ settings, loading, error, onReload, onSave, onReset, onTest }) {
+function MailSenderCard({ sender, canSave, onSave, onReset }) {
+  const current = sender?.value?.from ?? '';
+  const [from, setFrom] = useState(current);
+  const [busy, setBusy] = useState(null); // 'saving' | 'resetting' | null
+  const [error, setError] = useState('');
+  const [feedback, setFeedback] = useState('');
+  const feedbackTimer = useRef(null);
+
+  useEffect(() => {
+    setFrom(current);
+  }, [current]);
+
+  useEffect(() => () => clearTimeout(feedbackTimer.current), []);
+
+  const dirty = from.trim() !== current;
+
+  const flash = (message) => {
+    setFeedback(message);
+    clearTimeout(feedbackTimer.current);
+    feedbackTimer.current = setTimeout(() => setFeedback(''), 2800);
+  };
+
+  const run = async (kind, action, successMessage) => {
+    setBusy(kind);
+    setError('');
+    setFeedback('');
+    try {
+      await action();
+      flash(successMessage);
+    } catch (err) {
+      setError(err?.data?.error || err?.message || 'No se pudo completar la acción.');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const save = () => {
+    const check = validateMailSender({ from });
+    if (!check.ok) {
+      setError(check.reason);
+      return;
+    }
+    run('saving', () => onSave(check.value.from), 'Remitente guardado.');
+  };
+  const reset = () => {
+    const ok = window.confirm('¿Volver al remitente por defecto (MAIL_FROM)? Se borrará el remitente guardado.');
+    if (!ok) return;
+    run('resetting', onReset, 'Restaurado al valor por defecto.');
+  };
+
+  if (!sender) return null;
+
+  return (
+    <article className="rounded-2xl border border-forest-100 bg-white p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h3 className="text-base font-semibold text-forest-950">Remitente</h3>
+          <p className="mt-1 text-sm text-forest-500">
+            Dirección "De" de todos los correos del sitio, incluidos los que reciben los clientes.
+          </p>
+        </div>
+        {sender.source === 'env' ? (
+          <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800 ring-1 ring-inset ring-amber-600/10">
+            Por defecto (MAIL_FROM)
+          </span>
+        ) : (
+          <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/10">
+            Personalizado
+          </span>
+        )}
+      </div>
+
+      <div className="mt-4">
+        <label
+          htmlFor="mail-sender-from"
+          className="text-[10px] font-bold uppercase tracking-[0.12em] text-forest-400"
+        >
+          De
+        </label>
+        <input
+          id="mail-sender-from"
+          type="text"
+          value={from}
+          onChange={(e) => setFrom(e.target.value)}
+          disabled={Boolean(busy)}
+          placeholder="Ona Experiences <hola@tudominio.cl>"
+          className="mt-1.5 min-h-[46px] w-full rounded-2xl border border-forest-200 bg-white px-4 py-2 text-sm text-forest-950 outline-none placeholder:text-forest-300 focus:border-forest-400 disabled:opacity-60"
+          autoComplete="off"
+          spellCheck={false}
+        />
+        <p className="mt-1.5 text-xs text-forest-400">
+          Una dirección o "Nombre &lt;correo@dominio.cl&gt;".
+        </p>
+      </div>
+
+      <p className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        El dominio de esta dirección debe estar verificado en Resend (el proveedor de correo). Si no
+        lo está, ningún correo del sitio se podrá enviar. Después de guardar, usa "Enviar prueba" en
+        alguna tarjeta de abajo para confirmar que funciona.
+      </p>
+
+      {error && (
+        <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
+          {error}
+        </p>
+      )}
+      {feedback && (
+        <p className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+          {feedback}
+        </p>
+      )}
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={save}
+          disabled={Boolean(busy) || !dirty || !canSave}
+          className="admin-button-primary disabled:cursor-not-allowed disabled:opacity-50"
+          title={canSave ? undefined : STORE_NOTICE}
+        >
+          {busy === 'saving' ? 'Guardando…' : 'Guardar'}
+        </button>
+        {sender.source === 'db' && (
+          <button
+            type="button"
+            onClick={reset}
+            disabled={Boolean(busy)}
+            className="rounded-xl px-3 py-2 text-xs font-semibold text-forest-500 hover:bg-forest-100 disabled:opacity-50"
+          >
+            {busy === 'resetting' ? 'Restaurando…' : 'Restaurar por defecto'}
+          </button>
+        )}
+        {sender.updatedBy && (
+          <span className="ml-auto text-xs text-forest-400">
+            Actualizado por {sender.updatedBy} el {formatDate(sender.updatedAt)}
+          </span>
+        )}
+      </div>
+    </article>
+  );
+}
+
+function MailSettingsSection({
+  settings,
+  loading,
+  error,
+  onReload,
+  onSave,
+  onReset,
+  onTest,
+  onSaveSender,
+  onResetSender
+}) {
   const items = settings?.items ?? null;
   const storeAvailable = settings ? settings.storeAvailable !== false : true;
   return (
@@ -278,7 +430,7 @@ function MailSettingsSection({ settings, loading, error, onReload, onSave, onRes
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="max-w-2xl">
           <p className="admin-eyebrow">Correos</p>
-          <h2 className="mt-1 text-lg font-semibold text-forest-950">Destinatarios de las notificaciones</h2>
+          <h2 className="mt-1 text-lg font-semibold text-forest-950">Remitente y destinatarios</h2>
           <p className="mt-2 text-sm text-forest-500">
             Quién recibe cada correo interno del servicio. Los correos a clientes (invitación y
             agradecimiento de reseña) van siempre al cliente y no se configuran aquí. "Enviar
@@ -302,6 +454,14 @@ function MailSettingsSection({ settings, loading, error, onReload, onSave, onRes
 
       <div className="mt-5 space-y-4">
         {!items && !error && <p className="text-sm text-forest-400">Cargando destinatarios…</p>}
+        {settings?.sender && (
+          <MailSenderCard
+            sender={settings.sender}
+            canSave={storeAvailable}
+            onSave={onSaveSender}
+            onReset={onResetSender}
+          />
+        )}
         {items?.map((item) => (
           <MailSettingCard
             key={item.key}
@@ -326,7 +486,9 @@ export default function AdminConfigsPage({
   onReloadMailSettings,
   onSaveMailSetting,
   onResetMailSetting,
-  onTestMailSetting
+  onTestMailSetting,
+  onSaveMailSender,
+  onResetMailSender
 }) {
   const [syncing, setSyncing] = useState(false);
   const [result, setResult] = useState(null);
@@ -360,6 +522,8 @@ export default function AdminConfigsPage({
         onSave={onSaveMailSetting}
         onReset={onResetMailSetting}
         onTest={onTestMailSetting}
+        onSaveSender={onSaveMailSender}
+        onResetSender={onResetMailSender}
       />
 
       <section className="admin-surface p-5 sm:p-6">

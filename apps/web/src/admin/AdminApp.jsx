@@ -56,7 +56,11 @@ export default function AdminApp() {
     setMailSettingsError('');
     try {
       const data = await adminApi.listMailSettings();
-      setMailSettings({ items: data.items || [], storeAvailable: data.storeAvailable !== false });
+      setMailSettings({
+        items: data.items || [],
+        sender: data.sender || null,
+        storeAvailable: data.storeAvailable !== false
+      });
     } catch (err) {
       setMailSettingsError(err?.data?.error || err.message || 'No se pudo cargar la configuración.');
     } finally {
@@ -152,6 +156,16 @@ export default function AdminApp() {
     await loadMailSettings();
   };
 
+  const saveMailSender = async (from) => {
+    await adminApi.saveMailSender(from);
+    await loadMailSettings();
+  };
+
+  const resetMailSender = async () => {
+    await adminApi.resetMailSender();
+    await loadMailSettings();
+  };
+
   const testMailSetting = (key, recipients) => adminApi.sendTestEmail(key, recipients);
 
   const syncProducts = async () => {
@@ -221,6 +235,8 @@ export default function AdminApp() {
               onSaveMailSetting={saveMailSetting}
               onResetMailSetting={resetMailSetting}
               onTestMailSetting={testMailSetting}
+              onSaveMailSender={saveMailSender}
+              onResetMailSender={resetMailSender}
             />
           )}
         </div>

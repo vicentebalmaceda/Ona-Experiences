@@ -26,7 +26,7 @@ let service: SettingsService;
 beforeEach(() => {
   store = new MemorySettingsStore(() => new Date('2026-10-20T10:00:00.000Z'));
   cache = new FakeCache();
-  service = new SettingsService({ store, cache, defaultAdminEmail: 'Admin@Ona.example' });
+  service = new SettingsService({ store, cache, defaultAdminEmail: 'Admin@Ona.example', defaultMailFrom: 'Website <noreply@ona.example>' });
 });
 
 describe('SettingsService.getMailRecipients', () => {
@@ -61,7 +61,8 @@ describe('SettingsService.getMailRecipients', () => {
     const broken = new SettingsService({
       store: { ...store, get: async () => { throw new Error('relation does not exist'); } } as never,
       cache,
-      defaultAdminEmail: 'admin@ona.example'
+      defaultAdminEmail: 'admin@ona.example',
+      defaultMailFrom: 'Website <noreply@ona.example>'
     });
     await expect(broken.getMailRecipients('mail.contact')).resolves.toEqual({
       to: ['admin@ona.example'],
@@ -141,7 +142,8 @@ describe('SettingsService.listMailSettingsForAdmin without the table', () => {
     const broken = new SettingsService({
       store: { ...store, listAll: async () => { throw new Error('relation "site_settings" does not exist'); } } as never,
       cache,
-      defaultAdminEmail: 'admin@ona.example'
+      defaultAdminEmail: 'admin@ona.example',
+      defaultMailFrom: 'Website <noreply@ona.example>'
     });
 
     const { items, storeAvailable } = await broken.listMailSettingsForAdmin();
@@ -163,5 +165,87 @@ describe('SettingsService.claimTestSendSlot', () => {
     await service.claimTestSendSlot('mail.quote');
     await service.releaseTestSendSlot('mail.quote');
     await expect(service.claimTestSendSlot('mail.quote')).resolves.toBeUndefined();
+  });
+});
+
+describe('SettingsService.getMailSender', () => {
+  it('falls back to MAIL_FROM when nothing is saved', async () => {
+    await expect(service.getMailSender()).resolves.toBe('Website <noreply@ona.example>');
+  });
+
+  it('returns the saved sender and caches it', async () => {
+    await store.set('mail.from', { from: 'Ona <hola@ona.example>' }, 'a@b.c');
+
+    await expect(service.getMailSender()).resolves.toBe('Ona <hola@ona.example>');
+    expect(cache.store.get('setting:mail.from')).toEqual({ from: 'Ona <hola@ona.example>' });
+
+    await store.set('mail.from', { from: 'otro@ona.example' }, 'a@b.c');
+    await expect(service.getMailSender()).resolves.toBe('Ona <hola@ona.example>');
+  });
+
+  it('ignores a malformed stored sender and falls back', async () => {
+    await store.set('mail.from', { from: 'not an email' }, 'a@b.c');
+    await expect(service.getMailSender()).resolves.toBe('Website <noreply@ona.example>');
+  });
+
+  it('serves MAIL_FROM when the store fails (table not migrated)', async () => {
+    const broken = new SettingsService({
+      store: { ...store, get: async () => { throw new Error('relation does not exist'); } } as never,
+      cache,
+      defaultAdminEmail: 'admin@ona.example',
+      defaultMailFrom: 'Website <noreply@ona.example>'
+    });
+    await expect(broken.getMailSender()).resolves.toBe('Website <noreply@ona.example>');
+    expect(cache.store.size).toBe(0);
+  });
+});
+
+describe('SettingsService.saveMailSender / resetMailSender', () => {
+  it('validates, normalizes, stores, clears the cache and is used on the next read', async () => {
+    await service.getMailSender(); // warm the cache with the env default
+
+    const view = await service.saveMailSender({ from: '  Ona Experiences <Hola@Ona.Example> ' }, 'admin@ona.example');
+
+    expect(view).toMatchObject({
+      key: 'mail.from',
+      source: 'db',
+      value: { from: 'Ona Experiences <hola@ona.example>' },
+      updatedBy: 'admin@ona.example',
+      updatedAt: '2026-10-20T10:00:00.000Z'
+    });
+    expect(store.rows.get('mail.from')?.value).toEqual({ from: 'Ona Experiences <hola@ona.example>' });
+    await expect(service.getMailSender()).resolves.toBe('Ona Experiences <hola@ona.example>');
+  });
+
+  it('rejects an invalid sender with a 422 and stores nothing', async () => {
+    await expect(service.saveMailSender({ from: 'Ona <no-domain>' }, 'a@b.c')).rejects.toMatchObject({
+      statusCode: 422,
+      code: 'INVALID_SETTING'
+    });
+    expect(store.rows.has('mail.from')).toBe(false);
+  });
+
+  it('reset removes the row so MAIL_FROM applies again', async () => {
+    await service.saveMailSender({ from: 'hola@ona.example' }, 'a@b.c');
+    await service.getMailSender();
+
+    await service.resetMailSender();
+
+    expect(store.rows.has('mail.from')).toBe(false);
+    await expect(service.getMailSender()).resolves.toBe('Website <noreply@ona.example>');
+  });
+
+  it('lists the sender with its source for the admin', async () => {
+    expect((await service.listMailSettingsForAdmin()).sender).toMatchObject({
+      key: 'mail.from',
+      source: 'env',
+      value: { from: 'Website <noreply@ona.example>' },
+      updatedBy: null
+    });
+
+    await service.saveMailSender({ from: 'hola@ona.example' }, 'a@b.c');
+    const { sender, items } = await service.listMailSettingsForAdmin();
+    expect(sender).toMatchObject({ source: 'db', value: { from: 'hola@ona.example' }, updatedBy: 'a@b.c' });
+    expect(items.map((item) => item.key)).not.toContain('mail.from');
   });
 });

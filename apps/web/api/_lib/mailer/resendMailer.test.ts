@@ -274,3 +274,53 @@ describe('ResendMailer recipients', () => {
     });
   });
 });
+
+describe('ResendMailer sender', () => {
+  const review = {
+    customerEmail: 'c@x.y',
+    firstName: 'C',
+    lastName: 'D',
+    productName: 'P',
+    catalogType: 'lodge',
+    rating: 4,
+    comment: 'ok',
+    reviewId: 'r1'
+  };
+  const invite: ReviewInviteEmail = {
+    to: 'm@x.y',
+    firstName: 'M',
+    productName: 'P',
+    reviewUrl: 'https://ona.example/review?token=t',
+    expiresAt: '2026-10-10T15:00:00.000Z'
+  };
+
+  async function sendEverything(mailer: ResendMailer) {
+    await mailer.sendContactMessage(contact);
+    await mailer.sendQuoteNotification(quote);
+    await mailer.sendReviewInvite(invite);
+    await mailer.sendReviewThankYou(review);
+    await mailer.sendReviewAdminNotification(review);
+    await mailer.sendTestEmail('mail.contact', { to: ['a@b.co'], cc: [] });
+  }
+
+  it('asks the sender resolver on every send, internal and to Customers', async () => {
+    const send = vi.fn().mockResolvedValue({ data: { id: 'msg' }, error: null });
+    const sender = { current: vi.fn().mockResolvedValue('Ona <hola@ona.example>') };
+    const mailer = new ResendMailer(env, { emails: { send } } as never, undefined, sender);
+
+    await sendEverything(mailer);
+
+    expect(send).toHaveBeenCalledTimes(6);
+    expect(sender.current).toHaveBeenCalledTimes(6);
+    for (const [payload] of send.mock.calls) expect(payload.from).toBe('Ona <hola@ona.example>');
+  });
+
+  it('defaults to MAIL_FROM without a resolver', async () => {
+    const send = vi.fn().mockResolvedValue({ data: { id: 'msg' }, error: null });
+    const mailer = new ResendMailer(env, { emails: { send } } as never);
+
+    await sendEverything(mailer);
+
+    for (const [payload] of send.mock.calls) expect(payload.from).toBe(env.MAIL_FROM);
+  });
+});

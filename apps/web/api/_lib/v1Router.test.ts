@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { adminLoginHandler, adminLogoutHandler, adminMeHandler } from './handlers/adminAuth.js';
 import {
   adminMailSettingByKeyHandler,
+  adminMailSenderHandler,
   adminMailSettingsHandler,
   adminMailSettingTestHandler
 } from './handlers/adminSettings.js';
@@ -75,6 +76,7 @@ describe('matchV1Route', () => {
     }],
     ['/api/v1/admin/review-invites', adminReviewInvitesHandler, {}],
     ['/api/v1/admin/settings', adminMailSettingsHandler, {}],
+    ['/api/v1/admin/settings/sender', adminMailSenderHandler, {}],
     ['/api/v1/admin/settings/mail.quote', adminMailSettingByKeyHandler, { key: 'mail.quote' }],
     ['/api/v1/admin/settings/mail.quote/test', adminMailSettingTestHandler, { key: 'mail.quote' }],
     ['/api/v1/admin/assets', adminSiteAssetsHandler, {}],

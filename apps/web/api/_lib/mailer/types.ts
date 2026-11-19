@@ -5,6 +5,11 @@ export interface MailRecipientResolver {
   forFlow(key: MailSettingKey): Promise<MailRecipients>;
 }
 
+/** The "From" of every email; the mailer asks per send. */
+export interface MailSenderResolver {
+  current(): Promise<string>;
+}
+
 /** Sends a sample of a flow's email to arbitrary recipients (admin "Enviar prueba"). */
 export interface TestMailer {
   sendTestEmail(key: MailSettingKey, recipients: MailRecipients): Promise<void>;
